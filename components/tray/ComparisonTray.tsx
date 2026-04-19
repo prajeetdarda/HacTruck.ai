@@ -89,24 +89,16 @@ export function ComparisonTray() {
                         const rank = i + 1;
                         const isHover = hoveredDriverId === r.driver.id;
                         return (
-                          <motion.button
-                            type="button"
+                          <motion.div
                             key={r.driver.id}
                             layout
+                            role="group"
                             onMouseEnter={() =>
                               setHoveredDriverId(r.driver.id)
                             }
                             onMouseLeave={() => setHoveredDriverId(null)}
-                            onClick={() =>
-                              selectedLoad &&
-                              assign(
-                                selectedLoad.id,
-                                r.driver.id,
-                                r.driver.name,
-                              )
-                            }
                             className={clsx(
-                              "rounded-xl border p-3 text-left outline-none transition-colors focus-visible:ring-2 focus-visible:ring-[var(--ring-focus)]",
+                              "rounded-xl border p-3 text-left",
                               rank === 1 &&
                                 "border-sky-500/45 bg-sky-500/[0.08] shadow-[0_0_24px_rgba(56,189,248,0.1)]",
                               rank !== 1 &&
@@ -177,17 +169,28 @@ export function ComparisonTray() {
                             <p className="mt-2 border-t border-black/[0.06] pt-2 text-[11px] leading-snug text-sky-700 dark:border-white/[0.06] dark:text-sky-300/90">
                               {shortAiReason(r, rank)}
                             </p>
-                            <span
+                            <button
+                              type="button"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                if (selectedLoad) {
+                                  assign(
+                                    selectedLoad.id,
+                                    r.driver.id,
+                                    r.driver.name,
+                                  );
+                                }
+                              }}
                               className={clsx(
-                                "mt-3 block w-full rounded-lg py-2 text-center text-xs font-semibold transition-colors",
+                                "mt-3 w-full rounded-lg py-2 text-center text-xs font-semibold transition-colors",
                                 rank === 1
                                   ? "bg-sky-500 text-white hover:bg-sky-400"
                                   : "bg-zinc-200 text-zinc-900 hover:bg-zinc-300 dark:bg-zinc-800 dark:text-zinc-200 dark:hover:bg-zinc-700",
                               )}
                             >
                               Assign
-                            </span>
-                          </motion.button>
+                            </button>
+                          </motion.div>
                         );
                       })}
                     </div>

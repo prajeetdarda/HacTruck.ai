@@ -225,14 +225,20 @@ function useDispatchValue() {
     [proactiveAlertsRaw, dismissedAlertIds],
   );
 
-  /** Available + en route — matches “active” fleet on the map (uses simulation). */
+  /**
+   * Drivers still “open” for dispatch: available or en route, and not already
+   * tied to a load in the current assignment board.
+   */
   const activeDrivers = useMemo(() => {
+    const assignedDriverIds = new Set(Object.values(state.assignments));
     return driversSimulated
       .filter(
-        (d) => d.ringStatus === "available" || d.ringStatus === "en_route",
+        (d) =>
+          (d.ringStatus === "available" || d.ringStatus === "en_route") &&
+          !assignedDriverIds.has(d.id),
       )
       .sort((a, b) => a.name.localeCompare(b.name));
-  }, [driversSimulated]);
+  }, [driversSimulated, state.assignments]);
 
   const activeDriverCount = activeDrivers.length;
 

@@ -863,24 +863,31 @@ export function MapCanvasMapbox() {
             </span>
           </span>
         </label>
-        {selectedLoad && (
-          <label className="flex cursor-pointer select-none items-start gap-2 rounded-lg border-t border-[var(--border)] px-0.5 pt-2 hover:bg-[var(--surface-1)]/80">
-            <input
-              type="checkbox"
-              className="mt-0.5 size-3.5 shrink-0 rounded border-zinc-400 bg-white text-sky-500 accent-sky-500 dark:border-zinc-500 dark:bg-zinc-800"
-              checked={showAllDrivers}
-              onChange={(e) => setShowAllDrivers(e.target.checked)}
-            />
-            <span className="leading-snug">
-              <span className="font-semibold text-zinc-900 dark:text-zinc-100">
-                All drivers
-              </span>
-              <span className="mt-0.5 block text-[10px] font-normal text-zinc-600 dark:text-zinc-500">
-                Off = top 5 only + rank
-              </span>
+        <label
+          className={`flex select-none items-start gap-2 rounded-lg border-t border-[var(--border)] px-0.5 pt-2 ${
+            selectedLoad
+              ? "cursor-pointer hover:bg-[var(--surface-1)]/80"
+              : "cursor-not-allowed opacity-60"
+          }`}
+        >
+          <input
+            type="checkbox"
+            disabled={!selectedLoad}
+            className="mt-0.5 size-3.5 shrink-0 rounded border-zinc-400 bg-white text-sky-500 accent-sky-500 disabled:opacity-50 dark:border-zinc-500 dark:bg-zinc-800"
+            checked={showAllDrivers}
+            onChange={(e) => setShowAllDrivers(e.target.checked)}
+          />
+          <span className="leading-snug">
+            <span className="font-semibold text-zinc-900 dark:text-zinc-100">
+              All drivers
             </span>
-          </label>
-        )}
+            <span className="mt-0.5 block text-[10px] font-normal text-zinc-600 dark:text-zinc-500">
+              {selectedLoad
+                ? "On: show the full fleet. Off: only the five best fits for this load."
+                : "Pick a load first — then turn this on to see everyone, or leave it off to focus on the five best matches."}
+            </span>
+          </span>
+        </label>
       </div>
     </div>
   );
