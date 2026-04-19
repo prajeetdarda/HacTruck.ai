@@ -3,6 +3,7 @@
 import { motion } from "motion/react";
 import { useEffect, useMemo, useState } from "react";
 import { AlertCenter } from "@/components/alerts/AlertCenter";
+import { ActiveDriversMenu } from "@/components/topbar/ActiveDriversMenu";
 import { FLEET_NAME } from "@/lib/mock-data";
 import { Z_TOPBAR } from "@/lib/layout-tokens";
 import { useDispatchContext } from "@/components/providers/DispatchProvider";
@@ -52,7 +53,6 @@ const RING_ROWS: {
 export function TopBar() {
   const {
     openLoads,
-    activeDriverCount,
     driversSimulated,
     selectedLoad,
     state,
@@ -154,7 +154,7 @@ export function TopBar() {
       {selectedLoad && <div className="min-w-0 flex-1" aria-hidden />}
 
       <div className="ml-auto flex shrink-0 items-end gap-3 sm:gap-6">
-        <Stat label="Active drivers" value={activeDriverCount} accent="text-sky-400" />
+        <ActiveDriversMenu />
         <button
           type="button"
           onClick={openLoadInbox}

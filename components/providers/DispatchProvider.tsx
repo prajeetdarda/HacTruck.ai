@@ -225,11 +225,16 @@ function useDispatchValue() {
     [proactiveAlertsRaw, dismissedAlertIds],
   );
 
-  const activeDriverCount = useMemo(() => {
-    return DRIVERS.filter(
-      (d) => d.ringStatus === "available" || d.ringStatus === "en_route",
-    ).length;
-  }, []);
+  /** Available + en route — matches “active” fleet on the map (uses simulation). */
+  const activeDrivers = useMemo(() => {
+    return driversSimulated
+      .filter(
+        (d) => d.ringStatus === "available" || d.ringStatus === "en_route",
+      )
+      .sort((a, b) => a.name.localeCompare(b.name));
+  }, [driversSimulated]);
+
+  const activeDriverCount = activeDrivers.length;
 
   const selectLoad = useCallback((id: string | null) => {
     dispatch({ type: "selectLoad", id });
@@ -337,6 +342,7 @@ function useDispatchValue() {
       proactiveAlerts,
       top5Ids,
       openLoads,
+      activeDrivers,
       activeDriverCount,
       selectLoad,
       selectDriver,
@@ -366,6 +372,7 @@ function useDispatchValue() {
       proactiveAlerts,
       top5Ids,
       openLoads,
+      activeDrivers,
       activeDriverCount,
       selectLoad,
       selectDriver,
