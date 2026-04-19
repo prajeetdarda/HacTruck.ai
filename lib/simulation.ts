@@ -56,12 +56,18 @@ export function getDisplayRingStatus(
   offsetHours: number,
 ): Driver["ringStatus"] {
   const hos = getSimulatedHos(driver, offsetHours);
-  if (driver.ringStatus === "inactive" || driver.ringStatus === "urgent") {
-    return driver.ringStatus;
+  const base = driver.ringStatus;
+  if (
+    base === "inactive" ||
+    base === "urgent" ||
+    base === "off_duty" ||
+    base === "unavailable"
+  ) {
+    return base;
   }
   if (hos < 1.5) return "urgent";
   if (hos < 4) return "watch";
-  return driver.ringStatus;
+  return base;
 }
 
 /** Shallow driver snapshot for map + ranking while scrubbing */

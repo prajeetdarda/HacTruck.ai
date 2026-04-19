@@ -4,7 +4,8 @@ import { AnimatePresence, motion } from "motion/react";
 import { useMemo } from "react";
 import { useDispatchContext } from "@/components/providers/DispatchProvider";
 import { useNow } from "@/hooks/useNow";
-import { formatCurrency, formatEquipment } from "@/lib/format";
+import { getLoadRecommendations } from "@/lib/backend-db";
+import { formatCpm, formatCurrency, formatEquipment } from "@/lib/format";
 import { Z_PANEL } from "@/lib/layout-tokens";
 import { isLoadOverdue } from "@/lib/simulation";
 
@@ -24,6 +25,13 @@ export function LoadDetailPanel() {
     ? selectedLoad.pickupDeadline - now - state.simulatedHoursOffset * 3600000
     : 0;
   const urgent = msLeft < 2 * 3600000 && !overdue;
+
+  const recommendation = useMemo(
+    () => (selectedLoad ? getLoadRecommendations(selectedLoad.id) : null),
+    [selectedLoad],
+  );
+
+  const comparisonTop = recommendation?.comparison.slice(0, 8) ?? [];
 
   return (
     <AnimatePresence mode="wait">
@@ -107,6 +115,75 @@ export function LoadDetailPanel() {
               Click a ranked driver on the map to compare fit, or drag a top
               candidate onto this load&apos;s pickup pin to assign.
             </p>
+
+            {comparisonTop.length > 0 && (
+              <section>
+                <h3 className="text-[10px] font-semibold uppercase tracking-wider text-[var(--muted)]">
+                  Driver fit matrix
+                </h3>
+                <p className="mt-1 text-[11px] leading-snug text-zinc-500 dark:text-zinc-500">
+                  Full slate from fleet data — same scoring as the map tray.
+                </p>
+                <div className="mt-2 max-h-[min(280px,40vh)] overflow-auto rounded-lg border border-[var(--border)]">
+                  <table className="w-full min-w-[320px] border-collapse text-left text-[11px]">
+                    <thead>
+                      <tr className="border-b border-[var(--border)] bg-[var(--surface-1)]/80 text-[10px] uppercase tracking-wide text-[var(--muted)]">
+                        <th className="sticky left-0 z-[1] bg-[var(--surface-1)]/95 px-2 py-2">
+                          Driver
+                        </th>
+                        <th className="px-2 py-2">Match</th>
+                        <th className="px-2 py-2">Mi</th>
+                        <th className="px-2 py-2">HOS</th>
+                        <th className="px-2 py-2">Eq</th>
+                        <th className="px-2 py-2">CPM</th>
+                        <th className="px-2 py-2">Lane</th>
+                        <th className="min-w-[120px] px-2 py-2">Notes</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {comparisonTop.map((row) => (
+                        <tr
+                          key={row.driverId}
+                          className="border-b border-black/[0.04] last:border-0 dark:border-white/[0.04]"
+                        >
+                          <td className="sticky left-0 z-[1] bg-[var(--surface-2)]/95 px-2 py-2 font-medium text-zinc-800 dark:text-zinc-200">
+                            {row.driverName}
+                          </td>
+                          <td className="whitespace-nowrap px-2 py-2 tabular-nums text-emerald-400/95">
+                            {row.matchPercent}%
+                          </td>
+                          <td className="px-2 py-2 tabular-nums text-zinc-700 dark:text-zinc-300">
+                            {row.distanceMiles}
+                          </td>
+                          <td className="px-2 py-2 tabular-nums text-zinc-700 dark:text-zinc-300">
+                            {row.hosRemaining}h
+                          </td>
+                          <td className="px-2 py-2 text-zinc-700 dark:text-zinc-300">
+                            {row.equipmentMatch ? "Yes" : "No"}
+                          </td>
+                          <td className="px-2 py-2 tabular-nums text-zinc-700 dark:text-zinc-300">
+                            {formatCpm(row.costPerMile)}
+                          </td>
+                          <td className="px-2 py-2 tabular-nums text-zinc-700 dark:text-zinc-300">
+                            {row.laneFamiliarity}%
+                          </td>
+                          <td className="px-2 py-2 text-[10px] leading-snug text-zinc-600 dark:text-zinc-400">
+                            <span className="block text-sky-700 dark:text-sky-300/90">
+                              {row.headline}
+                            </span>
+                            {row.rejectTags.length > 0 ? (
+                              <span className="mt-0.5 block text-amber-600/90 dark:text-amber-400/80">
+                                {row.rejectTags.join(" · ")}
+                              </span>
+                            ) : null}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </section>
+            )}
           </div>
         </motion.aside>
       )}

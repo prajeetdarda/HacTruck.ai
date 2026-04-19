@@ -1,10 +1,25 @@
 import type {
   Driver,
   DriverLoadFeatures,
+  DriverRingStatus,
   Load,
   RankedDriver,
   RejectTag,
 } from "./types";
+
+function isOffDutyRing(s: DriverRingStatus): boolean {
+  return (
+    s === "inactive" || s === "off_duty" || s === "unavailable"
+  );
+}
+
+function isBusyRing(s: DriverRingStatus): boolean {
+  return s === "watch" || s === "en_route";
+}
+
+function isCriticalRing(s: DriverRingStatus): boolean {
+  return s === "urgent" || s === "constrained";
+}
 
 const MAP_SCALE_MILES = 2.8; // fake miles per SVG unit — believable dispatch distances
 
@@ -65,10 +80,10 @@ export function scoreFromFeatures(f: DriverLoadFeatures): {
 
   if (f.hasActiveConflict) rejectTags.push("conflict");
   if (f.equipmentMatch < 0.5) rejectTags.push("wrong_equipment");
-  if (f.ringStatus === "inactive") rejectTags.push("off_duty");
-  if (f.ringStatus === "urgent") rejectTags.push("low_hos");
+  if (isOffDutyRing(f.ringStatus)) rejectTags.push("off_duty");
+  if (isCriticalRing(f.ringStatus)) rejectTags.push("low_hos");
   if (f.distanceToPickupMiles > 420) rejectTags.push("too_far");
-  if (f.hosRemaining < 2.5 && f.ringStatus !== "inactive")
+  if (f.hosRemaining < 2.5 && !isOffDutyRing(f.ringStatus))
     rejectTags.push("low_hos");
 
   let score = 50;
@@ -79,16 +94,16 @@ export function scoreFromFeatures(f: DriverLoadFeatures): {
   score += f.laneFamiliarity * 14;
   score += clamp((2.15 - f.costPerMile) * 18, -12, 12);
 
-  if (f.ringStatus === "inactive") score -= 80;
-  if (f.ringStatus === "urgent") score -= 85;
-  if (f.ringStatus === "watch") {
+  if (isOffDutyRing(f.ringStatus)) score -= 80;
+  if (isCriticalRing(f.ringStatus)) score -= 85;
+  if (isBusyRing(f.ringStatus)) {
     if (f.currentLoadEndingSoon) score += 8;
     else score -= 9;
   }
   if (f.hasActiveConflict) score -= 70;
   if (f.equipmentMatch < 0.5) score -= 55;
   if (f.distanceToPickupMiles > 380) score -= 25;
-  if (f.hosRemaining < 2 && f.ringStatus !== "inactive") score -= 35;
+  if (f.hosRemaining < 2 && !isOffDutyRing(f.ringStatus)) score -= 35;
 
   const reasons: string[] = [];
 
@@ -116,7 +131,7 @@ export function scoreFromFeatures(f: DriverLoadFeatures): {
   if (f.costPerMile < 1.85) reasons.push("Competitive cost per mile");
   else reasons.push("Slightly elevated CPM");
 
-  if (f.currentLoadEndingSoon && f.ringStatus === "watch")
+  if (f.currentLoadEndingSoon && isBusyRing(f.ringStatus))
     reasons.push("Finishes current route soon — good sequencing");
 
   if (f.hasActiveConflict) reasons.push("Active dispatch conflict on file");
@@ -171,7 +186,7 @@ export function shortAiReason(r: RankedDriver, rank: number): string {
   const endH = r.driver.currentLoadEndingInHours;
   if (rank === 1 && f.laneFamiliarity > 0.8 && f.equipmentMatch >= 1)
     return "Best pick — knows this lane";
-  if (f.currentLoadEndingSoon && f.ringStatus === "watch" && endH != null)
+  if (f.currentLoadEndingSoon && isBusyRing(f.ringStatus) && endH != null)
     return `Finishes current route in ${endH < 1 ? "<1" : endH.toFixed(1)}h`;
   if (f.hosRemaining < 4 && f.hosRemaining > 0 && rank <= 3)
     return "Closer but lower HOS";

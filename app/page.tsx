@@ -1,3 +1,4 @@
+import { MatchLoadProvider } from "@/components/providers/MatchLoadProvider";
 import { DispatchProvider } from "@/components/providers/DispatchProvider";
 import { FleetHoverProvider } from "@/components/providers/FleetHoverProvider";
 import { MapColumn } from "@/components/layout/MapColumn";
@@ -26,21 +27,27 @@ export default async function Home() {
 
   return (
     <DispatchProvider>
-      <div className="grid h-screen min-h-0 grid-rows-[auto_1fr_auto] overflow-hidden bg-[var(--surface-0)] text-[var(--foreground)]">
-        <TopBar />
-        <div className="flex min-h-0 min-w-0 overflow-hidden border-t border-[var(--border)]">
-          <FleetHoverProvider>
-            <LoadSidebar />
-            <MapColumn
-              openWeatherApiKey={openWeatherApiKey}
-              openWeatherKeyWorks={openWeatherKeyWorks}
-              openWeatherMap2TilesWork={openWeatherMap2TilesWork}
-            />
-          </FleetHoverProvider>
+      <>
+        <div className="grid h-screen min-h-0 grid-rows-[auto_minmax(0,1fr)_auto] overflow-hidden bg-[var(--surface-0)] text-[var(--foreground)]">
+          <TopBar />
+          <div className="flex min-h-0 min-w-0 flex-col overflow-hidden border-t border-[var(--border)]">
+            <div className="flex min-h-0 min-w-0 flex-1 overflow-hidden">
+              <FleetHoverProvider>
+                <LoadSidebar />
+                <MatchLoadProvider>
+                  <MapColumn
+                    openWeatherApiKey={openWeatherApiKey}
+                    openWeatherKeyWorks={openWeatherKeyWorks}
+                    openWeatherMap2TilesWork={openWeatherMap2TilesWork}
+                  />
+                </MatchLoadProvider>
+              </FleetHoverProvider>
+            </div>
+          </div>
+          <TimelineScrubber />
         </div>
-        <TimelineScrubber />
         <Toast />
-      </div>
+      </>
     </DispatchProvider>
   );
 }

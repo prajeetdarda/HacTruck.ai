@@ -63,3 +63,14 @@ body {
     opacity: 0;
   }
 }
+
+/** TopBar — fleet ring strip label pulse */
+@keyframes live-label {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.62;
+  }
+}

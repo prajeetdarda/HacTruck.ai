@@ -2,7 +2,7 @@
  * In-memory fleet “database” for API route handlers.
  * Replace with Prisma / Drizzle / external API later — keep method names stable.
  */
-import { DRIVERS, FLEET_NAME, LOADS } from "@/lib/mock-data";
+import { DRIVERS, FLEET_NAME, LOADS } from "@/lib/backend-db";
 import type { Driver, Load } from "@/lib/types";
 
 export type AssignmentRecord = {

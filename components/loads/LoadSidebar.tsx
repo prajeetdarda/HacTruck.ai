@@ -17,6 +17,7 @@ export function LoadSidebar() {
     selectedLoad,
     loadInboxExpanded: expanded,
     setLoadInboxExpanded: setExpanded,
+    setLoadPinsOnMap,
   } = useDispatchContext();
   const { setHoveredLoadId } = useHover();
 
@@ -39,7 +40,10 @@ export function LoadSidebar() {
       >
         <button
           type="button"
-          onClick={() => setExpanded(true)}
+          onClick={() => {
+            setExpanded(true);
+            setLoadPinsOnMap(true);
+          }}
           className="group flex flex-1 flex-col items-center gap-3 border-b border-transparent py-4 outline-none transition-colors hover:bg-white/[0.04] focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[var(--ring-focus)]"
           aria-expanded={false}
           aria-controls="load-inbox-panel"
@@ -85,7 +89,10 @@ export function LoadSidebar() {
         </div>
         <button
           type="button"
-          onClick={() => setExpanded(false)}
+          onClick={() => {
+            setExpanded(false);
+            setLoadPinsOnMap(false);
+          }}
           className="shrink-0 rounded-lg border border-[var(--border)] bg-[var(--surface-2)] px-2 py-1 text-[10px] font-semibold uppercase tracking-wide text-zinc-600 transition-colors hover:border-zinc-400 hover:text-zinc-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring-focus)] dark:text-zinc-400 dark:hover:border-zinc-600 dark:hover:text-zinc-200"
           aria-label="Collapse load inbox"
         >
@@ -103,9 +110,12 @@ export function LoadSidebar() {
             offsetHours={state.simulatedHoursOffset}
             onPointerEnter={() => setHoveredLoadId(load.id)}
             onPointerLeave={() => setHoveredLoadId(null)}
-            onClick={() =>
-              selectLoad(selectedLoad?.id === load.id ? null : load.id)
-            }
+            onClick={() => {
+              setLoadPinsOnMap(true);
+              selectLoad(selectedLoad?.id === load.id ? null : load.id, {
+                source: "inbox",
+              });
+            }}
           />
         ))}
         {sorted.length === 0 && (

@@ -3,19 +3,22 @@
 import clsx from "clsx";
 import { motion } from "motion/react";
 import { useEffect, useMemo, useState } from "react";
-import { FLEET_NAME } from "@/lib/mock-data";
-import type { DriverRingStatus } from "@/lib/types";
+import { FLEET_NAME, TERMINAL, listAlerts } from "@/lib/backend-db";
+import {
+  countDriversByFleetSummaryRing,
+  type FleetSummaryRing,
+} from "@/lib/types";
 import { useDispatchContext } from "@/components/providers/DispatchProvider";
 import { useTheme } from "@/components/providers/ThemeProvider";
 
-const RING_ORDER: DriverRingStatus[] = [
+const RING_ORDER: FleetSummaryRing[] = [
   "urgent",
   "watch",
   "good",
   "inactive",
 ];
 
-const RING_CLASS: Record<DriverRingStatus, string> = {
+const RING_CLASS: Record<FleetSummaryRing, string> = {
   urgent: "text-rose-400 dark:text-rose-400",
   watch: "text-amber-400 dark:text-amber-400",
   good: "text-emerald-400 dark:text-emerald-400",
@@ -53,24 +56,18 @@ export function TopBar() {
           hour12: true,
         });
 
-  const ringCounts = useMemo(() => {
-    const n: Record<DriverRingStatus, number> = {
-      urgent: 0,
-      watch: 0,
-      good: 0,
-      inactive: 0,
-    };
-    for (const d of driversSimulated) {
-      n[d.ringStatus] += 1;
-    }
-    return n;
-  }, [driversSimulated]);
+  const ringCounts = useMemo(
+    () => countDriversByFleetSummaryRing(driversSimulated),
+    [driversSimulated],
+  );
+
+  const tripAlertBoardCount = useMemo(() => listAlerts().length, []);
 
   const showFleetStrip =
     !selectedLoad && !loadInboxExpanded;
 
   return (
-    <header className="flex h-[52px] shrink-0 items-center gap-3 border-b border-[var(--border)] bg-[var(--surface-1)]/95 px-4 backdrop-blur-md sm:gap-4 sm:px-5">
+    <header className="flex min-h-[52px] shrink-0 items-center gap-3 border-b border-[var(--border)] bg-[var(--surface-1)]/95 px-4 py-2 backdrop-blur-md sm:gap-4 sm:px-5">
       <div className="flex shrink-0 items-center gap-3 sm:gap-4">
         <motion.div
           className="flex items-center gap-2"
@@ -83,9 +80,17 @@ export function TopBar() {
           </span>
         </motion.div>
         <div className="hidden h-6 w-px shrink-0 bg-[var(--border)] sm:block" />
-        <h1 className="max-w-[140px] truncate text-sm font-semibold tracking-tight text-[var(--foreground)] sm:max-w-none sm:text-base">
-          {FLEET_NAME}
-        </h1>
+        <div className="min-w-0">
+          <h1 className="max-w-[140px] truncate text-sm font-semibold tracking-tight text-[var(--foreground)] sm:max-w-none sm:text-base">
+            {FLEET_NAME}
+          </h1>
+          <p
+            className="mt-0.5 hidden max-w-[min(280px,40vw)] truncate text-[10px] text-zinc-500 dark:text-zinc-500 sm:block"
+            title={TERMINAL.name}
+          >
+            {TERMINAL.name}
+          </p>
+        </div>
       </div>
 
       {showFleetStrip ? (
@@ -94,10 +99,20 @@ export function TopBar() {
             className="hidden max-w-full flex-wrap items-center justify-center gap-x-1 gap-y-0.5 text-center text-[11px] leading-snug sm:flex"
             aria-live="polite"
             role="toolbar"
-            aria-label="Fleet status — tap a category to focus those trucks on the map"
+            aria-label="Fleet status by ring — numbers are trucks on the map; tap a ring to show only those trucks"
           >
-            <span className="shrink-0 font-semibold uppercase tracking-[0.14em] text-zinc-600 dark:text-zinc-400">
-              Fleet alerts
+            <span className="inline-flex shrink-0 items-center gap-2">
+              <span
+                className="relative flex h-2 w-2 shrink-0"
+                aria-hidden
+                title="Live feed"
+              >
+                <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-sky-400/55 motion-reduce:animate-none dark:bg-sky-400/45" />
+                <span className="relative inline-flex h-2 w-2 rounded-full bg-sky-500 shadow-[0_0_10px_rgba(14,165,233,0.65)] dark:bg-sky-400" />
+              </span>
+              <span className="font-semibold uppercase tracking-[0.14em] text-zinc-600 motion-safe:animate-[live-label_2.4s_ease-in-out_infinite] dark:text-zinc-400">
+                Fleet status
+              </span>
             </span>
             {RING_ORDER.map((ring) => (
               <span
@@ -114,7 +129,7 @@ export function TopBar() {
                   title={
                     state.mapRingFilter === ring
                       ? `Clear ${ring} focus`
-                      : `Show ${ring} trucks on the map`
+                      : `${ringCounts[ring]} truck${ringCounts[ring] === 1 ? "" : "s"} in ${ring} (map + driver panel)`
                   }
                   className={clsx(
                     "rounded-md px-1.5 py-0.5 tabular-nums outline-none transition-colors",
@@ -129,6 +144,15 @@ export function TopBar() {
                 </button>
               </span>
             ))}
+            {tripAlertBoardCount > 0 ? (
+              <span
+                className="shrink-0 text-[10px] font-medium tabular-nums text-zinc-500 dark:text-zinc-500"
+                title="In-transit trip alerts in the board (open a truck’s detail to review). Ring counts above are trucks only."
+              >
+                · {tripAlertBoardCount} trip alert
+                {tripAlertBoardCount === 1 ? "" : "s"}
+              </span>
+            ) : null}
           </div>
         </div>
       ) : (

@@ -9,6 +9,11 @@ export const RING_STATUS_COLOR: Record<RingStatus, string> = {
   watch: "#f59e0b",
   good: "#10b981",
   inactive: "#9ca3af",
+  en_route: "#38bdf8",
+  available: "#10b981",
+  constrained: "#ea580c",
+  off_duty: "#9ca3af",
+  unavailable: "#71717a",
 };
 
 const RING_BADGE_BG = RING_STATUS_COLOR;
@@ -61,6 +66,8 @@ function RingStatusGlyph({ status }: { status: RingStatus }) {
         />
       );
     case "inactive":
+    case "off_duty":
+    case "unavailable":
       return (
         <path
           d="M1.5 5 H8.5"
@@ -69,6 +76,39 @@ function RingStatusGlyph({ status }: { status: RingStatus }) {
           strokeWidth={sw}
           strokeLinecap="round"
         />
+      );
+    case "en_route":
+      return (
+        <path
+          d="M2 5 L5 2 L8 5 L5 8 Z"
+          fill="none"
+          stroke={stroke}
+          strokeWidth={sw}
+          strokeLinejoin="round"
+        />
+      );
+    case "available":
+      return (
+        <path
+          d="M2.2 5.2 L4.3 7.4 L8.2 3.2"
+          fill="none"
+          stroke={stroke}
+          strokeWidth={sw}
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        />
+      );
+    case "constrained":
+      return (
+        <>
+          <path
+            d="M2.5 2.5 L7.5 7.5 M7.5 2.5 L2.5 7.5"
+            fill="none"
+            stroke={stroke}
+            strokeWidth={sw}
+            strokeLinecap="round"
+          />
+        </>
       );
     default:
       return null;

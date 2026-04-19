@@ -1,11 +1,10 @@
 "use client";
 
+import { LlmMatchLoadingOverlay } from "@/components/layout/LlmMatchLoadingOverlay";
 import { ComparisonTray } from "@/components/tray/ComparisonTray";
 import { DriverDetailPanel } from "@/components/panel/DriverDetailPanel";
 import { LoadDetailPanel } from "@/components/panel/LoadDetailPanel";
 import { MapCanvasLazy } from "@/components/map/MapCanvasLazy";
-import { useDispatchContext } from "@/components/providers/DispatchProvider";
-
 type MapColumnProps = {
   /** From server `OPENWEATHER_API_KEY` — raster tiles run in the client. */
   openWeatherApiKey?: string;
@@ -20,17 +19,15 @@ export function MapColumn({
   openWeatherKeyWorks = false,
   openWeatherMap2TilesWork = false,
 }: MapColumnProps) {
-  const { state } = useDispatchContext();
-  const loadId = state.selectedLoadId;
-
   return (
     <div className="relative flex min-h-0 min-w-0 flex-1 flex-col px-4 pb-3 pt-3">
+      <LlmMatchLoadingOverlay />
       <MapCanvasLazy
         openWeatherApiKey={openWeatherApiKey}
         openWeatherKeyWorks={openWeatherKeyWorks}
         openWeatherMap2TilesWork={openWeatherMap2TilesWork}
       />
-      <ComparisonTray key={loadId ?? "none"} />
+      <ComparisonTray />
       <LoadDetailPanel />
       <DriverDetailPanel />
     </div>

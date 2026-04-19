@@ -1,7 +1,7 @@
 import type { Feature, FeatureCollection, Point } from "geojson";
 import { svgToLngLat } from "@/lib/geo-bridge";
 import { distanceMiles } from "@/lib/scoring";
-import type { Driver, Load } from "@/lib/types";
+import { fleetSummaryRing, type Driver, type Load } from "@/lib/types";
 
 /** Miles: below this min distance, demand pressure is ~0 (well covered). */
 const DEMAND_NEAR_MI = 100;
@@ -20,7 +20,8 @@ function clamp(n: number, a: number, b: number): number {
 }
 
 function isIdleCapacity(d: Driver): boolean {
-  return d.ringStatus === "good" || d.ringStatus === "watch";
+  const b = fleetSummaryRing(d.ringStatus);
+  return b === "good" || b === "watch";
 }
 
 /**

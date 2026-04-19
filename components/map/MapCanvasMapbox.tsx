@@ -31,7 +31,15 @@ import {
   openWeatherMap2DateSecondsUtc,
   openWeatherMap2TileTemplate,
 } from "@/lib/open-weather-tiles";
-import { LOADS } from "@/lib/mock-data";
+import {
+  getDriverTripRouteContext,
+  LOADS,
+} from "@/lib/backend-db";
+import { formatDateTimeLocal } from "@/lib/format";
+import {
+  splitPolylineAtNearest,
+  straightLineRoute,
+} from "@/lib/polyline-progress";
 import { Z_MAP } from "@/lib/layout-tokens";
 import { rankedAllowsAssignment } from "@/lib/scoring";
 import {
@@ -40,8 +48,8 @@ import {
   ensureDemoWeatherMapImages,
 } from "@/lib/weather-map-icons";
 import { buildDemoWeatherIconCollection } from "@/lib/weather-overlay-geojson";
-import type { Driver } from "@/lib/types";
-import { LocateMeIcon, PickupOriginIcon } from "@/components/icons/MapMarkers";
+import { fleetSummaryRing, type Driver } from "@/lib/types";
+import { LocateMeIcon } from "@/components/icons/MapMarkers";
 import { useTheme } from "@/components/providers/ThemeProvider";
 import { DriverMarkerContent } from "./DriverMarker";
 import { LoadMarkerContent } from "./LoadMarker";
@@ -147,8 +155,6 @@ export function MapCanvasMapbox({
   const [showAllDrivers, setShowAllDrivers] = useState(false);
   /** Dotted en-route polylines (hidden by default). */
   const [showEnRoutePaths, setShowEnRoutePaths] = useState(false);
-  /** Open loads as clickable map nodes (pickup coordinates). */
-  const [showLoadNodes, setShowLoadNodes] = useState(false);
   /** Dispatch pressure heatmap (demand red / supply blue). */
   const [showPressureHeatmap, setShowPressureHeatmap] = useState(false);
   /** OpenWeather raster overlay (clouds + precipitation). */
@@ -172,12 +178,21 @@ export function MapCanvasMapbox({
     selectDriver,
     selectLoad,
     assign,
+    loadPinsOnMap,
+    setLoadPinsOnMap,
   } = useDispatchContext();
 
   /** Mapbox Directions geometry (driver → pickup) when both load and driver are selected. */
   const [drivingRouteCoords, setDrivingRouteCoords] = useState<
     [number, number][] | null
   >(null);
+  /** Active load leg: origin → dropoff with progress when driver detail is open (in-transit trips). */
+  const [driverTripViz, setDriverTripViz] = useState<{
+    completed: [number, number][];
+    remaining: [number, number][];
+    etaMs: number;
+    dest: { lng: number; lat: number };
+  } | null>(null);
   const { hoveredDriverId, setHoveredDriverId, hoveredLoadId } = useHover();
 
   const rankedById = useMemo(() => {
@@ -205,7 +220,7 @@ export function MapCanvasMapbox({
     }
     if (state.mapRingFilter) {
       return driversSimulated.filter(
-        (d) => d.ringStatus === state.mapRingFilter,
+        (d) => fleetSummaryRing(d.ringStatus) === state.mapRingFilter,
       );
     }
     return driversSimulated;
@@ -383,7 +398,8 @@ export function MapCanvasMapbox({
         ? driversSimulated.filter((d) => top5Set.has(d.id))
         : !selectedLoad && state.mapRingFilter
           ? driversSimulated.filter(
-              (d) => d.ringStatus === state.mapRingFilter,
+              (d) =>
+                fleetSummaryRing(d.ringStatus) === state.mapRingFilter,
             )
           : driversSimulated;
     if (showEnRoutePaths) {
@@ -477,8 +493,127 @@ export function MapCanvasMapbox({
     };
   }, [drivingRouteCoords]);
 
+  const driverTripRouteGeoJSON: FeatureCollection = useMemo(() => {
+    if (!driverTripViz) return { type: "FeatureCollection", features: [] };
+    const features: Feature<LineString>[] = [];
+    if (driverTripViz.completed.length >= 2) {
+      features.push({
+        type: "Feature",
+        properties: { part: "completed" as const },
+        geometry: { type: "LineString", coordinates: driverTripViz.completed },
+      });
+    }
+    if (driverTripViz.remaining.length >= 2) {
+      features.push({
+        type: "Feature",
+        properties: { part: "remaining" as const },
+        geometry: { type: "LineString", coordinates: driverTripViz.remaining },
+      });
+    }
+    return { type: "FeatureCollection", features };
+  }, [driverTripViz]);
+
+  /** In-transit haul route + progress when a driver with an active trip is selected in the sidebar. */
+  useEffect(() => {
+    if (!state.selectedDriverId) {
+      startTransition(() => setDriverTripViz(null));
+      return;
+    }
+    const ctx = getDriverTripRouteContext(state.selectedDriverId);
+    if (!ctx) {
+      startTransition(() => setDriverTripViz(null));
+      return;
+    }
+    const o = ctx.originLngLat;
+    const d = ctx.destLngLat;
+    const ac = new AbortController();
+    const q = new URLSearchParams({
+      fromLng: String(o.lng),
+      fromLat: String(o.lat),
+      toLng: String(d.lng),
+      toLat: String(d.lat),
+    });
+    fetch(`/api/directions?${q}`, { signal: ac.signal })
+      .then(async (r) => {
+        const body = (await r.json()) as {
+          ok?: boolean;
+          data?: { coordinates?: [number, number][] };
+        };
+        let coords: [number, number][];
+        if (r.ok && body.ok && body.data?.coordinates && body.data.coordinates.length >= 2) {
+          coords = body.data.coordinates;
+        } else {
+          coords = straightLineRoute(o, d);
+        }
+        const { completed, remaining } = splitPolylineAtNearest(
+          coords,
+          ctx.currentLngLat,
+        );
+        startTransition(() =>
+          setDriverTripViz({
+            completed,
+            remaining,
+            etaMs: ctx.scheduledEndMs,
+            dest: ctx.destLngLat,
+          }),
+        );
+      })
+      .catch(() => {
+        if (ac.signal.aborted) return;
+        const coords = straightLineRoute(o, d);
+        const { completed, remaining } = splitPolylineAtNearest(
+          coords,
+          ctx.currentLngLat,
+        );
+        startTransition(() =>
+          setDriverTripViz({
+            completed,
+            remaining,
+            etaMs: ctx.scheduledEndMs,
+            dest: ctx.destLngLat,
+          }),
+        );
+      });
+    return () => ac.abort();
+  }, [state.selectedDriverId]);
+
+  useEffect(() => {
+    if (!mapReady || !driverTripViz || !state.selectedDriverId) return;
+    const ctx = getDriverTripRouteContext(state.selectedDriverId);
+    if (!ctx) return;
+    const map = mapRef.current?.getMap();
+    if (!map) return;
+    let west = Infinity;
+    let east = -Infinity;
+    let south = Infinity;
+    let north = -Infinity;
+    const expand = (lng: number, lat: number) => {
+      west = Math.min(west, lng);
+      east = Math.max(east, lng);
+      south = Math.min(south, lat);
+      north = Math.max(north, lat);
+    };
+    for (const [lng, lat] of driverTripViz.completed) expand(lng, lat);
+    for (const [lng, lat] of driverTripViz.remaining) expand(lng, lat);
+    expand(ctx.currentLngLat.lng, ctx.currentLngLat.lat);
+    expand(ctx.originLngLat.lng, ctx.originLngLat.lat);
+    expand(ctx.destLngLat.lng, ctx.destLngLat.lat);
+    if (!Number.isFinite(west)) return;
+    map.fitBounds(
+      [
+        [west, south],
+        [east, north],
+      ],
+      { padding: 88, duration: 720, maxZoom: 9 },
+    );
+  }, [mapReady, driverTripViz, state.selectedDriverId]);
+
   useEffect(() => {
     if (!selectedLoad || !state.selectedDriverId) {
+      startTransition(() => setDrivingRouteCoords(null));
+      return;
+    }
+    if (getDriverTripRouteContext(state.selectedDriverId)) {
       startTransition(() => setDrivingRouteCoords(null));
       return;
     }
@@ -536,6 +671,12 @@ export function MapCanvasMapbox({
     if (!map) return;
 
     if (selectedLoad) {
+      if (
+        state.selectedDriverId &&
+        getDriverTripRouteContext(state.selectedDriverId)
+      ) {
+        return;
+      }
       const ll = svgToLngLat(selectedLoad.pickupX, selectedLoad.pickupY);
       map.flyTo({
         center: [ll.lng, ll.lat] as LngLatLike,
@@ -545,13 +686,14 @@ export function MapCanvasMapbox({
       });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps -- selectedLoad?.id
-  }, [mapReady, selectedLoad?.id]);
+  }, [mapReady, selectedLoad?.id, state.selectedDriverId]);
 
   /** Center on the focused truck when browsing by fleet ring (no load selected). */
   useEffect(() => {
     if (!mapReady) return;
     if (selectedLoad) return;
     if (!state.mapRingFilter || !state.selectedDriverId) return;
+    if (getDriverTripRouteContext(state.selectedDriverId)) return;
     const map = mapRef.current?.getMap();
     if (!map) return;
     const d = driversSimulated.find((x) => x.id === state.selectedDriverId);
@@ -905,6 +1047,49 @@ export function MapCanvasMapbox({
           />
         </Source>
 
+        <Source id="driver-trip-route" type="geojson" data={driverTripRouteGeoJSON}>
+          <Layer
+            id="driver-trip-completed"
+            type="line"
+            filter={["==", ["get", "part"], "completed"]}
+            layout={{ "line-cap": "round", "line-join": "round" }}
+            paint={{
+              "line-color": "#10b981",
+              "line-width": 6,
+              "line-opacity": 0.95,
+            }}
+          />
+          <Layer
+            id="driver-trip-remaining"
+            type="line"
+            filter={["==", ["get", "part"], "remaining"]}
+            layout={{ "line-cap": "round", "line-join": "round" }}
+            paint={{
+              "line-color": "#94a3b8",
+              "line-width": 4,
+              "line-opacity": 0.82,
+              "line-dasharray": [4, 3],
+            }}
+          />
+        </Source>
+
+        {driverTripViz ? (
+          <Marker
+            longitude={driverTripViz.dest.lng}
+            latitude={driverTripViz.dest.lat}
+            anchor="bottom"
+          >
+            <div className="pointer-events-none max-w-[160px] rounded-lg border border-emerald-500/45 bg-white/95 px-2 py-1.5 text-left shadow-lg ring-1 ring-black/5 dark:bg-zinc-900/95 dark:ring-white/10">
+              <p className="text-[9px] font-bold uppercase tracking-wide text-emerald-700 dark:text-emerald-400">
+                Drop ETA
+              </p>
+              <p className="text-[12px] font-semibold tabular-nums text-zinc-900 dark:text-zinc-50">
+                {formatDateTimeLocal(driverTripViz.etaMs)}
+              </p>
+            </div>
+          </Marker>
+        ) : null}
+
         {showPressureHeatmap ? (
           <Source
             id="dispatch-pressure-heatmap"
@@ -979,12 +1164,12 @@ export function MapCanvasMapbox({
           </Source>
         ) : null}
 
-        {showLoadNodes
+        {loadPinsOnMap
           ? openLoads.map((load) => {
               const ll = svgToLngLat(load.pickupX, load.pickupY);
               const active = selectedLoad?.id === load.id;
               const inboxHover =
-                showLoadNodes && hoveredLoadId === load.id;
+                loadPinsOnMap && hoveredLoadId === load.id;
               return (
                 <Marker
                   key={`load-${load.id}`}
@@ -994,7 +1179,7 @@ export function MapCanvasMapbox({
                   onClick={(e) => {
                     e.originalEvent.stopPropagation();
                     if (Date.now() < suppressClickUntil.current) return;
-                    selectLoad(load.id);
+                    selectLoad(load.id, { source: "map_pin" });
                   }}
                 >
                   <LoadMarkerContent
@@ -1079,44 +1264,22 @@ export function MapCanvasMapbox({
           );
         })}
 
-        {selectedLoad && pickupLngLat && !showLoadNodes && (
+        {selectedLoad && pickupLngLat && !loadPinsOnMap && (
           <Marker
             longitude={pickupLngLat.lng}
             latitude={pickupLngLat.lat}
             anchor="center"
           >
             <div
-              className="pointer-events-none relative flex h-12 w-12 items-center justify-center"
+              className="pointer-events-none"
               role="img"
               aria-label="Pickup location"
             >
-              <div
-                className="absolute h-9 w-9 rounded-full border-2 border-amber-400/55"
-                style={{
-                  animation:
-                    "map-origin-pulse 2.15s cubic-bezier(0.22, 1, 0.36, 1) infinite",
-                }}
+              <LoadMarkerContent
+                load={selectedLoad}
+                active
+                inboxHover={false}
               />
-              <div
-                className="absolute h-9 w-9 rounded-full border-2 border-amber-300/45"
-                style={{
-                  animation:
-                    "map-origin-pulse 2.15s cubic-bezier(0.22, 1, 0.36, 1) infinite",
-                  animationDelay: "0.65s",
-                }}
-              />
-              <div
-                className="absolute h-9 w-9 rounded-full border border-amber-200/35"
-                style={{
-                  animation:
-                    "map-origin-pulse 2.6s cubic-bezier(0.22, 1, 0.36, 1) infinite",
-                  animationDelay: "1.15s",
-                }}
-              />
-              <div className="absolute h-10 w-10 animate-pulse rounded-full bg-amber-400/12" />
-              <div className="relative z-10 flex h-10 w-10 items-center justify-center rounded-xl border-2 border-amber-500/45 bg-gradient-to-b from-zinc-50 to-zinc-200 shadow-[0_4px_16px_rgba(245,158,11,0.4),inset_0_1px_0_rgba(255,255,255,0.8)] dark:border-amber-400/40 dark:from-zinc-800 dark:to-zinc-950 dark:shadow-[0_6px_20px_rgba(251,191,36,0.35),inset_0_1px_0_rgba(255,255,255,0.06)]">
-                <PickupOriginIcon className="h-8 w-8 shrink-0 drop-shadow-sm" />
-              </div>
             </div>
           </Marker>
         )}
@@ -1149,10 +1312,10 @@ export function MapCanvasMapbox({
 
       <div className="pointer-events-none absolute left-3 top-3 max-w-[min(100%,min(260px,calc(100vw-8rem)))] rounded-lg border border-black/10 bg-white/90 px-2.5 py-1 text-[10px] font-medium uppercase tracking-wider text-zinc-600 backdrop-blur-sm dark:border-white/[0.06] dark:bg-black/50 dark:text-zinc-500">
         {selectedLoad
-          ? "Mapbox · Drag a top driver onto the amber pickup pin to assign"
+          ? "Mapbox · Drag a top driver onto the pickup pin to assign"
           : state.mapRingFilter
             ? "Mapbox · Fleet ring browse — use arrows in the driver panel or tap trucks"
-            : "Mapbox · Tap trucks, load pins, or a fleet alert to view details"}
+            : "Mapbox · Tap trucks or load pins; trip alerts are on each truck’s detail"}
       </div>
 
       <div className="pointer-events-auto absolute bottom-12 left-2 z-20 flex max-w-[min(calc(100%-1rem),260px)] flex-col gap-2 rounded-xl border border-[var(--border)] bg-[var(--surface-2)]/95 p-2 text-[11px] text-zinc-800 shadow-lg backdrop-blur-md dark:text-zinc-200">
@@ -1227,8 +1390,8 @@ export function MapCanvasMapbox({
           <input
             type="checkbox"
             className="mt-0.5 size-3.5 shrink-0 rounded border-zinc-400 bg-white text-amber-500 accent-amber-500 dark:border-zinc-500 dark:bg-zinc-800"
-            checked={showLoadNodes}
-            onChange={(e) => setShowLoadNodes(e.target.checked)}
+            checked={loadPinsOnMap}
+            onChange={(e) => setLoadPinsOnMap(e.target.checked)}
           />
           <span className="leading-snug">
             <span className="font-semibold text-zinc-900 dark:text-zinc-100">

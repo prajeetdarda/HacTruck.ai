@@ -1,6 +1,6 @@
 /**
  * Linear map from legacy SVG space (viewBox 0..1000 × 0..600) to WGS84.
- * Keeps mock-data + scoring + simulation in SVG units unchanged.
+ * Keeps backend-db + scoring + simulation in SVG units unchanged.
  */
 
 const LNG_W = -125;
@@ -26,11 +26,11 @@ export function lngLatToSvg(
   return { x, y };
 }
 
-/** Default map camera — Arizona / Southwest (matches mock fleet region) */
+/** Default map camera — full Arizona + southern Utah (fleet spread from mock DB) */
 export const DEFAULT_MAP_VIEW = {
-  longitude: -111.35,
-  latitude: 33.85,
-  zoom: 5.85,
+  longitude: -111.65,
+  latitude: 34.35,
+  zoom: 5.55,
   pitch: 0,
   bearing: 0,
 } as const;

@@ -10,31 +10,47 @@ import {
   useRef,
   useState,
 } from "react";
-import { DRIVERS, LOADS } from "@/lib/mock-data";
+import { DRIVERS, LOADS } from "@/lib/backend-db";
 import { rankDriversForLoad, rankedAllowsAssignment } from "@/lib/scoring";
 import { driverForSimulation } from "@/lib/simulation";
-import type { Driver, RankedDriver, ToastState } from "@/lib/types";
+import {
+  fleetSummaryRing,
+  type Driver,
+  type FleetSummaryRing,
+  type RankedDriver,
+  type ToastState,
+} from "@/lib/types";
+
+/** Inbox selection runs LLM match + tray; map load-pin is details-only. */
+export type LoadSelectSource = "inbox" | "map_pin";
 
 type State = {
   selectedLoadId: string | null;
+  /** How the current load was chosen — drives match-load / LLM UI. */
+  loadSelectSource: LoadSelectSource | null;
   selectedDriverId: string | null;
   simulatedHoursOffset: number;
   assignments: Record<string, string>;
   toast: ToastState;
   confirmedAssign: { loadId: string; driverId: string } | null;
   pendingUndo: { loadId: string; driverId: string } | null;
-  /** When no load is selected: filter map to this ring status (null = all). */
-  mapRingFilter: Driver["ringStatus"] | null;
+  /** When no load is selected: filter map to this summary ring (null = all). */
+  mapRingFilter: FleetSummaryRing | null;
   mapRingFilterPage: number;
 };
 
 type Action =
-  | { type: "selectLoad"; id: string | null }
+  | {
+      type: "selectLoad";
+      id: string | null;
+      /** Defaults to inbox when picking a load (sidebar / assign flow). */
+      source?: LoadSelectSource;
+    }
   | { type: "selectDriver"; id: string | null }
   | { type: "setSimOffset"; hours: number }
   | {
       type: "setMapRingFilter";
-      ring: Driver["ringStatus"];
+      ring: FleetSummaryRing;
       /** When turning a filter on: first driver in browse order (id sort). */
       initialSelectedDriverId?: string | null;
     }
@@ -67,6 +83,10 @@ function reducer(state: State, action: Action): State {
       return {
         ...state,
         selectedLoadId: action.id,
+        loadSelectSource:
+          action.id === null
+            ? null
+            : (action.source ?? "inbox"),
         selectedDriverId: null,
         confirmedAssign: null,
         /** Browse / ring UI is not used in no-load map mode — always reset. */
@@ -134,6 +154,7 @@ function reducer(state: State, action: Action): State {
         assignments: nextAssignments,
         confirmedAssign: { loadId: action.loadId, driverId: action.driverId },
         selectedLoadId: nextLoad,
+        loadSelectSource: nextLoad ? "inbox" : null,
         selectedDriverId: null,
         pendingUndo: { loadId: action.loadId, driverId: action.driverId },
         toast: {
@@ -152,6 +173,7 @@ function reducer(state: State, action: Action): State {
         ...state,
         assignments: rest,
         selectedLoadId: p.loadId,
+        loadSelectSource: "inbox",
         selectedDriverId: null,
         confirmedAssign: null,
         pendingUndo: null,
@@ -176,8 +198,11 @@ const Ctx = createContext<ReturnType<typeof useDispatchValue> | null>(null);
 
 function useDispatchValue() {
   const [loadInboxExpanded, setLoadInboxExpanded] = useState(false);
+  /** Map "Load pins" layer — synced with load inbox engagement. */
+  const [loadPinsOnMap, setLoadPinsOnMap] = useState(false);
   const [state, dispatch] = useReducer(reducer, {
     selectedLoadId: null,
+    loadSelectSource: null,
     selectedDriverId: null,
     simulatedHoursOffset: 0,
     assignments: {},
@@ -224,13 +249,17 @@ function useDispatchValue() {
 
   const activeDriverCount = useMemo(() => {
     return DRIVERS.filter(
-      (d) => d.ringStatus === "good" || d.ringStatus === "watch",
+      (d) =>
+        d.ringStatus !== "off_duty" && d.ringStatus !== "unavailable",
     ).length;
   }, []);
 
-  const selectLoad = useCallback((id: string | null) => {
-    dispatch({ type: "selectLoad", id });
-  }, []);
+  const selectLoad = useCallback(
+    (id: string | null, opts?: { source?: LoadSelectSource }) => {
+      dispatch({ type: "selectLoad", id, source: opts?.source });
+    },
+    [],
+  );
 
   const selectDriver = useCallback(
     (id: string | null) => {
@@ -240,7 +269,9 @@ function useDispatchValue() {
       }
       if (state.mapRingFilter) {
         const sorted = driversSimulated
-          .filter((d) => d.ringStatus === state.mapRingFilter)
+          .filter(
+            (d) => fleetSummaryRing(d.ringStatus) === state.mapRingFilter,
+          )
           .sort((a, b) => a.id.localeCompare(b.id));
         const inRing = sorted.some((d) => d.id === id);
         if (inRing) {
@@ -280,13 +311,13 @@ function useDispatchValue() {
   }, []);
 
   const setMapRingFilter = useCallback(
-    (ring: Driver["ringStatus"]) => {
+    (ring: FleetSummaryRing) => {
       if (state.mapRingFilter === ring) {
         dispatch({ type: "setMapRingFilter", ring });
         return;
       }
       const sorted = driversSimulated
-        .filter((d) => d.ringStatus === ring)
+        .filter((d) => fleetSummaryRing(d.ringStatus) === ring)
         .sort((a, b) => a.id.localeCompare(b.id));
       const initialSelectedDriverId = sorted[0]?.id ?? null;
       dispatch({
@@ -302,7 +333,9 @@ function useDispatchValue() {
     (delta: number) => {
       if (state.mapRingFilter == null) return;
       const sorted = driversSimulated
-        .filter((d) => d.ringStatus === state.mapRingFilter)
+        .filter(
+          (d) => fleetSummaryRing(d.ringStatus) === state.mapRingFilter,
+        )
         .sort((a, b) => a.id.localeCompare(b.id));
       const n = sorted.length;
       if (n === 0) return;
@@ -325,7 +358,9 @@ function useDispatchValue() {
     (page: number) => {
       if (state.mapRingFilter == null) return;
       const sorted = driversSimulated
-        .filter((d) => d.ringStatus === state.mapRingFilter)
+        .filter(
+          (d) => fleetSummaryRing(d.ringStatus) === state.mapRingFilter,
+        )
         .sort((a, b) => a.id.localeCompare(b.id));
       const maxPage = Math.max(0, sorted.length - 1);
       const nextPage = Math.max(0, Math.min(page, maxPage));
@@ -368,6 +403,8 @@ function useDispatchValue() {
       activeDriverCount,
       loadInboxExpanded,
       setLoadInboxExpanded,
+      loadPinsOnMap,
+      setLoadPinsOnMap,
       selectLoad,
       selectDriver,
       setSimulatedHoursOffset,
@@ -390,6 +427,7 @@ function useDispatchValue() {
       openLoads,
       activeDriverCount,
       loadInboxExpanded,
+      loadPinsOnMap,
       selectLoad,
       selectDriver,
       setSimulatedHoursOffset,
