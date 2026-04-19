@@ -5,21 +5,13 @@ import { AnimatePresence, motion } from "motion/react";
 import { useState } from "react";
 import { useDispatchContext } from "@/components/providers/DispatchProvider";
 import { useHover } from "@/components/providers/HoverProvider";
-<<<<<<< HEAD
 import { formatCpm, formatRejectTag } from "@/lib/format";
-=======
-import { formatCpm } from "@/lib/format";
->>>>>>> ac9292124734fe01923a682f71ae84fc03f024db
 import { Z_TRAY } from "@/lib/layout-tokens";
 import { shortAiReason } from "@/lib/scoring";
 
 export function ComparisonTray() {
-<<<<<<< HEAD
   const { selectedLoad, ranked, assign, assignBestForSelectedLoad, bestAssignable } =
     useDispatchContext();
-=======
-  const { selectedLoad, ranked, assign } = useDispatchContext();
->>>>>>> ac9292124734fe01923a682f71ae84fc03f024db
   const { hoveredDriverId, setHoveredDriverId } = useHover();
   const [open, setOpen] = useState(false);
 
@@ -43,7 +35,6 @@ export function ComparisonTray() {
             transition={{ type: "spring", damping: 28, stiffness: 280 }}
             className="pointer-events-auto flex w-full max-w-md flex-col items-center gap-2"
           >
-<<<<<<< HEAD
             <div className="flex w-full max-w-sm flex-col gap-2">
               <button
                 type="button"
@@ -81,28 +72,6 @@ export function ComparisonTray() {
                   : "Assign best fit"}
               </button>
             </div>
-=======
-            <button
-              type="button"
-              onClick={() => setOpen((o) => !o)}
-              className="flex w-full max-w-sm items-center justify-between gap-3 rounded-xl border border-[var(--border)] bg-[var(--surface-2)]/95 px-3 py-2.5 text-left shadow-lg shadow-black/10 outline-none transition-colors hover:bg-[var(--surface-2)] focus-visible:ring-2 focus-visible:ring-[var(--ring-focus)] backdrop-blur-md dark:shadow-black/30"
-              aria-expanded={open}
-              aria-controls="comparison-tray-panel"
-            >
-              <span className="min-w-0 flex-1">
-                <span className="block text-[10px] font-semibold uppercase tracking-[0.2em] text-[var(--muted)]">
-                  Top matches
-                </span>
-                <span className="mt-0.5 block truncate text-sm text-zinc-800 dark:text-zinc-300">
-                  {selectedLoad.id} · {selectedLoad.origin} →{" "}
-                  {selectedLoad.destination}
-                </span>
-              </span>
-              <span className="shrink-0 rounded-lg bg-zinc-200/90 px-2 py-1 text-xs font-medium text-zinc-800 dark:bg-zinc-800/90 dark:text-zinc-300">
-                {open ? "Hide" : "Show"}
-              </span>
-            </button>
->>>>>>> ac9292124734fe01923a682f71ae84fc03f024db
 
             <AnimatePresence initial={false}>
               {open && (
@@ -193,7 +162,6 @@ export function ComparisonTray() {
                                 </dd>
                               </div>
                             </dl>
-<<<<<<< HEAD
                             {r.rejectTags.length > 0 && (
                               <div className="mt-2 flex flex-wrap gap-1">
                                 {r.rejectTags.map((tag) => (
@@ -206,8 +174,6 @@ export function ComparisonTray() {
                                 ))}
                               </div>
                             )}
-=======
->>>>>>> ac9292124734fe01923a682f71ae84fc03f024db
                             <p className="mt-2 border-t border-black/[0.06] pt-2 text-[11px] leading-snug text-sky-700 dark:border-white/[0.06] dark:text-sky-300/90">
                               {shortAiReason(r, rank)}
                             </p>

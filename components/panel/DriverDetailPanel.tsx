@@ -3,11 +3,7 @@
 import { AnimatePresence, motion } from "motion/react";
 import { useMemo } from "react";
 import { useDispatchContext } from "@/components/providers/DispatchProvider";
-<<<<<<< HEAD
 import { formatCpm, formatEquipment, formatRejectTag } from "@/lib/format";
-=======
-import { formatCpm, formatEquipment } from "@/lib/format";
->>>>>>> ac9292124734fe01923a682f71ae84fc03f024db
 import { Z_PANEL } from "@/lib/layout-tokens";
 
 export function DriverDetailPanel() {
@@ -17,10 +13,7 @@ export function DriverDetailPanel() {
     driversSimulated,
     selectDriver,
     assign,
-<<<<<<< HEAD
     assignBestForSelectedLoad,
-=======
->>>>>>> ac9292124734fe01923a682f71ae84fc03f024db
     ranked,
   } = useDispatchContext();
 
@@ -140,7 +133,6 @@ export function DriverDetailPanel() {
               </div>
             </dl>
 
-<<<<<<< HEAD
             {rankedRow && rankedRow.rejectTags.length > 0 && (
               <section>
                 <h3 className="text-[10px] font-semibold uppercase tracking-wider text-[var(--muted)]">
@@ -159,8 +151,6 @@ export function DriverDetailPanel() {
               </section>
             )}
 
-=======
->>>>>>> ac9292124734fe01923a682f71ae84fc03f024db
             {rankedRow && (
               <section>
                 <h3 className="text-[10px] font-semibold uppercase tracking-wider text-[var(--muted)]">
@@ -175,11 +165,7 @@ export function DriverDetailPanel() {
             )}
           </div>
 
-<<<<<<< HEAD
           <div className="space-y-2 border-t border-[var(--border)] p-5">
-=======
-          <div className="border-t border-[var(--border)] p-5">
->>>>>>> ac9292124734fe01923a682f71ae84fc03f024db
             <button
               type="button"
               disabled={!selectedLoad}
@@ -193,7 +179,6 @@ export function DriverDetailPanel() {
                 ? `Assign to ${selectedLoad.id}`
                 : "Select a load first"}
             </button>
-<<<<<<< HEAD
             <button
               type="button"
               disabled={!selectedLoad}
@@ -202,8 +187,6 @@ export function DriverDetailPanel() {
             >
               Assign best fit for this load
             </button>
-=======
->>>>>>> ac9292124734fe01923a682f71ae84fc03f024db
           </div>
         </motion.aside>
       )}

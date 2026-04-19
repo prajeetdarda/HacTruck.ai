@@ -8,13 +8,10 @@ export type DriverRingStatus =
 
 export type EquipmentType = "dry_van" | "reefer" | "flatbed";
 
-<<<<<<< HEAD
 /**
  * Hard “gate” labels: the driver is still ranked for transparency, but auto-assign
  * should prefer someone with zero tags unless every candidate is flagged.
  */
-=======
->>>>>>> ac9292124734fe01923a682f71ae84fc03f024db
 export type RejectTag =
   | "wrong_equipment"
   | "too_far"
@@ -92,7 +89,6 @@ export type PendingUndo = {
   driverName: string;
   loadLabel: string;
 } | null;
-<<<<<<< HEAD
 
 /** Proactive ops center — deviation, delay, weather, idle, etc. */
 export type AlertSeverity = "critical" | "warning" | "info";
@@ -115,5 +111,3 @@ export type ProactiveAlert = {
   driverId?: string;
   loadId?: string;
 };
-=======
->>>>>>> ac9292124734fe01923a682f71ae84fc03f024db

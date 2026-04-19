@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 import type { EquipmentType, RejectTag } from "./types";
 
 export function formatRejectTag(tag: RejectTag): string {
@@ -17,9 +16,6 @@ export function formatRejectTag(tag: RejectTag): string {
       return tag;
   }
 }
-=======
-import type { EquipmentType } from "./types";
->>>>>>> ac9292124734fe01923a682f71ae84fc03f024db
 
 export function formatEquipment(eq: EquipmentType): string {
   switch (eq) {
