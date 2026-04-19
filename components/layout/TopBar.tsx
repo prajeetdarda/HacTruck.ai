@@ -2,7 +2,10 @@
 
 import { motion } from "motion/react";
 import { useEffect, useMemo, useState } from "react";
+<<<<<<< HEAD
 import { AlertCenter } from "@/components/alerts/AlertCenter";
+=======
+>>>>>>> ac9292124734fe01923a682f71ae84fc03f024db
 import { FLEET_NAME } from "@/lib/mock-data";
 import { useDispatchContext } from "@/components/providers/DispatchProvider";
 import { useTheme } from "@/components/providers/ThemeProvider";
@@ -56,8 +59,11 @@ export function TopBar() {
     selectedLoad,
     state,
     setMapRingFilter,
+<<<<<<< HEAD
     loadInboxExpanded,
     openLoadInbox,
+=======
+>>>>>>> ac9292124734fe01923a682f71ae84fc03f024db
   } = useDispatchContext();
   const { theme, toggleTheme } = useTheme();
   /** null until mount — avoids SSR/client clock mismatch (hydration error). */
@@ -149,6 +155,7 @@ export function TopBar() {
 
       {selectedLoad && <div className="min-w-0 flex-1" aria-hidden />}
 
+<<<<<<< HEAD
       <div className="ml-auto flex shrink-0 items-end gap-3 sm:gap-6">
         <Stat label="Active drivers" value={activeDriverCount} accent="text-sky-400" />
         <button
@@ -162,6 +169,11 @@ export function TopBar() {
           <Stat label="Open loads" value={openLoads.length} accent="text-amber-400" />
         </button>
         <AlertCenter />
+=======
+      <div className="ml-auto flex shrink-0 items-end gap-4 sm:gap-8">
+        <Stat label="Active drivers" value={activeDriverCount} accent="text-sky-400" />
+        <Stat label="Open loads" value={openLoads.length} accent="text-amber-400" />
+>>>>>>> ac9292124734fe01923a682f71ae84fc03f024db
         <button
           type="button"
           onClick={toggleTheme}

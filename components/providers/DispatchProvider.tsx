@@ -8,6 +8,7 @@ import {
   useMemo,
   useReducer,
   useRef,
+<<<<<<< HEAD
   useState,
 } from "react";
 import { buildProactiveAlerts } from "@/lib/alerts";
@@ -16,6 +17,13 @@ import { DRIVERS, LOADS } from "@/lib/mock-data";
 import { pickBestAssignable, rankDriversForLoad } from "@/lib/scoring";
 import { driverForSimulation } from "@/lib/simulation";
 import type { Driver, ProactiveAlert, RankedDriver, ToastState } from "@/lib/types";
+=======
+} from "react";
+import { DRIVERS, LOADS } from "@/lib/mock-data";
+import { rankDriversForLoad } from "@/lib/scoring";
+import { driverForSimulation } from "@/lib/simulation";
+import type { Driver, RankedDriver, ToastState } from "@/lib/types";
+>>>>>>> ac9292124734fe01923a682f71ae84fc03f024db
 
 type State = {
   selectedLoadId: string | null;
@@ -156,12 +164,15 @@ function reducer(state: State, action: Action): State {
 const Ctx = createContext<ReturnType<typeof useDispatchValue> | null>(null);
 
 function useDispatchValue() {
+<<<<<<< HEAD
   const nowMs = useNow(2500);
   const [dismissedAlertIds, setDismissedAlertIds] = useState<string[]>([]);
   const [loadInboxExpanded, setLoadInboxExpanded] = useState(false);
 
   const openLoadInbox = useCallback(() => setLoadInboxExpanded(true), []);
 
+=======
+>>>>>>> ac9292124734fe01923a682f71ae84fc03f024db
   const [state, dispatch] = useReducer(reducer, {
     selectedLoadId: null,
     selectedDriverId: null,
@@ -194,11 +205,14 @@ function useDispatchValue() {
     return rankDriversForLoad(selectedLoad, driversSimulated);
   }, [selectedLoad, driversSimulated]);
 
+<<<<<<< HEAD
   const bestAssignable = useMemo(
     () => (ranked.length ? pickBestAssignable(ranked) : null),
     [ranked],
   );
 
+=======
+>>>>>>> ac9292124734fe01923a682f71ae84fc03f024db
   const top5Ids = useMemo(
     () => ranked.slice(0, 5).map((r) => r.driver.id),
     [ranked],
@@ -209,6 +223,7 @@ function useDispatchValue() {
     [state.assignments],
   );
 
+<<<<<<< HEAD
   const proactiveAlertsRaw: ProactiveAlert[] = useMemo(
     () =>
       buildProactiveAlerts({
@@ -225,6 +240,8 @@ function useDispatchValue() {
     [proactiveAlertsRaw, dismissedAlertIds],
   );
 
+=======
+>>>>>>> ac9292124734fe01923a682f71ae84fc03f024db
   const activeDriverCount = useMemo(() => {
     return DRIVERS.filter(
       (d) => d.ringStatus === "available" || d.ringStatus === "en_route",
@@ -250,6 +267,7 @@ function useDispatchValue() {
     [],
   );
 
+<<<<<<< HEAD
   const assignBestForSelectedLoad = useCallback(() => {
     if (!selectedLoad || !bestAssignable) return;
     assign(selectedLoad.id, bestAssignable.driver.id, bestAssignable.driver.name);
@@ -265,6 +283,8 @@ function useDispatchValue() {
     setDismissedAlertIds([]);
   }, []);
 
+=======
+>>>>>>> ac9292124734fe01923a682f71ae84fc03f024db
   const dismissToast = useCallback(() => {
     dispatch({ type: "dismissToast" });
   }, []);
@@ -333,8 +353,11 @@ function useDispatchValue() {
       selectedLoad,
       driversSimulated,
       ranked,
+<<<<<<< HEAD
       bestAssignable,
       proactiveAlerts,
+=======
+>>>>>>> ac9292124734fe01923a682f71ae84fc03f024db
       top5Ids,
       openLoads,
       activeDriverCount,
@@ -342,9 +365,12 @@ function useDispatchValue() {
       selectDriver,
       setSimulatedHoursOffset,
       assign,
+<<<<<<< HEAD
       assignBestForSelectedLoad,
       dismissAlert,
       clearDismissedAlerts,
+=======
+>>>>>>> ac9292124734fe01923a682f71ae84fc03f024db
       dismissToast,
       undo,
       setMapRingFilter,
@@ -352,9 +378,12 @@ function useDispatchValue() {
       setMapRingBrowsePage,
       loadsAll: LOADS,
       driversBase: DRIVERS,
+<<<<<<< HEAD
       loadInboxExpanded,
       setLoadInboxExpanded,
       openLoadInbox,
+=======
+>>>>>>> ac9292124734fe01923a682f71ae84fc03f024db
     }),
     [
       state,
@@ -362,8 +391,11 @@ function useDispatchValue() {
       selectedLoad,
       driversSimulated,
       ranked,
+<<<<<<< HEAD
       bestAssignable,
       proactiveAlerts,
+=======
+>>>>>>> ac9292124734fe01923a682f71ae84fc03f024db
       top5Ids,
       openLoads,
       activeDriverCount,
@@ -371,15 +403,21 @@ function useDispatchValue() {
       selectDriver,
       setSimulatedHoursOffset,
       assign,
+<<<<<<< HEAD
       assignBestForSelectedLoad,
       dismissAlert,
       clearDismissedAlerts,
+=======
+>>>>>>> ac9292124734fe01923a682f71ae84fc03f024db
       dismissToast,
       undo,
       setMapRingFilter,
       bumpMapRingFilterPage,
       setMapRingBrowsePage,
+<<<<<<< HEAD
       loadInboxExpanded,
+=======
+>>>>>>> ac9292124734fe01923a682f71ae84fc03f024db
     ],
   );
 }

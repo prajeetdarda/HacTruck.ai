@@ -71,8 +71,11 @@ export function scoreFromFeatures(f: DriverLoadFeatures): {
   if (f.hosRemaining < 2.5 && f.ringStatus !== "off_duty")
     rejectTags.push("low_hos");
 
+<<<<<<< HEAD
   const rejectTagsDeduped = [...new Set(rejectTags)];
 
+=======
+>>>>>>> ac9292124734fe01923a682f71ae84fc03f024db
   let score = 50;
 
   score += clamp(28 - f.distanceToPickupMiles * 0.045, -20, 28);
@@ -129,6 +132,7 @@ export function scoreFromFeatures(f: DriverLoadFeatures): {
     score: clamp(score, 0, 100),
     matchPercent,
     reasons: reasons.slice(0, 4),
+<<<<<<< HEAD
     rejectTags: rejectTagsDeduped,
   };
 }
@@ -142,6 +146,12 @@ export function pickBestAssignable(ranked: RankedDriver[]): RankedDriver | null 
   return ranked[0] ?? null;
 }
 
+=======
+    rejectTags,
+  };
+}
+
+>>>>>>> ac9292124734fe01923a682f71ae84fc03f024db
 export function rankDriversForLoad(
   load: Load,
   drivers: Driver[],
@@ -160,12 +170,16 @@ export function rankDriversForLoad(
     };
   });
 
+<<<<<<< HEAD
   ranked.sort((a, b) => {
     const aFlagged = a.rejectTags.length > 0 ? 1 : 0;
     const bFlagged = b.rejectTags.length > 0 ? 1 : 0;
     if (aFlagged !== bFlagged) return aFlagged - bFlagged;
     return b.score - a.score;
   });
+=======
+  ranked.sort((a, b) => b.score - a.score);
+>>>>>>> ac9292124734fe01923a682f71ae84fc03f024db
   return ranked;
 }
 

@@ -1,6 +1,10 @@
 "use client";
 
 import clsx from "clsx";
+<<<<<<< HEAD
+=======
+import { useState } from "react";
+>>>>>>> ac9292124734fe01923a682f71ae84fc03f024db
 import { useDispatchContext } from "@/components/providers/DispatchProvider";
 import { LoadCard } from "./LoadCard";
 
@@ -8,6 +12,7 @@ const RAIL_W = "w-14";
 const PANEL_W = "w-[260px]";
 
 export function LoadSidebar() {
+<<<<<<< HEAD
   const {
     openLoads,
     state,
@@ -16,6 +21,10 @@ export function LoadSidebar() {
     loadInboxExpanded: expanded,
     setLoadInboxExpanded: setExpanded,
   } = useDispatchContext();
+=======
+  const [expanded, setExpanded] = useState(false);
+  const { openLoads, state, selectLoad, selectedLoad } = useDispatchContext();
+>>>>>>> ac9292124734fe01923a682f71ae84fc03f024db
 
   const sorted = [...openLoads].sort(
     (a, b) => a.pickupDeadline - b.pickupDeadline,
