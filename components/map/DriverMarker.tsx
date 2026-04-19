@@ -2,7 +2,6 @@
 
 import clsx from "clsx";
 import {
-  RING_STATUS_COLOR,
   RingStatusNotificationBadge,
   TruckMarkerIcon,
 } from "@/components/icons/MapMarkers";
@@ -54,7 +53,7 @@ export function DriverMarkerContent({
   return (
     <div
       className={clsx(
-        "pointer-events-auto flex min-h-[40px] min-w-[40px] flex-col items-center justify-center select-none",
+        "pointer-events-auto flex min-h-[44px] min-w-[44px] flex-col items-center justify-center select-none",
         dragging && "cursor-grabbing",
         !dragging && "cursor-pointer",
       )}
@@ -68,29 +67,15 @@ export function DriverMarkerContent({
             {badge}
           </span>
         )}
-        <div
-          className={clsx(
-            "relative flex h-11 w-11 shrink-0 items-center justify-center",
-            isCandidate &&
-              (loadPickMode
-                ? "drop-shadow-[0_0_10px_rgba(56,189,248,0.42)]"
-                : "drop-shadow-[0_0_12px_rgba(248,113,113,0.55)]"),
-          )}
-        >
+        <div className="relative flex shrink-0 items-center justify-center">
           <div
             className={clsx(
-              "relative box-border flex h-10 w-10 items-center justify-center overflow-visible rounded-xl border-2 border-solid bg-gradient-to-b from-zinc-100 to-zinc-200 shadow-[0_4px_14px_rgba(0,0,0,0.28),inset_0_1px_0_rgba(255,255,255,0.75)] dark:from-zinc-800 dark:to-zinc-950 dark:shadow-[0_6px_18px_rgba(0,0,0,0.55),inset_0_1px_0_rgba(255,255,255,0.06)]",
+              "relative inline-flex h-11 w-11 shrink-0 items-center justify-center",
               isCandidate &&
                 (loadPickMode
-                  ? "ring-2 ring-sky-500/65 ring-offset-2 ring-offset-[var(--surface-0)] dark:ring-sky-400/55"
-                  : "ring-2 ring-red-400/70 ring-offset-2 ring-offset-[var(--surface-0)] dark:ring-red-500/50"),
-              loadPickMode && "border-slate-400 dark:border-slate-500",
+                  ? "shadow-[0_0_14px_rgba(56,189,248,0.5)]"
+                  : "shadow-[0_0_16px_rgba(248,113,113,0.55)]"),
             )}
-            style={
-              loadPickMode
-                ? undefined
-                : { borderColor: RING_STATUS_COLOR[driver.ringStatus] }
-            }
           >
             {rankForLoad != null && rankForLoad > 0 && (
               <span
@@ -106,16 +91,19 @@ export function DriverMarkerContent({
               </span>
             )}
             <TruckMarkerIcon
-              className="h-9 w-9 shrink-0 drop-shadow-sm"
+              className="h-11 w-11 shrink-0"
               ringStatus={driver.ringStatus}
               statusStrokeOverride={
                 loadPickMode ? "#94a3b8" : undefined
               }
             />
             {!loadPickMode && (
-              <RingStatusNotificationBadge status={driver.ringStatus} />
+              <RingStatusNotificationBadge
+                status={driver.ringStatus}
+                size="sm"
+              />
             )}
-            <span className="pointer-events-none absolute bottom-0.5 left-0.5 inline-flex items-baseline gap-0 rounded bg-black/18 px-[2px] text-[6px] font-bold leading-none text-white tabular-nums shadow-sm dark:bg-black/55">
+            <span className="pointer-events-none absolute bottom-0 left-0 inline-flex items-baseline gap-0 rounded bg-black/18 px-[2px] text-[6px] font-bold leading-none text-white tabular-nums shadow-sm dark:bg-black/55">
               {driver.initials}
             </span>
           </div>

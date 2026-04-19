@@ -6,7 +6,7 @@ import type { ReactNode } from "react";
 import { useEffect, useMemo, useState } from "react";
 import { useDispatchContext } from "@/components/providers/DispatchProvider";
 import { useMatchLoad } from "@/components/providers/MatchLoadProvider";
-import { RING_STATUS_COLOR } from "@/components/icons/MapMarkers";
+import { RING_STATUS_COLOR, TRUCK_MARKER_IMAGE_SRC } from "@/components/icons/MapMarkers";
 import {
   FLEET_NAME,
   TERMINAL,
@@ -63,35 +63,15 @@ function ChevronDownIcon({ className }: { className?: string }) {
 
 function HeroTruckGlyph({ className }: { className?: string }) {
   return (
-    <svg
-      className={className}
-      viewBox="0 0 64 64"
-      fill="none"
-      xmlns="http://www.w3.org/2000/svg"
-      aria-hidden
-    >
-      <path
-        d="M6 38h28v8H6v-8z"
-        stroke="currentColor"
-        strokeWidth="2.25"
-        strokeLinejoin="round"
-      />
-      <path
-        d="M34 38V26l10-8h14v20H34z"
-        stroke="currentColor"
-        strokeWidth="2.25"
-        strokeLinejoin="round"
-      />
-      <path
-        d="M44 18h8v10h-8"
-        stroke="currentColor"
-        strokeWidth="2.25"
-        strokeLinejoin="round"
-      />
-      <circle cx="14" cy="48" r="4" stroke="currentColor" strokeWidth="2" />
-      <circle cx="50" cy="48" r="4" stroke="currentColor" strokeWidth="2" />
-      <path d="M18 48h28" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
-    </svg>
+    <img
+      src={TRUCK_MARKER_IMAGE_SRC}
+      alt=""
+      className={clsx(
+        "bg-transparent object-contain mix-blend-multiply select-none",
+        className,
+      )}
+      draggable={false}
+    />
   );
 }
 
@@ -779,8 +759,8 @@ export function DriverDetailPanel() {
                 <div className="pt-1">
                   <section className="rounded-2xl border border-[var(--border)] bg-[var(--surface-1)]/80 p-3 shadow-sm dark:bg-zinc-900/35">
                     <div className="flex gap-3">
-                  <div className="flex size-[92px] shrink-0 items-center justify-center rounded-2xl border border-amber-400/30 bg-gradient-to-br from-amber-400/15 to-transparent dark:from-amber-500/10">
-                    <HeroTruckGlyph className="size-[58px] text-amber-800/90 dark:text-amber-200/85" />
+                  <div className="flex size-[100px] shrink-0 items-center justify-center rounded-2xl border border-amber-400/30 bg-gradient-to-br from-amber-400/15 to-transparent dark:from-amber-500/10">
+                    <HeroTruckGlyph className="size-[68px]" />
                   </div>
                   <div className="min-w-0 flex-1 space-y-2">
                     <div>

@@ -116,29 +116,36 @@ function RingStatusGlyph({ status }: { status: RingStatus }) {
 }
 
 /**
- * Phone-style notification bubble: small vs truck, ring-colored, micro status glyph.
+ * Ring-colored status dot with micro glyph — map markers use `size="sm"` (top-right on truck).
  */
 export function RingStatusNotificationBadge({
   status,
   className = "",
+  size = "md",
 }: {
   status: RingStatus;
   className?: string;
+  /** `sm`: compact bubble for map truck corner. */
+  size?: "md" | "sm";
 }) {
+  const isSm = size === "sm";
+  const px = isSm ? 10 : 14;
+  const svgPx = isSm ? 5.5 : 8;
+  const border = isSm ? "1.5px solid #fff" : "2px solid #fff";
   return (
     <div
-      className={`pointer-events-none absolute -right-1 -top-1 z-[2] flex items-center justify-center rounded-full shadow-[0_1px_5px_rgba(0,0,0,0.38)] ${className}`}
+      className={`pointer-events-none absolute z-[2] flex items-center justify-center rounded-full shadow-[0_1px_4px_rgba(0,0,0,0.34)] ${isSm ? "-right-0.5 -top-0.5" : "-right-1 -top-1"} ${className}`}
       style={{
-        width: "14px",
-        height: "14px",
+        width: `${px}px`,
+        height: `${px}px`,
         backgroundColor: RING_BADGE_BG[status],
-        border: "2px solid #fff",
+        border,
       }}
       aria-hidden
     >
       <svg
-        width="8"
-        height="8"
+        width={svgPx}
+        height={svgPx}
         viewBox="0 0 10 10"
         fill="none"
         xmlns="http://www.w3.org/2000/svg"
@@ -150,12 +157,14 @@ export function RingStatusNotificationBadge({
   );
 }
 
-/** Solid red side-view truck — minimal silhouette; hairline outline matches ring status. */
+/** Fleet truck artwork (`public/truck-icon.png`) — transparent PNG only. */
+export const TRUCK_MARKER_IMAGE_SRC = "/truck-icon.png" as const;
+
 export function TruckMarkerIcon({
   className,
   style,
-  ringStatus,
-  statusStrokeOverride,
+  ringStatus: _ringStatus,
+  statusStrokeOverride: _statusStrokeOverride,
 }: {
   className?: string;
   style?: CSSProperties;
@@ -163,56 +172,23 @@ export function TruckMarkerIcon({
   /** When set, outline uses this color instead of ring status (e.g. load-pick mode). */
   statusStrokeOverride?: string;
 }) {
-  const red = "#dc2626";
-  const statusStroke = statusStrokeOverride ?? RING_STATUS_COLOR[ringStatus];
   return (
-    <svg
-      className={className}
+    <span
+      className={
+        className
+          ? `${className} inline-flex items-center justify-center bg-transparent`
+          : "inline-flex h-10 w-10 items-center justify-center bg-transparent"
+      }
       style={style}
-      viewBox="0 0 40 40"
-      fill="none"
-      xmlns="http://www.w3.org/2000/svg"
       aria-hidden
     >
-      <ellipse cx="20" cy="33" rx="14" ry="3" fill="#000" opacity="0.16" />
-      {/* Cab */}
-      <rect
-        x="5"
-        y="14"
-        width="11"
-        height="13"
-        rx="2"
-        fill={red}
-        stroke={statusStroke}
-        strokeWidth={0.55}
+      <img
+        src={TRUCK_MARKER_IMAGE_SRC}
+        alt=""
+        className="pointer-events-none h-full w-full shrink-0 select-none object-contain mix-blend-multiply bg-transparent"
+        draggable={false}
       />
-      {/* Trailer */}
-      <rect
-        x="14"
-        y="12"
-        width="21"
-        height="15"
-        rx="2"
-        fill={red}
-        stroke={statusStroke}
-        strokeWidth={0.55}
-      />
-      {/* Windshield */}
-      <rect
-        x="7"
-        y="16.5"
-        width="5"
-        height="5"
-        rx="0.6"
-        fill="#fff"
-        opacity="0.92"
-      />
-      {/* Wheels */}
-      <circle cx="12" cy="29" r="3.5" fill="#1c1917" />
-      <circle cx="12" cy="29" r="1.4" fill="#e5e5e5" />
-      <circle cx="27" cy="29" r="3.5" fill="#1c1917" />
-      <circle cx="27" cy="29" r="1.4" fill="#e5e5e5" />
-    </svg>
+    </span>
   );
 }
 
