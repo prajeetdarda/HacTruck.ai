@@ -10,7 +10,7 @@ export default function Home() {
     <DispatchProvider>
       <div className="grid h-screen min-h-0 grid-rows-[auto_1fr_auto] overflow-hidden bg-[var(--surface-0)] text-[var(--foreground)]">
         <TopBar />
-        <div className="flex min-h-0 min-w-0 overflow-hidden border-t border-[var(--border)]">
+        <div className="relative z-0 flex min-h-0 min-w-0 overflow-hidden border-t border-[var(--border)]">
           <LoadSidebar />
           <MapColumn />
         </div>

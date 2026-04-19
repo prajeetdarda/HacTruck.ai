@@ -4,6 +4,7 @@ import { motion } from "motion/react";
 import { useEffect, useMemo, useState } from "react";
 import { AlertCenter } from "@/components/alerts/AlertCenter";
 import { FLEET_NAME } from "@/lib/mock-data";
+import { Z_TOPBAR } from "@/lib/layout-tokens";
 import { useDispatchContext } from "@/components/providers/DispatchProvider";
 import { useTheme } from "@/components/providers/ThemeProvider";
 import type { Driver } from "@/lib/types";
@@ -95,7 +96,10 @@ export function TopBar() {
         });
 
   return (
-    <header className="flex h-[52px] shrink-0 items-center gap-3 border-b border-[var(--border)] bg-[var(--surface-1)]/95 px-4 backdrop-blur-md sm:gap-4 sm:px-5">
+    <header
+      className="relative flex h-[52px] shrink-0 items-center gap-3 border-b border-[var(--border)] bg-[var(--surface-1)]/95 px-4 backdrop-blur-md sm:gap-4 sm:px-5"
+      style={{ zIndex: Z_TOPBAR }}
+    >
       <div className="flex shrink-0 items-center gap-3 sm:gap-4">
         <motion.div
           className="flex items-center gap-2"
