@@ -71,7 +71,7 @@ export function LoadCard({
               "bg-zinc-200/90 text-zinc-700 dark:bg-zinc-700/80 dark:text-zinc-400",
           )}
         >
-          {overdue ? "Overdue" : urgent ? "Urgent" : "Scheduled"}
+          {overdue ? "Overdue" : urgent ? "Urgent" : "Upcoming"}
         </span>
       </div>
       <p className="mt-1.5 text-xs leading-snug text-[var(--muted)]">

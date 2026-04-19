@@ -71,6 +71,8 @@ export function scoreFromFeatures(f: DriverLoadFeatures): {
   if (f.hosRemaining < 2.5 && f.ringStatus !== "off_duty")
     rejectTags.push("low_hos");
 
+  const rejectTagsDeduped = [...new Set(rejectTags)];
+
   let score = 50;
 
   score += clamp(28 - f.distanceToPickupMiles * 0.045, -20, 28);
@@ -127,8 +129,17 @@ export function scoreFromFeatures(f: DriverLoadFeatures): {
     score: clamp(score, 0, 100),
     matchPercent,
     reasons: reasons.slice(0, 4),
-    rejectTags,
+    rejectTags: rejectTagsDeduped,
   };
+}
+
+/**
+ * After `rankDriversForLoad`, index 0 is always the recommended auto-assign:
+ * best score among drivers with no reject tags; if none, best score among flagged drivers.
+ */
+export function pickBestAssignable(ranked: RankedDriver[]): RankedDriver | null {
+  if (ranked.length === 0) return null;
+  return ranked[0] ?? null;
 }
 
 export function rankDriversForLoad(
@@ -149,7 +160,12 @@ export function rankDriversForLoad(
     };
   });
 
-  ranked.sort((a, b) => b.score - a.score);
+  ranked.sort((a, b) => {
+    const aFlagged = a.rejectTags.length > 0 ? 1 : 0;
+    const bFlagged = b.rejectTags.length > 0 ? 1 : 0;
+    if (aFlagged !== bFlagged) return aFlagged - bFlagged;
+    return b.score - a.score;
+  });
   return ranked;
 }
 

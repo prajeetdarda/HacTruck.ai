@@ -5,12 +5,13 @@ import { AnimatePresence, motion } from "motion/react";
 import { useState } from "react";
 import { useDispatchContext } from "@/components/providers/DispatchProvider";
 import { useHover } from "@/components/providers/HoverProvider";
-import { formatCpm } from "@/lib/format";
+import { formatCpm, formatRejectTag } from "@/lib/format";
 import { Z_TRAY } from "@/lib/layout-tokens";
 import { shortAiReason } from "@/lib/scoring";
 
 export function ComparisonTray() {
-  const { selectedLoad, ranked, assign } = useDispatchContext();
+  const { selectedLoad, ranked, assign, assignBestForSelectedLoad, bestAssignable } =
+    useDispatchContext();
   const { hoveredDriverId, setHoveredDriverId } = useHover();
   const [open, setOpen] = useState(false);
 
@@ -34,26 +35,43 @@ export function ComparisonTray() {
             transition={{ type: "spring", damping: 28, stiffness: 280 }}
             className="pointer-events-auto flex w-full max-w-md flex-col items-center gap-2"
           >
-            <button
-              type="button"
-              onClick={() => setOpen((o) => !o)}
-              className="flex w-full max-w-sm items-center justify-between gap-3 rounded-xl border border-[var(--border)] bg-[var(--surface-2)]/95 px-3 py-2.5 text-left shadow-lg shadow-black/10 outline-none transition-colors hover:bg-[var(--surface-2)] focus-visible:ring-2 focus-visible:ring-[var(--ring-focus)] backdrop-blur-md dark:shadow-black/30"
-              aria-expanded={open}
-              aria-controls="comparison-tray-panel"
-            >
-              <span className="min-w-0 flex-1">
-                <span className="block text-[10px] font-semibold uppercase tracking-[0.2em] text-[var(--muted)]">
-                  Top matches
+            <div className="flex w-full max-w-sm flex-col gap-2">
+              <button
+                type="button"
+                onClick={() => setOpen((o) => !o)}
+                className="flex w-full items-center justify-between gap-3 rounded-xl border border-[var(--border)] bg-[var(--surface-2)]/95 px-3 py-2.5 text-left shadow-lg shadow-black/10 outline-none transition-colors hover:bg-[var(--surface-2)] focus-visible:ring-2 focus-visible:ring-[var(--ring-focus)] backdrop-blur-md dark:shadow-black/30"
+                aria-expanded={open}
+                aria-controls="comparison-tray-panel"
+              >
+                <span className="min-w-0 flex-1">
+                  <span className="block text-[10px] font-semibold uppercase tracking-[0.2em] text-[var(--muted)]">
+                    Smart dispatch
+                  </span>
+                  <span className="mt-0.5 block truncate text-sm text-zinc-800 dark:text-zinc-300">
+                    {selectedLoad.id} · {selectedLoad.origin} →{" "}
+                    {selectedLoad.destination}
+                  </span>
                 </span>
-                <span className="mt-0.5 block truncate text-sm text-zinc-800 dark:text-zinc-300">
-                  {selectedLoad.id} · {selectedLoad.origin} →{" "}
-                  {selectedLoad.destination}
+                <span className="shrink-0 rounded-lg bg-zinc-200/90 px-2 py-1 text-xs font-medium text-zinc-800 dark:bg-zinc-800/90 dark:text-zinc-300">
+                  {open ? "Hide" : "Show"}
                 </span>
-              </span>
-              <span className="shrink-0 rounded-lg bg-zinc-200/90 px-2 py-1 text-xs font-medium text-zinc-800 dark:bg-zinc-800/90 dark:text-zinc-300">
-                {open ? "Hide" : "Show"}
-              </span>
-            </button>
+              </button>
+              <button
+                type="button"
+                onClick={() => assignBestForSelectedLoad()}
+                disabled={!bestAssignable}
+                title={
+                  bestAssignable
+                    ? `Assign ${bestAssignable.driver.name} — prefers zero fit flags, else top score`
+                    : "No ranked drivers"
+                }
+                className="w-full rounded-xl border border-sky-500/40 bg-sky-500/15 py-2 text-xs font-semibold text-sky-800 shadow-sm transition-colors hover:bg-sky-500/25 disabled:cursor-not-allowed disabled:opacity-40 dark:text-sky-200"
+              >
+                {bestAssignable
+                  ? `Assign best fit · ${bestAssignable.driver.name}`
+                  : "Assign best fit"}
+              </button>
+            </div>
 
             <AnimatePresence initial={false}>
               {open && (
@@ -144,6 +162,18 @@ export function ComparisonTray() {
                                 </dd>
                               </div>
                             </dl>
+                            {r.rejectTags.length > 0 && (
+                              <div className="mt-2 flex flex-wrap gap-1">
+                                {r.rejectTags.map((tag) => (
+                                  <span
+                                    key={tag}
+                                    className="rounded bg-amber-500/15 px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-amber-800 dark:text-amber-300"
+                                  >
+                                    {formatRejectTag(tag)}
+                                  </span>
+                                ))}
+                              </div>
+                            )}
                             <p className="mt-2 border-t border-black/[0.06] pt-2 text-[11px] leading-snug text-sky-700 dark:border-white/[0.06] dark:text-sky-300/90">
                               {shortAiReason(r, rank)}
                             </p>

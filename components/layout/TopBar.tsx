@@ -2,7 +2,10 @@
 
 import { motion } from "motion/react";
 import { useEffect, useMemo, useState } from "react";
+import { AlertCenter } from "@/components/alerts/AlertCenter";
+import { ActiveDriversMenu } from "@/components/topbar/ActiveDriversMenu";
 import { FLEET_NAME } from "@/lib/mock-data";
+import { Z_TOPBAR } from "@/lib/layout-tokens";
 import { useDispatchContext } from "@/components/providers/DispatchProvider";
 import { useTheme } from "@/components/providers/ThemeProvider";
 import type { Driver } from "@/lib/types";
@@ -50,11 +53,12 @@ const RING_ROWS: {
 export function TopBar() {
   const {
     openLoads,
-    activeDriverCount,
     driversSimulated,
     selectedLoad,
     state,
     setMapRingFilter,
+    loadInboxExpanded,
+    openLoadInbox,
   } = useDispatchContext();
   const { theme, toggleTheme } = useTheme();
   /** null until mount — avoids SSR/client clock mismatch (hydration error). */
@@ -92,7 +96,10 @@ export function TopBar() {
         });
 
   return (
-    <header className="flex h-[52px] shrink-0 items-center gap-3 border-b border-[var(--border)] bg-[var(--surface-1)]/95 px-4 backdrop-blur-md sm:gap-4 sm:px-5">
+    <header
+      className="relative flex h-[52px] shrink-0 items-center gap-3 border-b border-[var(--border)] bg-[var(--surface-1)]/95 px-4 backdrop-blur-md sm:gap-4 sm:px-5"
+      style={{ zIndex: Z_TOPBAR }}
+    >
       <div className="flex shrink-0 items-center gap-3 sm:gap-4">
         <motion.div
           className="flex items-center gap-2"
@@ -146,9 +153,19 @@ export function TopBar() {
 
       {selectedLoad && <div className="min-w-0 flex-1" aria-hidden />}
 
-      <div className="ml-auto flex shrink-0 items-end gap-4 sm:gap-8">
-        <Stat label="Active drivers" value={activeDriverCount} accent="text-sky-400" />
-        <Stat label="Open loads" value={openLoads.length} accent="text-amber-400" />
+      <div className="ml-auto flex shrink-0 items-end gap-3 sm:gap-6">
+        <ActiveDriversMenu />
+        <button
+          type="button"
+          onClick={openLoadInbox}
+          title="Open load inbox"
+          aria-controls="load-inbox-panel"
+          aria-expanded={loadInboxExpanded}
+          className="pb-0.5 text-left outline-none transition-opacity hover:opacity-90 focus-visible:rounded-md focus-visible:ring-2 focus-visible:ring-[var(--ring-focus)]"
+        >
+          <Stat label="Open loads" value={openLoads.length} accent="text-amber-400" />
+        </button>
+        <AlertCenter />
         <button
           type="button"
           onClick={toggleTheme}

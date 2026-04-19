@@ -1,4 +1,21 @@
-import type { EquipmentType } from "./types";
+import type { EquipmentType, RejectTag } from "./types";
+
+export function formatRejectTag(tag: RejectTag): string {
+  switch (tag) {
+    case "wrong_equipment":
+      return "Wrong equipment";
+    case "too_far":
+      return "Too far";
+    case "low_hos":
+      return "Low HOS";
+    case "off_duty":
+      return "Off duty";
+    case "conflict":
+      return "Conflict";
+    default:
+      return tag;
+  }
+}
 
 export function formatEquipment(eq: EquipmentType): string {
   switch (eq) {

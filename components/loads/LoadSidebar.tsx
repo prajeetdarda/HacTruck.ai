@@ -1,7 +1,6 @@
 "use client";
 
 import clsx from "clsx";
-import { useState } from "react";
 import { useDispatchContext } from "@/components/providers/DispatchProvider";
 import { LoadCard } from "./LoadCard";
 
@@ -9,8 +8,14 @@ const RAIL_W = "w-14";
 const PANEL_W = "w-[260px]";
 
 export function LoadSidebar() {
-  const [expanded, setExpanded] = useState(false);
-  const { openLoads, state, selectLoad, selectedLoad } = useDispatchContext();
+  const {
+    openLoads,
+    state,
+    selectLoad,
+    selectedLoad,
+    loadInboxExpanded: expanded,
+    setLoadInboxExpanded: setExpanded,
+  } = useDispatchContext();
 
   const sorted = [...openLoads].sort(
     (a, b) => a.pickupDeadline - b.pickupDeadline,

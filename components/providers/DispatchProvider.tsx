@@ -8,11 +8,14 @@ import {
   useMemo,
   useReducer,
   useRef,
+  useState,
 } from "react";
+import { buildProactiveAlerts } from "@/lib/alerts";
+import { useNow } from "@/hooks/useNow";
 import { DRIVERS, LOADS } from "@/lib/mock-data";
-import { rankDriversForLoad } from "@/lib/scoring";
+import { pickBestAssignable, rankDriversForLoad } from "@/lib/scoring";
 import { driverForSimulation } from "@/lib/simulation";
-import type { Driver, RankedDriver, ToastState } from "@/lib/types";
+import type { Driver, ProactiveAlert, RankedDriver, ToastState } from "@/lib/types";
 
 type State = {
   selectedLoadId: string | null;
@@ -153,6 +156,12 @@ function reducer(state: State, action: Action): State {
 const Ctx = createContext<ReturnType<typeof useDispatchValue> | null>(null);
 
 function useDispatchValue() {
+  const nowMs = useNow(2500);
+  const [dismissedAlertIds, setDismissedAlertIds] = useState<string[]>([]);
+  const [loadInboxExpanded, setLoadInboxExpanded] = useState(false);
+
+  const openLoadInbox = useCallback(() => setLoadInboxExpanded(true), []);
+
   const [state, dispatch] = useReducer(reducer, {
     selectedLoadId: null,
     selectedDriverId: null,
@@ -185,6 +194,11 @@ function useDispatchValue() {
     return rankDriversForLoad(selectedLoad, driversSimulated);
   }, [selectedLoad, driversSimulated]);
 
+  const bestAssignable = useMemo(
+    () => (ranked.length ? pickBestAssignable(ranked) : null),
+    [ranked],
+  );
+
   const top5Ids = useMemo(
     () => ranked.slice(0, 5).map((r) => r.driver.id),
     [ranked],
@@ -195,11 +209,32 @@ function useDispatchValue() {
     [state.assignments],
   );
 
-  const activeDriverCount = useMemo(() => {
-    return DRIVERS.filter(
-      (d) => d.ringStatus === "available" || d.ringStatus === "en_route",
-    ).length;
-  }, []);
+  const proactiveAlertsRaw: ProactiveAlert[] = useMemo(
+    () =>
+      buildProactiveAlerts({
+        drivers: driversSimulated,
+        openLoads,
+        nowMs,
+        offsetHours: state.simulatedHoursOffset,
+      }),
+    [driversSimulated, openLoads, nowMs, state.simulatedHoursOffset],
+  );
+
+  const proactiveAlerts: ProactiveAlert[] = useMemo(
+    () => proactiveAlertsRaw.filter((a) => !dismissedAlertIds.includes(a.id)),
+    [proactiveAlertsRaw, dismissedAlertIds],
+  );
+
+  /** Available + en route — matches “active” fleet on the map (uses simulation). */
+  const activeDrivers = useMemo(() => {
+    return driversSimulated
+      .filter(
+        (d) => d.ringStatus === "available" || d.ringStatus === "en_route",
+      )
+      .sort((a, b) => a.name.localeCompare(b.name));
+  }, [driversSimulated]);
+
+  const activeDriverCount = activeDrivers.length;
 
   const selectLoad = useCallback((id: string | null) => {
     dispatch({ type: "selectLoad", id });
@@ -219,6 +254,21 @@ function useDispatchValue() {
     },
     [],
   );
+
+  const assignBestForSelectedLoad = useCallback(() => {
+    if (!selectedLoad || !bestAssignable) return;
+    assign(selectedLoad.id, bestAssignable.driver.id, bestAssignable.driver.name);
+  }, [assign, bestAssignable, selectedLoad]);
+
+  const dismissAlert = useCallback((id: string) => {
+    setDismissedAlertIds((prev) =>
+      prev.includes(id) ? prev : [...prev, id],
+    );
+  }, []);
+
+  const clearDismissedAlerts = useCallback(() => {
+    setDismissedAlertIds([]);
+  }, []);
 
   const dismissToast = useCallback(() => {
     dispatch({ type: "dismissToast" });
@@ -288,13 +338,19 @@ function useDispatchValue() {
       selectedLoad,
       driversSimulated,
       ranked,
+      bestAssignable,
+      proactiveAlerts,
       top5Ids,
       openLoads,
+      activeDrivers,
       activeDriverCount,
       selectLoad,
       selectDriver,
       setSimulatedHoursOffset,
       assign,
+      assignBestForSelectedLoad,
+      dismissAlert,
+      clearDismissedAlerts,
       dismissToast,
       undo,
       setMapRingFilter,
@@ -302,6 +358,9 @@ function useDispatchValue() {
       setMapRingBrowsePage,
       loadsAll: LOADS,
       driversBase: DRIVERS,
+      loadInboxExpanded,
+      setLoadInboxExpanded,
+      openLoadInbox,
     }),
     [
       state,
@@ -309,18 +368,25 @@ function useDispatchValue() {
       selectedLoad,
       driversSimulated,
       ranked,
+      bestAssignable,
+      proactiveAlerts,
       top5Ids,
       openLoads,
+      activeDrivers,
       activeDriverCount,
       selectLoad,
       selectDriver,
       setSimulatedHoursOffset,
       assign,
+      assignBestForSelectedLoad,
+      dismissAlert,
+      clearDismissedAlerts,
       dismissToast,
       undo,
       setMapRingFilter,
       bumpMapRingFilterPage,
       setMapRingBrowsePage,
+      loadInboxExpanded,
     ],
   );
 }
