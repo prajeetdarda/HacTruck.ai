@@ -1,0 +1,88 @@
+{
+  "total": 3,
+  "page": 0,
+  "page_size": 20,
+  "code": 200,
+  "success": true,
+  "msg": "success",
+  "data": [
+    {
+      "id": 6831,
+      "name": "DSL Standard 5-Axle 80K",
+      "truck_ft_length": 70,
+      "truck_in_length": 0,
+      "truck_ft_width": 8,
+      "truck_in_width": 6,
+      "truck_ft_height": 13,
+      "truck_in_height": 6,
+      "weight_limit": 80000,
+      "weight_per_axle": 16000,
+      "axles": 5,
+      "trailers": 1,
+      "avoid_areas": [
+        {
+          "area_name": "Downtown Phoenix Construction Zone",
+          "type": "rectangle",
+          "coordinates": [
+            [
+              { "lat": 33.4480, "lng": -112.0780 },
+              { "lat": 33.4550, "lng": -112.0780 },
+              { "lat": 33.4550, "lng": -112.0650 },
+              { "lat": 33.4480, "lng": -112.0650 }
+            ]
+          ]
+        }
+      ],
+      "avoid_bridges": [
+        { "state": "AZ", "rules": ["TTT1"] }
+      ]
+    },
+    {
+      "id": 6832,
+      "name": "DSL Flatbed 5-Axle Overwidth",
+      "truck_ft_length": 70,
+      "truck_in_length": 0,
+      "truck_ft_width": 10,
+      "truck_in_width": 0,
+      "truck_ft_height": 13,
+      "truck_in_height": 6,
+      "weight_limit": 80000,
+      "weight_per_axle": 16000,
+      "axles": 5,
+      "trailers": 1,
+      "avoid_areas": [
+        {
+          "area_name": "Downtown Phoenix Construction Zone",
+          "type": "rectangle",
+          "coordinates": [
+            [
+              { "lat": 33.4480, "lng": -112.0780 },
+              { "lat": 33.4550, "lng": -112.0780 },
+              { "lat": 33.4550, "lng": -112.0650 },
+              { "lat": 33.4480, "lng": -112.0650 }
+            ]
+          ]
+        }
+      ],
+      "avoid_bridges": [
+        { "state": "AZ", "rules": ["TTT1", "CRN2"] }
+      ]
+    },
+    {
+      "id": 6833,
+      "name": "DSL Medium — 4-Axle 54K",
+      "truck_ft_length": 60,
+      "truck_in_length": 0,
+      "truck_ft_width": 8,
+      "truck_in_width": 0,
+      "truck_ft_height": 13,
+      "truck_in_height": 0,
+      "weight_limit": 54000,
+      "weight_per_axle": 13500,
+      "axles": 4,
+      "trailers": 1,
+      "avoid_areas": [],
+      "avoid_bridges": []
+    }
+  ]
+}

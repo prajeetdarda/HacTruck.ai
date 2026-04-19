@@ -1,0 +1,490 @@
+{
+  "total": 10,
+  "page": 0,
+  "page_size": 20,
+  "code": 200,
+  "success": true,
+  "msg": "success",
+  "data": [
+    {
+      "driver_id": 36101,
+      "basic_info": {
+        "driver_first_name": "Marcus",
+        "driver_last_name": "Webb",
+        "carrier": "Desert Sun Logistics",
+        "work_status": "AVAILABLE",
+        "driver_owner": "Admin",
+        "terminal": "Desert Sun Logistics — Phoenix Hub",
+        "driver_type": "COMPANY_DRIVER_CM",
+        "driver_phone_number": "602-555-0114",
+        "driver_email": "marcus.webb@desertsunlog.com",
+        "assignments_vehicles": {
+          "truck": { "vehicle_id": 72201, "vehicle_no": "DSL-Truck-01" },
+          "trailer": null
+        }
+      },
+      "driver_location": {
+        "last_known_location": "E University Dr, Mesa, AZ 85201",
+        "latest_update": 1745010600000,
+        "timezone": "MST"
+      },
+      "driver_activities": [
+        { "time": 1745010600000, "activities": ["Marcus Webb joined Desert Sun Logistics."] }
+      ],
+      "loads": {
+        "driver_assign_loads": [],
+        "driver_current_load": null
+      },
+      "contact_detail_info": {
+        "driver_street_address": "1402 E University Dr",
+        "driver_city": "Mesa",
+        "driver_country": "UNITED_STATES",
+        "driver_state": "AZ",
+        "zip_code": "85201",
+        "emergency_contact_name": "Sandra Webb",
+        "emergency_contact_number": "602-555-0115",
+        "emergency_contact_email": "sandra.webb@email.com"
+      },
+      "license_detail_info": {
+        "license_expiration": "2027-03-14",
+        "license_country": "UNITED_STATES",
+        "license_state": "AZ",
+        "license_type": "A",
+        "restrictions": ["E"],
+        "endorsements": ["N", "T"]
+      }
+    },
+    {
+      "driver_id": 36102,
+      "basic_info": {
+        "driver_first_name": "Rosa",
+        "driver_last_name": "Delgado",
+        "carrier": "Desert Sun Logistics",
+        "work_status": "AVAILABLE",
+        "driver_owner": "Admin",
+        "terminal": "Desert Sun Logistics — Phoenix Hub",
+        "driver_type": "COMPANY_DRIVER_CM",
+        "driver_phone_number": "480-555-0227",
+        "driver_email": "rosa.delgado@desertsunlog.com",
+        "assignments_vehicles": {
+          "truck": { "vehicle_id": 72202, "vehicle_no": "DSL-Truck-02" },
+          "trailer": null
+        }
+      },
+      "driver_location": {
+        "last_known_location": "S Dobson Rd, Chandler, AZ 85224",
+        "latest_update": 1745010600000,
+        "timezone": "MST"
+      },
+      "driver_activities": [
+        { "time": 1745010600000, "activities": ["Rosa Delgado joined Desert Sun Logistics."] }
+      ],
+      "loads": {
+        "driver_assign_loads": [],
+        "driver_current_load": null
+      },
+      "contact_detail_info": {
+        "driver_street_address": "874 S Dobson Rd Apt 12",
+        "driver_city": "Chandler",
+        "driver_country": "UNITED_STATES",
+        "driver_state": "AZ",
+        "zip_code": "85224",
+        "emergency_contact_name": "Miguel Delgado",
+        "emergency_contact_number": "480-555-0228",
+        "emergency_contact_email": "miguel.delgado@email.com"
+      },
+      "license_detail_info": {
+        "license_expiration": "2026-11-30",
+        "license_country": "UNITED_STATES",
+        "license_state": "AZ",
+        "license_type": "A",
+        "restrictions": ["E"],
+        "endorsements": ["H", "N"]
+      }
+    },
+    {
+      "driver_id": 36103,
+      "basic_info": {
+        "driver_first_name": "Jake",
+        "driver_last_name": "Torres",
+        "carrier": "Desert Sun Logistics",
+        "work_status": "AVAILABLE",
+        "driver_owner": "Admin",
+        "terminal": "Desert Sun Logistics — Phoenix Hub",
+        "driver_type": "COMPANY_DRIVER_CM",
+        "driver_phone_number": "480-555-0339",
+        "driver_email": "jake.torres@desertsunlog.com",
+        "assignments_vehicles": {
+          "truck": { "vehicle_id": 72203, "vehicle_no": "DSL-Truck-03" },
+          "trailer": null
+        }
+      },
+      "driver_location": {
+        "last_known_location": "E Shea Blvd, Scottsdale, AZ 85260",
+        "latest_update": 1745010600000,
+        "timezone": "MST"
+      },
+      "driver_activities": [
+        { "time": 1745010600000, "activities": ["Jake Torres joined Desert Sun Logistics."] }
+      ],
+      "loads": {
+        "driver_assign_loads": [],
+        "driver_current_load": null
+      },
+      "contact_detail_info": {
+        "driver_street_address": "9210 E Shea Blvd Unit 5",
+        "driver_city": "Scottsdale",
+        "driver_country": "UNITED_STATES",
+        "driver_state": "AZ",
+        "zip_code": "85260",
+        "emergency_contact_name": "Lisa Torres",
+        "emergency_contact_number": "480-555-0340",
+        "emergency_contact_email": "lisa.torres@email.com"
+      },
+      "license_detail_info": {
+        "license_expiration": "2028-06-22",
+        "license_country": "UNITED_STATES",
+        "license_state": "AZ",
+        "license_type": "A",
+        "restrictions": [],
+        "endorsements": ["T", "X"]
+      }
+    },
+    {
+      "driver_id": 36104,
+      "basic_info": {
+        "driver_first_name": "Anita",
+        "driver_last_name": "Pham",
+        "carrier": "Desert Sun Logistics",
+        "work_status": "AVAILABLE",
+        "driver_owner": "Admin",
+        "terminal": "Desert Sun Logistics — Phoenix Hub",
+        "driver_type": "COMPANY_DRIVER_CM",
+        "driver_phone_number": "602-555-0441",
+        "driver_email": "anita.pham@desertsunlog.com",
+        "assignments_vehicles": {
+          "truck": { "vehicle_id": 72204, "vehicle_no": "DSL-Truck-04" },
+          "trailer": null
+        }
+      },
+      "driver_location": {
+        "last_known_location": "S Mill Ave, Tempe, AZ 85282",
+        "latest_update": 1745010600000,
+        "timezone": "MST"
+      },
+      "driver_activities": [
+        { "time": 1745010600000, "activities": ["Anita Pham joined Desert Sun Logistics."] }
+      ],
+      "loads": {
+        "driver_assign_loads": [],
+        "driver_current_load": null
+      },
+      "contact_detail_info": {
+        "driver_street_address": "3301 S Mill Ave Apt 8",
+        "driver_city": "Tempe",
+        "driver_country": "UNITED_STATES",
+        "driver_state": "AZ",
+        "zip_code": "85282",
+        "emergency_contact_name": "Huy Pham",
+        "emergency_contact_number": "602-555-0442",
+        "emergency_contact_email": "huy.pham@email.com"
+      },
+      "license_detail_info": {
+        "license_expiration": "2029-01-09",
+        "license_country": "UNITED_STATES",
+        "license_state": "AZ",
+        "license_type": "A",
+        "restrictions": ["E"],
+        "endorsements": ["N"]
+      }
+    },
+    {
+      "driver_id": 36105,
+      "basic_info": {
+        "driver_first_name": "Derek",
+        "driver_last_name": "Okonkwo",
+        "carrier": "Desert Sun Logistics",
+        "work_status": "AVAILABLE",
+        "driver_owner": "Admin",
+        "terminal": "Desert Sun Logistics — Phoenix Hub",
+        "driver_type": "COMPANY_DRIVER_CM",
+        "driver_phone_number": "623-555-0552",
+        "driver_email": "derek.okonkwo@desertsunlog.com",
+        "assignments_vehicles": {
+          "truck": { "vehicle_id": 72205, "vehicle_no": "DSL-Truck-05" },
+          "trailer": null
+        }
+      },
+      "driver_location": {
+        "last_known_location": "W Peoria Ave, Glendale, AZ 85302",
+        "latest_update": 1745010600000,
+        "timezone": "MST"
+      },
+      "driver_activities": [
+        { "time": 1745010600000, "activities": ["Derek Okonkwo joined Desert Sun Logistics."] }
+      ],
+      "loads": {
+        "driver_assign_loads": [],
+        "driver_current_load": null
+      },
+      "contact_detail_info": {
+        "driver_street_address": "6750 W Peoria Ave",
+        "driver_city": "Glendale",
+        "driver_country": "UNITED_STATES",
+        "driver_state": "AZ",
+        "zip_code": "85302",
+        "emergency_contact_name": "Chioma Okonkwo",
+        "emergency_contact_number": "623-555-0553",
+        "emergency_contact_email": "chioma.okonkwo@email.com"
+      },
+      "license_detail_info": {
+        "license_expiration": "2026-08-17",
+        "license_country": "UNITED_STATES",
+        "license_state": "AZ",
+        "license_type": "A",
+        "restrictions": ["E"],
+        "endorsements": ["H", "T", "N"]
+      }
+    },
+    {
+      "driver_id": 36106,
+      "basic_info": {
+        "driver_first_name": "Yolanda",
+        "driver_last_name": "Cruz",
+        "carrier": "Desert Sun Logistics",
+        "work_status": "AVAILABLE",
+        "driver_owner": "Admin",
+        "terminal": "Desert Sun Logistics — Phoenix Hub",
+        "driver_type": "COMPANY_DRIVER_CM",
+        "driver_phone_number": "623-555-0663",
+        "driver_email": "yolanda.cruz@desertsunlog.com",
+        "assignments_vehicles": {
+          "truck": { "vehicle_id": 72206, "vehicle_no": "DSL-Truck-06" },
+          "trailer": null
+        }
+      },
+      "driver_location": {
+        "last_known_location": "N 83rd Ave, Peoria, AZ 85345",
+        "latest_update": 1745010600000,
+        "timezone": "MST"
+      },
+      "driver_activities": [
+        { "time": 1745010600000, "activities": ["Yolanda Cruz joined Desert Sun Logistics."] }
+      ],
+      "loads": {
+        "driver_assign_loads": [],
+        "driver_current_load": null
+      },
+      "contact_detail_info": {
+        "driver_street_address": "11432 N 83rd Ave",
+        "driver_city": "Peoria",
+        "driver_country": "UNITED_STATES",
+        "driver_state": "AZ",
+        "zip_code": "85345",
+        "emergency_contact_name": "Ramon Cruz",
+        "emergency_contact_number": "623-555-0664",
+        "emergency_contact_email": "ramon.cruz@email.com"
+      },
+      "license_detail_info": {
+        "license_expiration": "2027-09-05",
+        "license_country": "UNITED_STATES",
+        "license_state": "AZ",
+        "license_type": "A",
+        "restrictions": [],
+        "endorsements": ["N", "X"]
+      }
+    },
+    {
+      "driver_id": 36107,
+      "basic_info": {
+        "driver_first_name": "Sam",
+        "driver_last_name": "Nguyen",
+        "carrier": "Desert Sun Logistics",
+        "work_status": "AVAILABLE",
+        "driver_owner": "Admin",
+        "terminal": "Desert Sun Logistics — Phoenix Hub",
+        "driver_type": "COMPANY_DRIVER_CM",
+        "driver_phone_number": "480-555-0774",
+        "driver_email": "sam.nguyen@desertsunlog.com",
+        "assignments_vehicles": {
+          "truck": { "vehicle_id": 72207, "vehicle_no": "DSL-Truck-07" },
+          "trailer": null
+        }
+      },
+      "driver_location": {
+        "last_known_location": "S Lindsay Rd, Gilbert, AZ 85295",
+        "latest_update": 1745010600000,
+        "timezone": "MST"
+      },
+      "driver_activities": [
+        { "time": 1745010600000, "activities": ["Sam Nguyen joined Desert Sun Logistics."] }
+      ],
+      "loads": {
+        "driver_assign_loads": [],
+        "driver_current_load": null
+      },
+      "contact_detail_info": {
+        "driver_street_address": "2255 S Lindsay Rd Unit 3",
+        "driver_city": "Gilbert",
+        "driver_country": "UNITED_STATES",
+        "driver_state": "AZ",
+        "zip_code": "85295",
+        "emergency_contact_name": "Linh Nguyen",
+        "emergency_contact_number": "480-555-0775",
+        "emergency_contact_email": "linh.nguyen@email.com"
+      },
+      "license_detail_info": {
+        "license_expiration": "2028-12-19",
+        "license_country": "UNITED_STATES",
+        "license_state": "AZ",
+        "license_type": "A",
+        "restrictions": ["E"],
+        "endorsements": ["T"]
+      }
+    },
+    {
+      "driver_id": 36108,
+      "basic_info": {
+        "driver_first_name": "Tanya",
+        "driver_last_name": "Osei",
+        "carrier": "Desert Sun Logistics",
+        "work_status": "AVAILABLE",
+        "driver_owner": "Admin",
+        "terminal": "Desert Sun Logistics — Phoenix Hub",
+        "driver_type": "COMPANY_DRIVER_CM",
+        "driver_phone_number": "623-555-0885",
+        "driver_email": "tanya.osei@desertsunlog.com",
+        "assignments_vehicles": {
+          "truck": { "vehicle_id": 72208, "vehicle_no": "DSL-Truck-08" },
+          "trailer": null
+        }
+      },
+      "driver_location": {
+        "last_known_location": "N Dysart Rd, Avondale, AZ 85323",
+        "latest_update": 1745010600000,
+        "timezone": "MST"
+      },
+      "driver_activities": [
+        { "time": 1745010600000, "activities": ["Tanya Osei joined Desert Sun Logistics."] }
+      ],
+      "loads": {
+        "driver_assign_loads": [],
+        "driver_current_load": null
+      },
+      "contact_detail_info": {
+        "driver_street_address": "1188 N Dysart Rd Apt 22",
+        "driver_city": "Avondale",
+        "driver_country": "UNITED_STATES",
+        "driver_state": "AZ",
+        "zip_code": "85323",
+        "emergency_contact_name": "Kofi Osei",
+        "emergency_contact_number": "623-555-0886",
+        "emergency_contact_email": "kofi.osei@email.com"
+      },
+      "license_detail_info": {
+        "license_expiration": "2027-05-28",
+        "license_country": "UNITED_STATES",
+        "license_state": "AZ",
+        "license_type": "B",
+        "restrictions": ["E"],
+        "endorsements": []
+      }
+    },
+    {
+      "driver_id": 36109,
+      "basic_info": {
+        "driver_first_name": "Carlos",
+        "driver_last_name": "Vega",
+        "carrier": "Desert Sun Logistics",
+        "work_status": "INACTIVE",
+        "driver_owner": "Admin",
+        "terminal": "Desert Sun Logistics — Phoenix Hub",
+        "driver_type": "COMPANY_DRIVER_CM",
+        "driver_phone_number": "480-555-0996",
+        "driver_email": "carlos.vega@desertsunlog.com",
+        "assignments_vehicles": {
+          "truck": { "vehicle_id": 72209, "vehicle_no": "DSL-Truck-09" },
+          "trailer": null
+        }
+      },
+      "driver_location": {
+        "last_known_location": "S Ellsworth Rd, Queen Creek, AZ 85142",
+        "latest_update": 1745010600000,
+        "timezone": "MST"
+      },
+      "driver_activities": [
+        { "time": 1745010600000, "activities": ["Carlos Vega joined Desert Sun Logistics."] }
+      ],
+      "loads": {
+        "driver_assign_loads": [],
+        "driver_current_load": null
+      },
+      "contact_detail_info": {
+        "driver_street_address": "22140 S Ellsworth Rd",
+        "driver_city": "Queen Creek",
+        "driver_country": "UNITED_STATES",
+        "driver_state": "AZ",
+        "zip_code": "85142",
+        "emergency_contact_name": "Maria Vega",
+        "emergency_contact_number": "480-555-0997",
+        "emergency_contact_email": "maria.vega@email.com"
+      },
+      "license_detail_info": {
+        "license_expiration": "2026-07-11",
+        "license_country": "UNITED_STATES",
+        "license_state": "AZ",
+        "license_type": "A",
+        "restrictions": [],
+        "endorsements": ["H", "N", "T", "X"]
+      }
+    },
+    {
+      "driver_id": 36110,
+      "basic_info": {
+        "driver_first_name": "Pamela",
+        "driver_last_name": "Kowalski",
+        "carrier": "Desert Sun Logistics",
+        "work_status": "INACTIVE",
+        "driver_owner": "Admin",
+        "terminal": "Desert Sun Logistics — Phoenix Hub",
+        "driver_type": "COMPANY_DRIVER_CM",
+        "driver_phone_number": "623-555-1007",
+        "driver_email": "pam.kowalski@desertsunlog.com",
+        "assignments_vehicles": {
+          "truck": { "vehicle_id": 72210, "vehicle_no": "DSL-Truck-10" },
+          "trailer": null
+        }
+      },
+      "driver_location": {
+        "last_known_location": "N Del Webb Blvd, Sun City, AZ 85351",
+        "latest_update": 1745010600000,
+        "timezone": "MST"
+      },
+      "driver_activities": [
+        { "time": 1745010600000, "activities": ["Pamela Kowalski joined Desert Sun Logistics."] }
+      ],
+      "loads": {
+        "driver_assign_loads": [],
+        "driver_current_load": null
+      },
+      "contact_detail_info": {
+        "driver_street_address": "14002 N Del Webb Blvd",
+        "driver_city": "Sun City",
+        "driver_country": "UNITED_STATES",
+        "driver_state": "AZ",
+        "zip_code": "85351",
+        "emergency_contact_name": "Brian Kowalski",
+        "emergency_contact_number": "623-555-1008",
+        "emergency_contact_email": "brian.kowalski@email.com"
+      },
+      "license_detail_info": {
+        "license_expiration": "2028-02-03",
+        "license_country": "UNITED_STATES",
+        "license_state": "AZ",
+        "license_type": "A",
+        "restrictions": ["E"],
+        "endorsements": ["T", "N"]
+      }
+    }
+  ]
+}

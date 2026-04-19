@@ -1,0 +1,130 @@
+{
+  "total": 8,
+  "page": 0,
+  "page_size": 20,
+  "code": 200,
+  "success": true,
+  "msg": "success",
+  "data": [
+    {
+      "document_id": 801001,
+      "document_name": "DSL_BOL_Load1_MarcusWebb.pdf",
+      "document_type": "BILL_OF_LADING",
+      "document_url": "https://cdn.navpro.truckerpath.com/docs/801001.pdf",
+      "upload_by": "Admin",
+      "upload_date": 1745010600000,
+      "file_type": "pdf",
+      "document_tag": [
+        { "tag_name": "driver", "related_id": 36101, "related_name": "Marcus Webb" },
+        { "tag_name": "vehicle", "related_id": 72201, "related_name": "DSL-Truck-01" }
+      ],
+      "is_private": false,
+      "size": "312.44KB",
+      "scope": "UPLOAD_FILE"
+    },
+    {
+      "document_id": 801002,
+      "document_name": "DSL_BOL_Load2_RosaDelgado.pdf",
+      "document_type": "BILL_OF_LADING",
+      "document_url": "https://cdn.navpro.truckerpath.com/docs/801002.pdf",
+      "upload_by": "Admin",
+      "upload_date": 1745010600000,
+      "file_type": "pdf",
+      "document_tag": [
+        { "tag_name": "driver", "related_id": 36102, "related_name": "Rosa Delgado" },
+        { "tag_name": "vehicle", "related_id": 72202, "related_name": "DSL-Truck-02" }
+      ],
+      "is_private": false,
+      "size": "287.10KB",
+      "scope": "UPLOAD_FILE"
+    },
+    {
+      "document_id": 801003,
+      "document_name": "DSL_RateConf_Load3_AnitaPham.pdf",
+      "document_type": "RATE_CONFIRMATION",
+      "document_url": "https://cdn.navpro.truckerpath.com/docs/801003.pdf",
+      "upload_by": "Admin",
+      "upload_date": 1745010600000,
+      "file_type": "pdf",
+      "document_tag": [
+        { "tag_name": "driver", "related_id": 36104, "related_name": "Anita Pham" },
+        { "tag_name": "vehicle", "related_id": 72204, "related_name": "DSL-Truck-04" }
+      ],
+      "is_private": false,
+      "size": "198.75KB",
+      "scope": "UPLOAD_FILE"
+    },
+    {
+      "document_id": 801004,
+      "document_name": "DSL_RateConf_Load4_YolandaCruz.pdf",
+      "document_type": "RATE_CONFIRMATION",
+      "document_url": "https://cdn.navpro.truckerpath.com/docs/801004.pdf",
+      "upload_by": "Admin",
+      "upload_date": 1745010600000,
+      "file_type": "pdf",
+      "document_tag": [
+        { "tag_name": "driver", "related_id": 36106, "related_name": "Yolanda Cruz" },
+        { "tag_name": "vehicle", "related_id": 72206, "related_name": "DSL-Truck-06" }
+      ],
+      "is_private": false,
+      "size": "221.30KB",
+      "scope": "UPLOAD_FILE"
+    },
+    {
+      "document_id": 801005,
+      "document_name": "Webb_CDL_License.pdf",
+      "document_type": "DOT_DOC",
+      "document_url": "https://cdn.navpro.truckerpath.com/docs/801005.pdf",
+      "upload_by": "Marcus Webb",
+      "upload_date": 1745010600000,
+      "file_type": "pdf",
+      "document_tag": [
+        { "tag_name": "driver", "related_id": 36101, "related_name": "Marcus Webb" }
+      ],
+      "is_private": true,
+      "size": "145.88KB",
+      "scope": "UPLOAD_FILE"
+    },
+    {
+      "document_id": 801006,
+      "document_name": "Delgado_CDL_License.pdf",
+      "document_type": "DOT_DOC",
+      "document_url": "https://cdn.navpro.truckerpath.com/docs/801006.pdf",
+      "upload_by": "Rosa Delgado",
+      "upload_date": 1745010600000,
+      "file_type": "pdf",
+      "document_tag": [
+        { "tag_name": "driver", "related_id": 36102, "related_name": "Rosa Delgado" }
+      ],
+      "is_private": true,
+      "size": "138.22KB",
+      "scope": "UPLOAD_FILE"
+    },
+    {
+      "document_id": 801007,
+      "document_name": "DSL_COI_April2026.pdf",
+      "document_type": "COI_DOC",
+      "document_url": "https://cdn.navpro.truckerpath.com/docs/801007.pdf",
+      "upload_by": "Admin",
+      "upload_date": 1745010600000,
+      "file_type": "pdf",
+      "document_tag": [],
+      "is_private": false,
+      "size": "402.60KB",
+      "scope": "UPLOAD_FILE"
+    },
+    {
+      "document_id": 801008,
+      "document_name": "DSL_W9_2026.pdf",
+      "document_type": "W9_DOC",
+      "document_url": "https://cdn.navpro.truckerpath.com/docs/801008.pdf",
+      "upload_by": "Admin",
+      "upload_date": 1745010600000,
+      "file_type": "pdf",
+      "document_tag": [],
+      "is_private": false,
+      "size": "188.50KB",
+      "scope": "UPLOAD_FILE"
+    }
+  ]
+}

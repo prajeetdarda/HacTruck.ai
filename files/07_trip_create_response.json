@@ -1,0 +1,30 @@
+[
+  {
+    "code": 200,
+    "success": true,
+    "msg": "success",
+    "trip_id": "20260418-1",
+    "_meta": { "load": "Load 1 — Dry Van | Phoenix → Mesa", "scheduled_start_time": "2026-04-18T20:00:00Z" }
+  },
+  {
+    "code": 200,
+    "success": true,
+    "msg": "success",
+    "trip_id": "20260418-2",
+    "_meta": { "load": "Load 2 — Reefer | Phoenix → Chandler", "scheduled_start_time": "2026-04-18T19:30:00Z" }
+  },
+  {
+    "code": 200,
+    "success": true,
+    "msg": "success",
+    "trip_id": "20260418-3",
+    "_meta": { "load": "Load 3 — Flatbed | South Phoenix → North Phoenix", "scheduled_start_time": "2026-04-18T22:00:00Z" }
+  },
+  {
+    "code": 200,
+    "success": true,
+    "msg": "success",
+    "trip_id": "20260418-4",
+    "_meta": { "load": "Load 4 — Tanker | Surprise → Goodyear", "scheduled_start_time": "2026-04-18T18:00:00Z" }
+  }
+]

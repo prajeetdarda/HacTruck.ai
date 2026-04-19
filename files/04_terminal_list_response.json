@@ -1,0 +1,13 @@
+{
+  "code": 200,
+  "success": true,
+  "msg": "success",
+  "terminals": [
+    {
+      "terminal_id": 45700,
+      "terminal_name": "Desert Sun Logistics — Phoenix Hub",
+      "created_by": "Admin",
+      "member_number": 10
+    }
+  ]
+}

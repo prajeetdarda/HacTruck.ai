@@ -1,0 +1,120 @@
+{
+  "total": 10,
+  "page": 0,
+  "page_size": 20,
+  "code": 200,
+  "success": true,
+  "msg": "success",
+  "data": [
+    {
+      "vehicle_id": 72201, "created_date": "Apr 18, 2026",
+      "owner_id": 36101, "owner_name": "Marcus Webb",
+      "vehicle_status": "ACTIVE", "vehicle_no": "DSL-Truck-01", "vehicle_type": "TRUCK",
+      "vehicle_vin": "1HTMKAAR5GH401221", "gross_vehicle_weight": 80000,
+      "trailer_type": null, "vehicle_make": "International", "vehicle_model": "ProStar",
+      "assignments_drivers": {
+        "driver_ids": [36101],
+        "assign_driver_info": [{ "assign_driver_id": 36101, "assign_driver_name": "Marcus Webb" }]
+      }
+    },
+    {
+      "vehicle_id": 72202, "created_date": "Apr 18, 2026",
+      "owner_id": 36102, "owner_name": "Rosa Delgado",
+      "vehicle_status": "ACTIVE", "vehicle_no": "DSL-Truck-02", "vehicle_type": "TRUCK",
+      "vehicle_vin": "3HSDJAPR7GN523491", "gross_vehicle_weight": 80000,
+      "trailer_type": null, "vehicle_make": "Freightliner", "vehicle_model": "Cascadia",
+      "assignments_drivers": {
+        "driver_ids": [36102],
+        "assign_driver_info": [{ "assign_driver_id": 36102, "assign_driver_name": "Rosa Delgado" }]
+      }
+    },
+    {
+      "vehicle_id": 72203, "created_date": "Apr 18, 2026",
+      "owner_id": 36103, "owner_name": "Jake Torres",
+      "vehicle_status": "ACTIVE", "vehicle_no": "DSL-Truck-03", "vehicle_type": "TRUCK",
+      "vehicle_vin": "1FUJGBDV4CLBP1184", "gross_vehicle_weight": 80000,
+      "trailer_type": null, "vehicle_make": "Kenworth", "vehicle_model": "T680",
+      "assignments_drivers": {
+        "driver_ids": [36103],
+        "assign_driver_info": [{ "assign_driver_id": 36103, "assign_driver_name": "Jake Torres" }]
+      }
+    },
+    {
+      "vehicle_id": 72204, "created_date": "Apr 18, 2026",
+      "owner_id": 36104, "owner_name": "Anita Pham",
+      "vehicle_status": "ACTIVE", "vehicle_no": "DSL-Truck-04", "vehicle_type": "TRUCK",
+      "vehicle_vin": "1XKYDP9X2KJ388041", "gross_vehicle_weight": 80000,
+      "trailer_type": null, "vehicle_make": "Peterbilt", "vehicle_model": "579",
+      "assignments_drivers": {
+        "driver_ids": [36104],
+        "assign_driver_info": [{ "assign_driver_id": 36104, "assign_driver_name": "Anita Pham" }]
+      }
+    },
+    {
+      "vehicle_id": 72205, "created_date": "Apr 18, 2026",
+      "owner_id": 36105, "owner_name": "Derek Okonkwo",
+      "vehicle_status": "ACTIVE", "vehicle_no": "DSL-Truck-05", "vehicle_type": "TRUCK",
+      "vehicle_vin": "3HSDJAPR5JN801223", "gross_vehicle_weight": 80000,
+      "trailer_type": null, "vehicle_make": "Freightliner", "vehicle_model": "Cascadia",
+      "assignments_drivers": {
+        "driver_ids": [36105],
+        "assign_driver_info": [{ "assign_driver_id": 36105, "assign_driver_name": "Derek Okonkwo" }]
+      }
+    },
+    {
+      "vehicle_id": 72206, "created_date": "Apr 18, 2026",
+      "owner_id": 36106, "owner_name": "Yolanda Cruz",
+      "vehicle_status": "ACTIVE", "vehicle_no": "DSL-Truck-06", "vehicle_type": "TRUCK",
+      "vehicle_vin": "1NPXGGEJ4GD254810", "gross_vehicle_weight": 80000,
+      "trailer_type": null, "vehicle_make": "Volvo", "vehicle_model": "VNL 860",
+      "assignments_drivers": {
+        "driver_ids": [36106],
+        "assign_driver_info": [{ "assign_driver_id": 36106, "assign_driver_name": "Yolanda Cruz" }]
+      }
+    },
+    {
+      "vehicle_id": 72207, "created_date": "Apr 18, 2026",
+      "owner_id": 36107, "owner_name": "Sam Nguyen",
+      "vehicle_status": "ACTIVE", "vehicle_no": "DSL-Truck-07", "vehicle_type": "TRUCK",
+      "vehicle_vin": "1FUJGHDV8DLBX3819", "gross_vehicle_weight": 80000,
+      "trailer_type": null, "vehicle_make": "Kenworth", "vehicle_model": "W900",
+      "assignments_drivers": {
+        "driver_ids": [36107],
+        "assign_driver_info": [{ "assign_driver_id": 36107, "assign_driver_name": "Sam Nguyen" }]
+      }
+    },
+    {
+      "vehicle_id": 72208, "created_date": "Apr 18, 2026",
+      "owner_id": 36108, "owner_name": "Tanya Osei",
+      "vehicle_status": "ACTIVE", "vehicle_no": "DSL-Truck-08", "vehicle_type": "TRUCK",
+      "vehicle_vin": "1HTMKAAN0GH201998", "gross_vehicle_weight": 54000,
+      "trailer_type": null, "vehicle_make": "International", "vehicle_model": "LT",
+      "assignments_drivers": {
+        "driver_ids": [36108],
+        "assign_driver_info": [{ "assign_driver_id": 36108, "assign_driver_name": "Tanya Osei" }]
+      }
+    },
+    {
+      "vehicle_id": 72209, "created_date": "Apr 18, 2026",
+      "owner_id": 36109, "owner_name": "Carlos Vega",
+      "vehicle_status": "ACTIVE", "vehicle_no": "DSL-Truck-09", "vehicle_type": "TRUCK",
+      "vehicle_vin": "3AKJGLD57GSGS2218", "gross_vehicle_weight": 80000,
+      "trailer_type": null, "vehicle_make": "Mack", "vehicle_model": "Anthem",
+      "assignments_drivers": {
+        "driver_ids": [36109],
+        "assign_driver_info": [{ "assign_driver_id": 36109, "assign_driver_name": "Carlos Vega" }]
+      }
+    },
+    {
+      "vehicle_id": 72210, "created_date": "Apr 18, 2026",
+      "owner_id": 36110, "owner_name": "Pamela Kowalski",
+      "vehicle_status": "ACTIVE", "vehicle_no": "DSL-Truck-10", "vehicle_type": "TRUCK",
+      "vehicle_vin": "1FUJGHDR6CLBY9044", "gross_vehicle_weight": 80000,
+      "trailer_type": null, "vehicle_make": "Peterbilt", "vehicle_model": "389",
+      "assignments_drivers": {
+        "driver_ids": [36110],
+        "assign_driver_info": [{ "assign_driver_id": 36110, "assign_driver_name": "Pamela Kowalski" }]
+      }
+    }
+  ]
+}

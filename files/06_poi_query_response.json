@@ -1,0 +1,213 @@
+{
+  "code": 200,
+  "success": true,
+  "msg": "success",
+  "total": 5,
+  "poi_infos": [
+    {
+      "poi_id": 701001,
+      "latitude": 33.4484,
+      "longitude": -111.9916,
+      "external_id": "DSL-HQ-001",
+      "poi_detail": {
+        "street": "4201 E Van Buren St",
+        "city": "Phoenix",
+        "state": "AZ",
+        "country": "US",
+        "zip_code": "85008",
+        "contact_number": "602-555-0100",
+        "site_instruction": "Main HQ. Check in at front gate. Security badge required."
+      },
+      "site_detail": {
+        "entrance": [
+          {
+            "site_id": 801101,
+            "latitude": 33.4490,
+            "longitude": -111.9920,
+            "path": [
+              { "latitude": 33.4480, "longitude": -111.9910 },
+              { "latitude": 33.4485, "longitude": -111.9915 }
+            ],
+            "path_type": "ROAD_PATH"
+          }
+        ],
+        "exit": [
+          {
+            "site_id": 801102,
+            "latitude": 33.4478,
+            "longitude": -111.9912,
+            "path": [
+              { "latitude": 33.4483, "longitude": -111.9918 },
+              { "latitude": 33.4476, "longitude": -111.9908 }
+            ],
+            "path_type": "ROAD_PATH"
+          }
+        ]
+      }
+    },
+    {
+      "poi_id": 701002,
+      "latitude": 33.4822,
+      "longitude": -112.0167,
+      "external_id": "DSL-PICKUP-001",
+      "poi_detail": {
+        "street": "1220 N 48th St",
+        "city": "Phoenix",
+        "state": "AZ",
+        "country": "US",
+        "zip_code": "85008",
+        "contact_number": "602-555-0200",
+        "site_instruction": "Load 1 pickup. Dock 4B. Call yard manager on arrival."
+      },
+      "site_detail": {
+        "entrance": [
+          {
+            "site_id": 801201,
+            "latitude": 33.4828,
+            "longitude": -112.0172,
+            "path": [
+              { "latitude": 33.4815, "longitude": -112.0160 },
+              { "latitude": 33.4821, "longitude": -112.0165 }
+            ],
+            "path_type": "ROAD_PATH"
+          }
+        ],
+        "exit": [
+          {
+            "site_id": 801202,
+            "latitude": 33.4818,
+            "longitude": -112.0163,
+            "path": [
+              { "latitude": 33.4823, "longitude": -112.0168 },
+              { "latitude": 33.4812, "longitude": -112.0158 }
+            ],
+            "path_type": "ROAD_PATH"
+          }
+        ]
+      }
+    },
+    {
+      "poi_id": 701003,
+      "latitude": 33.4315,
+      "longitude": -111.7793,
+      "external_id": "DSL-DELIVERY-001",
+      "poi_detail": {
+        "street": "5230 E Oak St",
+        "city": "Mesa",
+        "state": "AZ",
+        "country": "US",
+        "zip_code": "85205",
+        "contact_number": "480-555-0300",
+        "site_instruction": "Load 1 delivery. Rear receiving dock. Call ahead."
+      },
+      "site_detail": {
+        "entrance": [
+          {
+            "site_id": 801301,
+            "latitude": 33.4320,
+            "longitude": -111.7798,
+            "path": [
+              { "latitude": 33.4309, "longitude": -111.7786 },
+              { "latitude": 33.4314, "longitude": -111.7791 }
+            ],
+            "path_type": "ROAD_PATH"
+          }
+        ],
+        "exit": [
+          {
+            "site_id": 801302,
+            "latitude": 33.4311,
+            "longitude": -111.7789,
+            "path": [
+              { "latitude": 33.4316, "longitude": -111.7794 },
+              { "latitude": 33.4308, "longitude": -111.7784 }
+            ],
+            "path_type": "ROAD_PATH"
+          }
+        ]
+      }
+    },
+    {
+      "poi_id": 701004,
+      "latitude": 33.6411,
+      "longitude": -112.3682,
+      "external_id": "DSL-PICKUP-004",
+      "poi_detail": {
+        "street": "16801 N Litchfield Rd",
+        "city": "Surprise",
+        "state": "AZ",
+        "country": "US",
+        "zip_code": "85379",
+        "contact_number": "623-555-0400",
+        "site_instruction": "Load 4 pickup. Tanker top-load fill station on north side."
+      },
+      "site_detail": {
+        "entrance": [
+          {
+            "site_id": 801401,
+            "latitude": 33.6418,
+            "longitude": -112.3688,
+            "path": [
+              { "latitude": 33.6405, "longitude": -112.3675 },
+              { "latitude": 33.6411, "longitude": -112.3681 }
+            ],
+            "path_type": "ROAD_PATH"
+          }
+        ],
+        "exit": [
+          {
+            "site_id": 801402,
+            "latitude": 33.6404,
+            "longitude": -112.3677,
+            "path": [
+              { "latitude": 33.6410, "longitude": -112.3683 },
+              { "latitude": 33.6401, "longitude": -112.3672 }
+            ],
+            "path_type": "ROAD_PATH"
+          }
+        ]
+      }
+    },
+    {
+      "poi_id": 701005,
+      "latitude": 33.4695,
+      "longitude": -112.3625,
+      "external_id": "DSL-DELIVERY-004",
+      "poi_detail": {
+        "street": "13501 W McDowell Rd",
+        "city": "Goodyear",
+        "state": "AZ",
+        "country": "US",
+        "zip_code": "85395",
+        "contact_number": "623-555-0500",
+        "site_instruction": "Load 4 delivery. Offload via bottom valve. Hard hat and safety vest required."
+      },
+      "site_detail": {
+        "entrance": [
+          {
+            "site_id": 801501,
+            "latitude": 33.4701,
+            "longitude": -112.3630,
+            "path": [
+              { "latitude": 33.4688, "longitude": -112.3618 },
+              { "latitude": 33.4694, "longitude": -112.3624 }
+            ],
+            "path_type": "ROAD_PATH"
+          }
+        ],
+        "exit": [
+          {
+            "site_id": 801502,
+            "latitude": 33.4690,
+            "longitude": -112.3620,
+            "path": [
+              { "latitude": 33.4696, "longitude": -112.3626 },
+              { "latitude": 33.4686, "longitude": -112.3615 }
+            ],
+            "path_type": "ROAD_PATH"
+          }
+        ]
+      }
+    }
+  ]
+}

@@ -1,0 +1,93 @@
+{
+  "code": 200,
+  "success": true,
+  "msg": "success",
+  "data": [
+    {
+      "driver_id": 36101,
+      "trail": [
+        { "id": 5100101, "latitude": 33.4153, "longitude": -111.8315, "time": "2026-04-18T18:00:00" },
+        { "id": 5100102, "latitude": 33.4198, "longitude": -111.8401, "time": "2026-04-18T18:15:00" },
+        { "id": 5100103, "latitude": 33.4234, "longitude": -111.8512, "time": "2026-04-18T18:30:00" }
+      ],
+      "active_trip": null
+    },
+    {
+      "driver_id": 36102,
+      "trail": [
+        { "id": 5100201, "latitude": 33.3062, "longitude": -111.8413, "time": "2026-04-18T18:00:00" },
+        { "id": 5100202, "latitude": 33.3115, "longitude": -111.8490, "time": "2026-04-18T18:15:00" },
+        { "id": 5100203, "latitude": 33.3178, "longitude": -111.8571, "time": "2026-04-18T18:30:00" }
+      ],
+      "active_trip": null
+    },
+    {
+      "driver_id": 36103,
+      "trail": [
+        { "id": 5100301, "latitude": 33.5092, "longitude": -111.8979, "time": "2026-04-18T18:00:00" },
+        { "id": 5100302, "latitude": 33.5041, "longitude": -111.9010, "time": "2026-04-18T18:15:00" },
+        { "id": 5100303, "latitude": 33.4990, "longitude": -111.9055, "time": "2026-04-18T18:30:00" }
+      ],
+      "active_trip": null
+    },
+    {
+      "driver_id": 36104,
+      "trail": [
+        { "id": 5100401, "latitude": 33.4148, "longitude": -111.9097, "time": "2026-04-18T18:00:00" },
+        { "id": 5100402, "latitude": 33.4201, "longitude": -111.9145, "time": "2026-04-18T18:15:00" },
+        { "id": 5100403, "latitude": 33.4255, "longitude": -111.9202, "time": "2026-04-18T18:30:00" }
+      ],
+      "active_trip": null
+    },
+    {
+      "driver_id": 36105,
+      "trail": [
+        { "id": 5100501, "latitude": 33.5387, "longitude": -112.1860, "time": "2026-04-18T18:00:00" },
+        { "id": 5100502, "latitude": 33.5330, "longitude": -112.1795, "time": "2026-04-18T18:15:00" },
+        { "id": 5100503, "latitude": 33.5278, "longitude": -112.1731, "time": "2026-04-18T18:30:00" }
+      ],
+      "active_trip": null
+    },
+    {
+      "driver_id": 36106,
+      "trail": [
+        { "id": 5100601, "latitude": 33.5806, "longitude": -112.2374, "time": "2026-04-18T18:00:00" },
+        { "id": 5100602, "latitude": 33.5751, "longitude": -112.2440, "time": "2026-04-18T18:15:00" },
+        { "id": 5100603, "latitude": 33.5699, "longitude": -112.2510, "time": "2026-04-18T18:30:00" }
+      ],
+      "active_trip": null
+    },
+    {
+      "driver_id": 36107,
+      "trail": [
+        { "id": 5100701, "latitude": 33.3528, "longitude": -111.7890, "time": "2026-04-18T18:00:00" },
+        { "id": 5100702, "latitude": 33.3475, "longitude": -111.7952, "time": "2026-04-18T18:15:00" },
+        { "id": 5100703, "latitude": 33.3422, "longitude": -111.8014, "time": "2026-04-18T18:30:00" }
+      ],
+      "active_trip": null
+    },
+    {
+      "driver_id": 36108,
+      "trail": [
+        { "id": 5100801, "latitude": 33.4355, "longitude": -112.3496, "time": "2026-04-18T18:00:00" },
+        { "id": 5100802, "latitude": 33.4410, "longitude": -112.3430, "time": "2026-04-18T18:15:00" },
+        { "id": 5100803, "latitude": 33.4462, "longitude": -112.3365, "time": "2026-04-18T18:30:00" }
+      ],
+      "active_trip": null
+    },
+    {
+      "driver_id": 36109,
+      "trail": [
+        { "id": 5100901, "latitude": 33.2487, "longitude": -111.6345, "time": "2026-04-18T18:00:00" }
+      ],
+      "active_trip": null
+    },
+    {
+      "driver_id": 36110,
+      "trail": [
+        { "id": 5101001, "latitude": 33.6003, "longitude": -112.2841, "time": "2026-04-18T18:00:00" }
+      ],
+      "active_trip": null
+    }
+  ]
+}
