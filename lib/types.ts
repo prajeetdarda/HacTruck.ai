@@ -1,10 +1,16 @@
-/** Ring / availability semantics for map nodes */
+/** Fleet health level for map + dispatch (four levels). */
 export type DriverRingStatus =
-  | "available" // green — strong HOS
-  | "constrained" // amber — available but tight HOS or other limits
-  | "unavailable" // red — exhausted / maintenance
-  | "en_route" // blue — on active load
-  | "off_duty"; // gray
+  | "urgent" // 1 red — critical
+  | "watch" // 2 amber — needs attention
+  | "good" // 3 green — healthy
+  | "inactive"; // 4 gray — not in service
+
+export const DRIVER_RING_LABEL: Record<DriverRingStatus, string> = {
+  urgent: "Urgent",
+  watch: "Watch",
+  good: "Good",
+  inactive: "Inactive",
+};
 
 export type EquipmentType = "dry_van" | "reefer" | "flatbed";
 

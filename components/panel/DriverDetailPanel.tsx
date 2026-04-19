@@ -5,6 +5,7 @@ import { useMemo } from "react";
 import { useDispatchContext } from "@/components/providers/DispatchProvider";
 import { formatCpm, formatEquipment } from "@/lib/format";
 import { Z_PANEL } from "@/lib/layout-tokens";
+import { DRIVER_RING_LABEL } from "@/lib/types";
 
 export function DriverDetailPanel() {
   const {
@@ -14,7 +15,18 @@ export function DriverDetailPanel() {
     selectDriver,
     assign,
     ranked,
+    bumpMapRingFilterPage,
   } = useDispatchContext();
+
+  const ringBrowseDrivers = useMemo(() => {
+    if (!state.mapRingFilter) return [];
+    return driversSimulated
+      .filter((d) => d.ringStatus === state.mapRingFilter)
+      .sort((a, b) => a.id.localeCompare(b.id));
+  }, [driversSimulated, state.mapRingFilter]);
+
+  const ringBrowseActive = !selectedLoad && state.mapRingFilter != null;
+  const ringBrowseTotal = ringBrowseDrivers.length;
 
   const driver = useMemo(
     () => driversSimulated.find((d) => d.id === state.selectedDriverId),
@@ -69,8 +81,8 @@ export function DriverDetailPanel() {
               <h3 className="text-[10px] font-semibold uppercase tracking-wider text-[var(--muted)]">
                 Status
               </h3>
-              <p className="mt-1 capitalize text-zinc-800 dark:text-zinc-300">
-                {driver.ringStatus.replace("_", " ")}
+              <p className="mt-1 text-zinc-800 dark:text-zinc-300">
+                {DRIVER_RING_LABEL[driver.ringStatus]}
               </p>
               {driver.currentLoadEndingInHours != null && (
                 <p className="mt-1 text-sm text-sky-400/90">
@@ -120,19 +132,21 @@ export function DriverDetailPanel() {
                   {formatCpm(driver.costPerMile)}
                 </dd>
               </div>
-              <div>
-                <dt className="text-[10px] uppercase text-[var(--muted)]">
-                  Confidence
-                </dt>
-                <dd className="text-zinc-800 dark:text-zinc-300">
-                  {rankedRow
-                    ? `${Math.min(99, rankedRow.matchPercent + 2)}%`
-                    : "—"}
-                </dd>
-              </div>
+              {selectedLoad ? (
+                <div>
+                  <dt className="text-[10px] uppercase text-[var(--muted)]">
+                    Match (this load)
+                  </dt>
+                  <dd className="text-zinc-800 dark:text-zinc-300">
+                    {rankedRow
+                      ? `${Math.min(99, rankedRow.matchPercent + 2)}%`
+                      : "—"}
+                  </dd>
+                </div>
+              ) : null}
             </dl>
 
-            {rankedRow && (
+            {selectedLoad && rankedRow && (
               <section>
                 <h3 className="text-[10px] font-semibold uppercase tracking-wider text-[var(--muted)]">
                   Why this rank
@@ -145,6 +159,34 @@ export function DriverDetailPanel() {
               </section>
             )}
           </div>
+
+          {ringBrowseActive && ringBrowseTotal > 0 ? (
+            <div className="flex items-center justify-between gap-3 border-t border-[var(--border)] px-5 py-3">
+              <button
+                type="button"
+                onClick={() => bumpMapRingFilterPage(-1)}
+                disabled={state.mapRingFilterPage <= 0}
+                aria-label="Previous driver in this fleet ring"
+                className="flex size-9 shrink-0 items-center justify-center rounded-lg border border-[var(--border)] bg-[var(--surface-1)] text-lg font-semibold text-zinc-700 outline-none transition-colors hover:bg-black/[0.04] disabled:cursor-not-allowed disabled:opacity-35 focus-visible:ring-2 focus-visible:ring-[var(--ring-focus)] dark:text-zinc-200 dark:hover:bg-white/5"
+              >
+                ‹
+              </button>
+              <p className="min-w-0 flex-1 text-center text-[11px] font-medium tabular-nums text-zinc-600 dark:text-zinc-400">
+                {state.mapRingFilterPage + 1} / {ringBrowseTotal} in ring
+              </p>
+              <button
+                type="button"
+                onClick={() => bumpMapRingFilterPage(1)}
+                disabled={
+                  state.mapRingFilterPage >= ringBrowseTotal - 1
+                }
+                aria-label="Next driver in this fleet ring"
+                className="flex size-9 shrink-0 items-center justify-center rounded-lg border border-[var(--border)] bg-[var(--surface-1)] text-lg font-semibold text-zinc-700 outline-none transition-colors hover:bg-black/[0.04] disabled:cursor-not-allowed disabled:opacity-35 focus-visible:ring-2 focus-visible:ring-[var(--ring-focus)] dark:text-zinc-200 dark:hover:bg-white/5"
+              >
+                ›
+              </button>
+            </div>
+          ) : null}
 
           <div className="border-t border-[var(--border)] p-5">
             <button

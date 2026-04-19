@@ -65,10 +65,10 @@ export function scoreFromFeatures(f: DriverLoadFeatures): {
 
   if (f.hasActiveConflict) rejectTags.push("conflict");
   if (f.equipmentMatch < 0.5) rejectTags.push("wrong_equipment");
-  if (f.ringStatus === "off_duty") rejectTags.push("off_duty");
-  if (f.ringStatus === "unavailable") rejectTags.push("low_hos");
+  if (f.ringStatus === "inactive") rejectTags.push("off_duty");
+  if (f.ringStatus === "urgent") rejectTags.push("low_hos");
   if (f.distanceToPickupMiles > 420) rejectTags.push("too_far");
-  if (f.hosRemaining < 2.5 && f.ringStatus !== "off_duty")
+  if (f.hosRemaining < 2.5 && f.ringStatus !== "inactive")
     rejectTags.push("low_hos");
 
   let score = 50;
@@ -79,16 +79,16 @@ export function scoreFromFeatures(f: DriverLoadFeatures): {
   score += f.laneFamiliarity * 14;
   score += clamp((2.15 - f.costPerMile) * 18, -12, 12);
 
-  if (f.currentLoadEndingSoon && f.ringStatus === "en_route") score += 8;
-
-  if (f.ringStatus === "off_duty") score -= 80;
-  if (f.ringStatus === "unavailable") score -= 85;
-  if (f.ringStatus === "constrained") score -= 6;
-  if (f.ringStatus === "en_route" && !f.currentLoadEndingSoon) score -= 12;
+  if (f.ringStatus === "inactive") score -= 80;
+  if (f.ringStatus === "urgent") score -= 85;
+  if (f.ringStatus === "watch") {
+    if (f.currentLoadEndingSoon) score += 8;
+    else score -= 9;
+  }
   if (f.hasActiveConflict) score -= 70;
   if (f.equipmentMatch < 0.5) score -= 55;
   if (f.distanceToPickupMiles > 380) score -= 25;
-  if (f.hosRemaining < 2 && f.ringStatus !== "off_duty") score -= 35;
+  if (f.hosRemaining < 2 && f.ringStatus !== "inactive") score -= 35;
 
   const reasons: string[] = [];
 
@@ -116,7 +116,7 @@ export function scoreFromFeatures(f: DriverLoadFeatures): {
   if (f.costPerMile < 1.85) reasons.push("Competitive cost per mile");
   else reasons.push("Slightly elevated CPM");
 
-  if (f.currentLoadEndingSoon && f.ringStatus === "en_route")
+  if (f.currentLoadEndingSoon && f.ringStatus === "watch")
     reasons.push("Finishes current route soon — good sequencing");
 
   if (f.hasActiveConflict) reasons.push("Active dispatch conflict on file");
@@ -153,13 +153,25 @@ export function rankDriversForLoad(
   return ranked;
 }
 
+const ASSIGN_DRAG_BLOCK: RejectTag[] = [
+  "wrong_equipment",
+  "off_duty",
+  "conflict",
+];
+
+/** Drag-drop / one-click assign is blocked for these hard rejects. */
+export function rankedAllowsAssignment(r: RankedDriver | undefined): boolean {
+  if (!r) return true;
+  return !r.rejectTags.some((t) => ASSIGN_DRAG_BLOCK.includes(t));
+}
+
 /** Short AI blurb for comparison tray */
 export function shortAiReason(r: RankedDriver, rank: number): string {
   const f = r.features;
   const endH = r.driver.currentLoadEndingInHours;
   if (rank === 1 && f.laneFamiliarity > 0.8 && f.equipmentMatch >= 1)
     return "Best pick — knows this lane";
-  if (f.currentLoadEndingSoon && f.ringStatus === "en_route" && endH != null)
+  if (f.currentLoadEndingSoon && f.ringStatus === "watch" && endH != null)
     return `Finishes current route in ${endH < 1 ? "<1" : endH.toFixed(1)}h`;
   if (f.hosRemaining < 4 && f.hosRemaining > 0 && rank <= 3)
     return "Closer but lower HOS";

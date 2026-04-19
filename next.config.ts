@@ -5,6 +5,13 @@ import type { NextConfig } from "next";
 const turbopackRoot = path.dirname(fileURLToPath(import.meta.url));
 
 const nextConfig: NextConfig = {
+  /** Map tiles load in the browser; expose key from server-style `OPENWEATHER_API_KEY`. */
+  env: {
+    NEXT_PUBLIC_OPENWEATHER_API_KEY:
+      process.env.OPENWEATHER_API_KEY ??
+      process.env.NEXT_PUBLIC_OPENWEATHER_API_KEY ??
+      "",
+  },
   turbopack: {
     root: turbopackRoot,
   },

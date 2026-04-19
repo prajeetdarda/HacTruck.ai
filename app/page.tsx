@@ -1,18 +1,42 @@
 import { DispatchProvider } from "@/components/providers/DispatchProvider";
+import { FleetHoverProvider } from "@/components/providers/FleetHoverProvider";
 import { MapColumn } from "@/components/layout/MapColumn";
 import { TopBar } from "@/components/layout/TopBar";
 import { LoadSidebar } from "@/components/loads/LoadSidebar";
 import { TimelineScrubber } from "@/components/timeline/TimelineScrubber";
 import { Toast } from "@/components/ui/Toast";
+import {
+  verifyOpenWeatherApiKey,
+  verifyOpenWeatherMap2TilesWork,
+} from "@/lib/verify-open-weather-key";
 
-export default function Home() {
+export default async function Home() {
+  const openWeatherApiKey =
+    process.env.OPENWEATHER_API_KEY?.trim() ??
+    process.env.NEXT_PUBLIC_OPENWEATHER_API_KEY?.trim() ??
+    "";
+
+  const openWeatherKeyWorks =
+    openWeatherApiKey.length > 0 &&
+    (await verifyOpenWeatherApiKey(openWeatherApiKey));
+
+  const openWeatherMap2TilesWork =
+    openWeatherKeyWorks &&
+    (await verifyOpenWeatherMap2TilesWork(openWeatherApiKey));
+
   return (
     <DispatchProvider>
       <div className="grid h-screen min-h-0 grid-rows-[auto_1fr_auto] overflow-hidden bg-[var(--surface-0)] text-[var(--foreground)]">
         <TopBar />
         <div className="flex min-h-0 min-w-0 overflow-hidden border-t border-[var(--border)]">
-          <LoadSidebar />
-          <MapColumn />
+          <FleetHoverProvider>
+            <LoadSidebar />
+            <MapColumn
+              openWeatherApiKey={openWeatherApiKey}
+              openWeatherKeyWorks={openWeatherKeyWorks}
+              openWeatherMap2TilesWork={openWeatherMap2TilesWork}
+            />
+          </FleetHoverProvider>
         </div>
         <TimelineScrubber />
         <Toast />

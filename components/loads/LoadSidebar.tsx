@@ -1,16 +1,28 @@
 "use client";
 
 import clsx from "clsx";
-import { useState } from "react";
+import { useEffect } from "react";
 import { useDispatchContext } from "@/components/providers/DispatchProvider";
+import { useHover } from "@/components/providers/HoverProvider";
 import { LoadCard } from "./LoadCard";
 
 const RAIL_W = "w-14";
 const PANEL_W = "w-[260px]";
 
 export function LoadSidebar() {
-  const [expanded, setExpanded] = useState(false);
-  const { openLoads, state, selectLoad, selectedLoad } = useDispatchContext();
+  const {
+    openLoads,
+    state,
+    selectLoad,
+    selectedLoad,
+    loadInboxExpanded: expanded,
+    setLoadInboxExpanded: setExpanded,
+  } = useDispatchContext();
+  const { setHoveredLoadId } = useHover();
+
+  useEffect(() => {
+    if (!expanded) setHoveredLoadId(null);
+  }, [expanded, setHoveredLoadId]);
 
   const sorted = [...openLoads].sort(
     (a, b) => a.pickupDeadline - b.pickupDeadline,
@@ -89,6 +101,8 @@ export function LoadSidebar() {
             active={selectedLoad?.id === load.id}
             assigned={false}
             offsetHours={state.simulatedHoursOffset}
+            onPointerEnter={() => setHoveredLoadId(load.id)}
+            onPointerLeave={() => setHoveredLoadId(null)}
             onClick={() =>
               selectLoad(selectedLoad?.id === load.id ? null : load.id)
             }

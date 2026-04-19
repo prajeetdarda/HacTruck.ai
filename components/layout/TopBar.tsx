@@ -1,58 +1,34 @@
 "use client";
 
+import clsx from "clsx";
 import { motion } from "motion/react";
 import { useEffect, useMemo, useState } from "react";
 import { FLEET_NAME } from "@/lib/mock-data";
+import type { DriverRingStatus } from "@/lib/types";
 import { useDispatchContext } from "@/components/providers/DispatchProvider";
 import { useTheme } from "@/components/providers/ThemeProvider";
-import type { Driver } from "@/lib/types";
 
-type Ring = Driver["ringStatus"];
-
-const RING_ROWS: {
-  key: Ring;
-  label: string;
-  dot: string;
-  text: string;
-}[] = [
-  {
-    key: "available",
-    label: "avail",
-    dot: "bg-emerald-400",
-    text: "text-emerald-800 dark:text-emerald-300",
-  },
-  {
-    key: "en_route",
-    label: "en route",
-    dot: "bg-sky-400",
-    text: "text-sky-800 dark:text-sky-300",
-  },
-  {
-    key: "constrained",
-    label: "tight HOS",
-    dot: "bg-amber-400",
-    text: "text-amber-900 dark:text-amber-300",
-  },
-  {
-    key: "unavailable",
-    label: "out",
-    dot: "bg-red-400",
-    text: "text-red-800 dark:text-red-300",
-  },
-  {
-    key: "off_duty",
-    label: "off duty",
-    dot: "bg-zinc-400 dark:bg-zinc-500",
-    text: "text-zinc-700 dark:text-zinc-400",
-  },
+const RING_ORDER: DriverRingStatus[] = [
+  "urgent",
+  "watch",
+  "good",
+  "inactive",
 ];
+
+const RING_CLASS: Record<DriverRingStatus, string> = {
+  urgent: "text-rose-400 dark:text-rose-400",
+  watch: "text-amber-400 dark:text-amber-400",
+  good: "text-emerald-400 dark:text-emerald-400",
+  inactive: "text-zinc-500 dark:text-zinc-500",
+};
 
 export function TopBar() {
   const {
     openLoads,
     activeDriverCount,
-    driversSimulated,
     selectedLoad,
+    driversSimulated,
+    loadInboxExpanded,
     state,
     setMapRingFilter,
   } = useDispatchContext();
@@ -67,20 +43,6 @@ export function TopBar() {
     return () => clearInterval(t);
   }, []);
 
-  const ringCounts = useMemo(() => {
-    const c: Record<Ring, number> = {
-      available: 0,
-      constrained: 0,
-      unavailable: 0,
-      en_route: 0,
-      off_duty: 0,
-    };
-    for (const d of driversSimulated) {
-      c[d.ringStatus]++;
-    }
-    return c;
-  }, [driversSimulated]);
-
   const timeStr =
     now == null
       ? "--:--:-- --"
@@ -90,6 +52,22 @@ export function TopBar() {
           second: "2-digit",
           hour12: true,
         });
+
+  const ringCounts = useMemo(() => {
+    const n: Record<DriverRingStatus, number> = {
+      urgent: 0,
+      watch: 0,
+      good: 0,
+      inactive: 0,
+    };
+    for (const d of driversSimulated) {
+      n[d.ringStatus] += 1;
+    }
+    return n;
+  }, [driversSimulated]);
+
+  const showFleetStrip =
+    !selectedLoad && !loadInboxExpanded;
 
   return (
     <header className="flex h-[52px] shrink-0 items-center gap-3 border-b border-[var(--border)] bg-[var(--surface-1)]/95 px-4 backdrop-blur-md sm:gap-4 sm:px-5">
@@ -110,41 +88,52 @@ export function TopBar() {
         </h1>
       </div>
 
-      {!selectedLoad && (
-        <div className="flex min-w-0 flex-1 flex-wrap items-center justify-center gap-x-2 gap-y-1 overflow-x-auto">
-          <span className="hidden shrink-0 text-[10px] font-semibold uppercase tracking-wider text-zinc-600 dark:text-zinc-500 md:inline">
-            Live fleet
-          </span>
-          {RING_ROWS.map(({ key, label, dot, text }) => {
-            const n = ringCounts[key];
-            if (n === 0) return null;
-            const active = state.mapRingFilter === key;
-            return (
-              <button
-                key={key}
-                type="button"
-                onClick={() => setMapRingFilter(key)}
-                aria-pressed={active}
-                title={
-                  active
-                    ? `Showing ${label} — click again to show all trucks`
-                    : `Browse ${label}: open first truck, map arrows for others`
-                }
-                className={`inline-flex shrink-0 items-center gap-1 rounded-full border px-2 py-0.5 text-[11px] font-semibold tabular-nums outline-none transition-colors focus-visible:ring-2 focus-visible:ring-[var(--ring-focus)] ${
-                  active
-                    ? "border-sky-500/60 bg-sky-500/15 ring-1 ring-sky-500/30"
-                    : "border-black/10 bg-black/[0.04] hover:border-black/18 hover:bg-black/[0.08] dark:border-white/[0.08] dark:bg-black/20 dark:hover:border-white/[0.14] dark:hover:bg-black/30"
-                } ${text}`}
+      {showFleetStrip ? (
+        <div className="flex min-w-0 flex-1 items-center justify-center overflow-hidden px-2">
+          <div
+            className="hidden max-w-full flex-wrap items-center justify-center gap-x-1 gap-y-0.5 text-center text-[11px] leading-snug sm:flex"
+            aria-live="polite"
+            role="toolbar"
+            aria-label="Fleet status — tap a category to focus those trucks on the map"
+          >
+            <span className="shrink-0 font-semibold uppercase tracking-[0.14em] text-zinc-600 dark:text-zinc-400">
+              Fleet alerts
+            </span>
+            {RING_ORDER.map((ring) => (
+              <span
+                key={ring}
+                className="inline-flex shrink-0 items-center gap-x-1 text-zinc-500 dark:text-zinc-600"
               >
-                <span className={`h-1.5 w-1.5 shrink-0 rounded-full ${dot}`} />
-                {n} {label}
-              </button>
-            );
-          })}
+                <span aria-hidden className="select-none">
+                  ●
+                </span>
+                <button
+                  type="button"
+                  disabled={ringCounts[ring] === 0}
+                  onClick={() => setMapRingFilter(ring)}
+                  title={
+                    state.mapRingFilter === ring
+                      ? `Clear ${ring} focus`
+                      : `Show ${ring} trucks on the map`
+                  }
+                  className={clsx(
+                    "rounded-md px-1.5 py-0.5 tabular-nums outline-none transition-colors",
+                    "hover:bg-black/[0.06] focus-visible:ring-2 focus-visible:ring-[var(--ring-focus)]",
+                    "disabled:pointer-events-none disabled:opacity-35 dark:hover:bg-white/[0.06]",
+                    RING_CLASS[ring],
+                    state.mapRingFilter === ring &&
+                      "bg-black/[0.08] ring-1 ring-current/35 dark:bg-white/[0.08]",
+                  )}
+                >
+                  {ringCounts[ring]} {ring}
+                </button>
+              </span>
+            ))}
+          </div>
         </div>
+      ) : (
+        <div className="min-w-0 flex-1" aria-hidden />
       )}
-
-      {selectedLoad && <div className="min-w-0 flex-1" aria-hidden />}
 
       <div className="ml-auto flex shrink-0 items-end gap-4 sm:gap-8">
         <Stat label="Active drivers" value={activeDriverCount} accent="text-sky-400" />

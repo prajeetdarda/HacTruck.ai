@@ -5,11 +5,10 @@ type RingStatus = Driver["ringStatus"];
 
 /** Ring status accent (badge, borders, SVG strokes). */
 export const RING_STATUS_COLOR: Record<RingStatus, string> = {
-  available: "#22c55e",
-  en_route: "#0ea5e9",
-  constrained: "#f59e0b",
-  unavailable: "#ef4444",
-  off_duty: "#71717a",
+  urgent: "#ef4444",
+  watch: "#f59e0b",
+  good: "#10b981",
+  inactive: "#9ca3af",
 };
 
 const RING_BADGE_BG = RING_STATUS_COLOR;
@@ -17,9 +16,40 @@ const RING_BADGE_BG = RING_STATUS_COLOR;
 /** Tiny white glyph inside the status bubble (10×10 viewBox). */
 function RingStatusGlyph({ status }: { status: RingStatus }) {
   const stroke = "white";
-  const sw = 2;
+  const sw = 1.85;
   switch (status) {
-    case "available":
+    case "urgent":
+      return (
+        <>
+          <path
+            d="M2.5 2.5 L7.5 7.5 M7.5 2.5 L2.5 7.5"
+            fill="none"
+            stroke={stroke}
+            strokeWidth={sw}
+            strokeLinecap="round"
+          />
+        </>
+      );
+    case "watch":
+      return (
+        <>
+          <path
+            d="M5 1.5 L8.5 8.5 H1.5 Z"
+            fill="none"
+            stroke={stroke}
+            strokeWidth={1.5}
+            strokeLinejoin="round"
+          />
+          <path
+            d="M5 3.3 V5.9"
+            stroke={stroke}
+            strokeWidth={1.35}
+            strokeLinecap="round"
+          />
+          <circle cx="5" cy="7.6" r="0.85" fill={stroke} />
+        </>
+      );
+    case "good":
       return (
         <path
           d="M2.2 5.2 L4.3 7.4 L8.2 3.2"
@@ -30,44 +60,10 @@ function RingStatusGlyph({ status }: { status: RingStatus }) {
           strokeLinejoin="round"
         />
       );
-    case "en_route":
+    case "inactive":
       return (
         <path
-          d="M2 5 L7 5 M5 3 L7 5 L5 7"
-          fill="none"
-          stroke={stroke}
-          strokeWidth={sw}
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        />
-      );
-    case "constrained":
-      return (
-        <>
-          <path
-            d="M5 2.2 L5 6.2"
-            stroke={stroke}
-            strokeWidth={sw}
-            strokeLinecap="round"
-          />
-          <circle cx="5" cy="8.2" r="1" fill={stroke} />
-        </>
-      );
-    case "unavailable":
-      return (
-        <>
-          <path
-            d="M2.8 2.8 L7.2 7.2 M7.2 2.8 L2.8 7.2"
-            stroke={stroke}
-            strokeWidth={sw}
-            strokeLinecap="round"
-          />
-        </>
-      );
-    case "off_duty":
-      return (
-        <path
-          d="M6.5 2.5 A3.5 3.5 0 1 1 2.5 6.5"
+          d="M1.5 5 H8.5"
           fill="none"
           stroke={stroke}
           strokeWidth={sw}
@@ -119,13 +115,16 @@ export function TruckMarkerIcon({
   className,
   style,
   ringStatus,
+  statusStrokeOverride,
 }: {
   className?: string;
   style?: CSSProperties;
   ringStatus: RingStatus;
+  /** When set, outline uses this color instead of ring status (e.g. load-pick mode). */
+  statusStrokeOverride?: string;
 }) {
   const red = "#dc2626";
-  const statusStroke = RING_STATUS_COLOR[ringStatus];
+  const statusStroke = statusStrokeOverride ?? RING_STATUS_COLOR[ringStatus];
   return (
     <svg
       className={className}
@@ -362,6 +361,67 @@ export function PickupOriginIcon({
         stroke="#fff"
         strokeWidth="1.05"
         strokeLinejoin="round"
+      />
+    </svg>
+  );
+}
+
+/** Compact pallet / crate for open-load map nodes (pairs with truck marker sizing). */
+export function LoadCargoMarkerIcon({
+  className,
+  style,
+}: {
+  className?: string;
+  style?: CSSProperties;
+}) {
+  const wood = "#92400e";
+  const tape = "#d97706";
+  return (
+    <svg
+      className={className}
+      style={style}
+      viewBox="0 0 40 40"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+      aria-hidden
+    >
+      <ellipse cx="20" cy="34" rx="14" ry="2.5" fill="#000" opacity={0.16} />
+      <path
+        d="M6 14 L20 9 L34 14 L34 26 L20 31 L6 26 Z"
+        fill="#fde68a"
+        stroke={wood}
+        strokeWidth={1.1}
+        strokeLinejoin="round"
+      />
+      <path
+        d="M6 14 L20 19 L34 14"
+        stroke={wood}
+        strokeWidth={1}
+        strokeLinejoin="round"
+        opacity={0.85}
+      />
+      <path
+        d="M20 19 L20 31"
+        stroke={wood}
+        strokeWidth={1}
+        strokeLinejoin="round"
+        opacity={0.85}
+      />
+      <path
+        d="M11 16.5 L20 13 L29 16.5"
+        stroke={tape}
+        strokeWidth={1.35}
+        strokeLinecap="round"
+        opacity={0.9}
+      />
+      <rect
+        x="15"
+        y="21"
+        width="10"
+        height="6"
+        rx="0.8"
+        fill="#292524"
+        opacity={0.35}
       />
     </svg>
   );

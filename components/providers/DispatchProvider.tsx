@@ -8,9 +8,10 @@ import {
   useMemo,
   useReducer,
   useRef,
+  useState,
 } from "react";
 import { DRIVERS, LOADS } from "@/lib/mock-data";
-import { rankDriversForLoad } from "@/lib/scoring";
+import { rankDriversForLoad, rankedAllowsAssignment } from "@/lib/scoring";
 import { driverForSimulation } from "@/lib/simulation";
 import type { Driver, RankedDriver, ToastState } from "@/lib/types";
 
@@ -37,8 +38,12 @@ type Action =
       /** When turning a filter on: first driver in browse order (id sort). */
       initialSelectedDriverId?: string | null;
     }
-  | { type: "mapRingFilterPageDelta"; delta: number; maxPage: number }
-  | { type: "setMapRingFilterPage"; page: number }
+  | {
+      type: "setMapRingBrowseIndex";
+      page: number;
+      selectedDriverId: string | null;
+    }
+  | { type: "exitRingBrowseSelectDriver"; id: string }
   | {
       type: "assign";
       loadId: string;
@@ -64,12 +69,20 @@ function reducer(state: State, action: Action): State {
         selectedLoadId: action.id,
         selectedDriverId: null,
         confirmedAssign: null,
-        ...(action.id != null
-          ? { mapRingFilter: null as Driver["ringStatus"] | null, mapRingFilterPage: 0 }
-          : {}),
+        /** Browse / ring UI is not used in no-load map mode — always reset. */
+        mapRingFilter: null,
+        mapRingFilterPage: 0,
       };
     case "selectDriver":
       if (state.selectedDriverId === action.id) return state;
+      if (action.id === null) {
+        return {
+          ...state,
+          selectedDriverId: null,
+          mapRingFilter: null,
+          mapRingFilterPage: 0,
+        };
+      }
       return { ...state, selectedDriverId: action.id };
     case "setSimOffset":
       return { ...state, simulatedHoursOffset: action.hours };
@@ -89,18 +102,27 @@ function reducer(state: State, action: Action): State {
         selectedDriverId: action.initialSelectedDriverId ?? null,
       };
     }
-    case "setMapRingFilterPage":
-      if (state.mapRingFilterPage === action.page) return state;
-      return { ...state, mapRingFilterPage: action.page };
-    case "mapRingFilterPageDelta": {
+    case "setMapRingBrowseIndex": {
       if (!state.mapRingFilter) return state;
-      const next = Math.max(
-        0,
-        Math.min(state.mapRingFilterPage + action.delta, action.maxPage),
-      );
-      if (next === state.mapRingFilterPage) return state;
-      return { ...state, mapRingFilterPage: next };
+      if (
+        state.mapRingFilterPage === action.page &&
+        state.selectedDriverId === action.selectedDriverId
+      ) {
+        return state;
+      }
+      return {
+        ...state,
+        mapRingFilterPage: action.page,
+        selectedDriverId: action.selectedDriverId,
+      };
     }
+    case "exitRingBrowseSelectDriver":
+      return {
+        ...state,
+        mapRingFilter: null,
+        mapRingFilterPage: 0,
+        selectedDriverId: action.id,
+      };
     case "assign": {
       const nextAssignments = {
         ...state.assignments,
@@ -153,6 +175,7 @@ function reducer(state: State, action: Action): State {
 const Ctx = createContext<ReturnType<typeof useDispatchValue> | null>(null);
 
 function useDispatchValue() {
+  const [loadInboxExpanded, setLoadInboxExpanded] = useState(false);
   const [state, dispatch] = useReducer(reducer, {
     selectedLoadId: null,
     selectedDriverId: null,
@@ -186,7 +209,11 @@ function useDispatchValue() {
   }, [selectedLoad, driversSimulated]);
 
   const top5Ids = useMemo(
-    () => ranked.slice(0, 5).map((r) => r.driver.id),
+    () =>
+      ranked
+        .filter(rankedAllowsAssignment)
+        .slice(0, 5)
+        .map((r) => r.driver.id),
     [ranked],
   );
 
@@ -197,7 +224,7 @@ function useDispatchValue() {
 
   const activeDriverCount = useMemo(() => {
     return DRIVERS.filter(
-      (d) => d.ringStatus === "available" || d.ringStatus === "en_route",
+      (d) => d.ringStatus === "good" || d.ringStatus === "watch",
     ).length;
   }, []);
 
@@ -205,9 +232,33 @@ function useDispatchValue() {
     dispatch({ type: "selectLoad", id });
   }, []);
 
-  const selectDriver = useCallback((id: string | null) => {
-    dispatch({ type: "selectDriver", id });
-  }, []);
+  const selectDriver = useCallback(
+    (id: string | null) => {
+      if (id == null) {
+        dispatch({ type: "selectDriver", id: null });
+        return;
+      }
+      if (state.mapRingFilter) {
+        const sorted = driversSimulated
+          .filter((d) => d.ringStatus === state.mapRingFilter)
+          .sort((a, b) => a.id.localeCompare(b.id));
+        const inRing = sorted.some((d) => d.id === id);
+        if (inRing) {
+          const idx = sorted.findIndex((d) => d.id === id);
+          dispatch({
+            type: "setMapRingBrowseIndex",
+            page: idx,
+            selectedDriverId: id,
+          });
+          return;
+        }
+        dispatch({ type: "exitRingBrowseSelectDriver", id });
+        return;
+      }
+      dispatch({ type: "selectDriver", id });
+    },
+    [state.mapRingFilter, driversSimulated],
+  );
 
   const setSimulatedHoursOffset = useCallback((hours: number) => {
     dispatch({ type: "setSimOffset", hours });
@@ -250,18 +301,42 @@ function useDispatchValue() {
   const bumpMapRingFilterPage = useCallback(
     (delta: number) => {
       if (state.mapRingFilter == null) return;
-      const n = driversSimulated.filter(
-        (d) => d.ringStatus === state.mapRingFilter,
-      ).length;
-      const maxPage = Math.max(0, n - 1);
-      dispatch({ type: "mapRingFilterPageDelta", delta, maxPage });
+      const sorted = driversSimulated
+        .filter((d) => d.ringStatus === state.mapRingFilter)
+        .sort((a, b) => a.id.localeCompare(b.id));
+      const n = sorted.length;
+      if (n === 0) return;
+      const maxPage = n - 1;
+      const nextPage = Math.max(
+        0,
+        Math.min(state.mapRingFilterPage + delta, maxPage),
+      );
+      if (nextPage === state.mapRingFilterPage) return;
+      dispatch({
+        type: "setMapRingBrowseIndex",
+        page: nextPage,
+        selectedDriverId: sorted[nextPage]!.id,
+      });
+    },
+    [driversSimulated, state.mapRingFilter, state.mapRingFilterPage],
+  );
+
+  const setMapRingBrowsePage = useCallback(
+    (page: number) => {
+      if (state.mapRingFilter == null) return;
+      const sorted = driversSimulated
+        .filter((d) => d.ringStatus === state.mapRingFilter)
+        .sort((a, b) => a.id.localeCompare(b.id));
+      const maxPage = Math.max(0, sorted.length - 1);
+      const nextPage = Math.max(0, Math.min(page, maxPage));
+      dispatch({
+        type: "setMapRingBrowseIndex",
+        page: nextPage,
+        selectedDriverId: sorted[nextPage]?.id ?? null,
+      });
     },
     [driversSimulated, state.mapRingFilter],
   );
-
-  const setMapRingBrowsePage = useCallback((page: number) => {
-    dispatch({ type: "setMapRingFilterPage", page });
-  }, []);
 
   useEffect(() => {
     if (!state.toast) {
@@ -291,6 +366,8 @@ function useDispatchValue() {
       top5Ids,
       openLoads,
       activeDriverCount,
+      loadInboxExpanded,
+      setLoadInboxExpanded,
       selectLoad,
       selectDriver,
       setSimulatedHoursOffset,
@@ -312,6 +389,7 @@ function useDispatchValue() {
       top5Ids,
       openLoads,
       activeDriverCount,
+      loadInboxExpanded,
       selectLoad,
       selectDriver,
       setSimulatedHoursOffset,

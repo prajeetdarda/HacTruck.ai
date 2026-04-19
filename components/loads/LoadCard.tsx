@@ -15,6 +15,8 @@ type Props = {
   offsetHours: number;
   onClick: () => void;
   index: number;
+  onPointerEnter?: () => void;
+  onPointerLeave?: () => void;
 };
 
 export function LoadCard({
@@ -24,6 +26,8 @@ export function LoadCard({
   offsetHours,
   onClick,
   index,
+  onPointerEnter,
+  onPointerLeave,
 }: Props) {
   const now = useNow(2000);
 
@@ -43,6 +47,8 @@ export function LoadCard({
       animate={{ opacity: 1, x: 0 }}
       transition={{ delay: index * 0.05, type: "spring", damping: 26 }}
       onClick={onClick}
+      onPointerEnter={onPointerEnter}
+      onPointerLeave={onPointerLeave}
       disabled={assigned}
       className={clsx(
         "group w-full rounded-xl border p-3 text-left transition-[box-shadow,border-color,background-color] duration-200",

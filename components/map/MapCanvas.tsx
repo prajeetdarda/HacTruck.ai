@@ -12,6 +12,12 @@ function readMapboxToken(): string {
   return (process.env.NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN ?? "").trim();
 }
 
+export type MapCanvasProps = {
+  openWeatherApiKey?: string;
+  openWeatherKeyWorks?: boolean;
+  openWeatherMap2TilesWork?: boolean;
+};
+
 const MapCanvasMapbox = dynamic(
   () =>
     import("@/components/map/MapCanvasMapbox").then((m) => ({
@@ -28,7 +34,11 @@ const MapCanvasMapbox = dynamic(
   },
 );
 
-export function MapCanvas() {
+export function MapCanvas({
+  openWeatherApiKey = "",
+  openWeatherKeyWorks = false,
+  openWeatherMap2TilesWork = false,
+}: MapCanvasProps) {
   const token = readMapboxToken();
   if (!token) {
     return (
@@ -68,5 +78,11 @@ export function MapCanvas() {
     );
   }
 
-  return <MapCanvasMapbox />;
+  return (
+    <MapCanvasMapbox
+      openWeatherApiKey={openWeatherApiKey}
+      openWeatherKeyWorks={openWeatherKeyWorks}
+      openWeatherMap2TilesWork={openWeatherMap2TilesWork}
+    />
+  );
 }

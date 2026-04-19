@@ -22,30 +22,44 @@ import MapGL, {
 import type { MapRef } from "react-map-gl/mapbox";
 import { useDispatchContext } from "@/components/providers/DispatchProvider";
 import { useHover } from "@/components/providers/HoverProvider";
+import { useNow } from "@/hooks/useNow";
+import { buildPressureHeatmapGeoJSON } from "@/lib/dispatch-pressure-heatmap";
 import { DEFAULT_MAP_VIEW, svgToLngLat } from "@/lib/geo-bridge";
+import {
+  clampSimulatedMsForOwmMap2,
+  openWeatherLegacyTileTemplate,
+  openWeatherMap2DateSecondsUtc,
+  openWeatherMap2TileTemplate,
+} from "@/lib/open-weather-tiles";
 import { LOADS } from "@/lib/mock-data";
 import { Z_MAP } from "@/lib/layout-tokens";
-import type { Driver, RankedDriver, RejectTag } from "@/lib/types";
+import { rankedAllowsAssignment } from "@/lib/scoring";
+import {
+  DEMO_WEATHER_ICON_RAIN,
+  DEMO_WEATHER_ICON_WIND,
+  ensureDemoWeatherMapImages,
+} from "@/lib/weather-map-icons";
+import { buildDemoWeatherIconCollection } from "@/lib/weather-overlay-geojson";
+import type { Driver } from "@/lib/types";
 import { LocateMeIcon, PickupOriginIcon } from "@/components/icons/MapMarkers";
 import { useTheme } from "@/components/providers/ThemeProvider";
 import { DriverMarkerContent } from "./DriverMarker";
+import { LoadMarkerContent } from "./LoadMarker";
 
-const DRAG_BLOCK_REJECTS: RejectTag[] = [
-  "wrong_equipment",
-  "off_duty",
-  "conflict",
-];
-
-function rankedAllowsDrag(r?: RankedDriver): boolean {
-  if (!r) return true;
-  return !r.rejectTags.some((t) => DRAG_BLOCK_REJECTS.includes(t));
-}
 const DROP_HIT_PX = 52;
 const DRAG_MOVE_PX = 7;
 
 const MAP_LOOK_STORAGE_KEY = "hacktruck-map-basemap-look";
 
 type MapBasemapLook = "rich" | "muted";
+
+const HEATMAP_PULSE_PERIOD_MS = 2500;
+/** Pixels — large so a few spread-out points still read at ~zoom 6. */
+const HEATMAP_BASE_RADIUS_DEMAND = 92;
+const HEATMAP_BASE_RADIUS_SUPPLY = 96;
+const HEATMAP_PULSE_AMPLITUDE = 0.085;
+const HEATMAP_INTENSITY_DEMAND_BASE = 1.45;
+const HEATMAP_INTENSITY_SUPPLY_BASE = 1.32;
 
 function lineFeature(
   kind: "connector" | "confirmed" | "confirmedAlt" | "enroute",
@@ -58,15 +72,47 @@ function lineFeature(
   };
 }
 
-export function MapCanvasMapbox() {
+type MapBounds = {
+  west: number;
+  south: number;
+  east: number;
+  north: number;
+};
+
+export type MapCanvasMapboxProps = {
+  /** Injected from server (reads `OPENWEATHER_API_KEY` from `.env.local`). */
+  openWeatherApiKey?: string;
+  /** Server probe: `data/2.5/weather` returned 200 for this key. */
+  openWeatherKeyWorks?: boolean;
+  /** Server probe: Maps 2.0 tile returned 200 — enables scrub-synced forecast tiles. */
+  openWeatherMap2TilesWork?: boolean;
+};
+
+export function MapCanvasMapbox({
+  openWeatherApiKey = "",
+  openWeatherKeyWorks = false,
+  openWeatherMap2TilesWork = false,
+}: MapCanvasMapboxProps) {
   const token = process.env.NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN ?? "";
+  const effectiveOwmKey = openWeatherKeyWorks
+    ? (
+        openWeatherApiKey.trim() ||
+        (process.env.NEXT_PUBLIC_OPENWEATHER_API_KEY ?? "").trim()
+      )
+    : "";
+  const openWeatherKeyRejected =
+    !openWeatherKeyWorks &&
+    (openWeatherApiKey.trim().length > 0 ||
+      (process.env.NEXT_PUBLIC_OPENWEATHER_API_KEY ?? "").trim().length > 0);
   const { theme } = useTheme();
   const [basemapLook, setBasemapLook] = useState<MapBasemapLook>("rich");
 
   useEffect(() => {
     try {
       const v = localStorage.getItem(MAP_LOOK_STORAGE_KEY);
-      if (v === "muted" || v === "rich") setBasemapLook(v);
+      if (v === "muted" || v === "rich") {
+        queueMicrotask(() => setBasemapLook(v));
+      }
     } catch {
       /* ignore */
     }
@@ -101,8 +147,21 @@ export function MapCanvasMapbox() {
   const [showAllDrivers, setShowAllDrivers] = useState(false);
   /** Dotted en-route polylines (hidden by default). */
   const [showEnRoutePaths, setShowEnRoutePaths] = useState(false);
+  /** Open loads as clickable map nodes (pickup coordinates). */
+  const [showLoadNodes, setShowLoadNodes] = useState(false);
+  /** Dispatch pressure heatmap (demand red / supply blue). */
+  const [showPressureHeatmap, setShowPressureHeatmap] = useState(false);
+  /** OpenWeather raster overlay (clouds + precipitation). */
+  const [showWeatherOverlay, setShowWeatherOverlay] = useState(false);
+  /** Bottom-left map options panel (basemap, layers, toggles). */
+  const [mapControlsOpen, setMapControlsOpen] = useState(true);
+  const [viewportBounds, setViewportBounds] = useState<MapBounds | null>(null);
+  const [severeWeatherInView, setSevereWeatherInView] = useState(false);
+  const severeFetchTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const dragStartRef = useRef<{ lng: number; lat: number } | null>(null);
   const suppressClickUntil = useRef(0);
+
+  const heatmapNowMs = useNow(45_000);
 
   const {
     driversSimulated,
@@ -111,130 +170,201 @@ export function MapCanvasMapbox() {
     top5Ids,
     ranked,
     selectDriver,
+    selectLoad,
     assign,
-    bumpMapRingFilterPage,
-    setMapRingBrowsePage,
   } = useDispatchContext();
 
   /** Mapbox Directions geometry (driver → pickup) when both load and driver are selected. */
   const [drivingRouteCoords, setDrivingRouteCoords] = useState<
     [number, number][] | null
   >(null);
-  const { hoveredDriverId, setHoveredDriverId } = useHover();
+  const { hoveredDriverId, setHoveredDriverId, hoveredLoadId } = useHover();
 
   const rankedById = useMemo(() => {
     const m = new Map(ranked.map((r) => [r.driver.id, r]));
     return m;
   }, [ranked]);
 
+  const assignableRanked = useMemo(
+    () => ranked.filter(rankedAllowsAssignment),
+    [ranked],
+  );
+
   const rankByDriverId = useMemo(() => {
     const m = new Map<string, number>();
-    ranked.forEach((row, i) => m.set(row.driver.id, i + 1));
+    assignableRanked.forEach((row, i) => m.set(row.driver.id, i + 1));
     return m;
-  }, [ranked]);
+  }, [assignableRanked]);
 
   const top5Set = useMemo(() => new Set(top5Ids), [top5Ids]);
 
   const driversOnMap = useMemo(() => {
-    let pool: Driver[];
-    if (!selectedLoad || showAllDrivers) {
-      pool = driversSimulated;
-    } else {
-      pool = driversSimulated.filter((d) => top5Set.has(d.id));
+    if (selectedLoad) {
+      if (showAllDrivers) return driversSimulated;
+      return driversSimulated.filter((d) => top5Set.has(d.id));
     }
-    if (!selectedLoad && state.mapRingFilter != null) {
-      return pool
-        .filter((d) => d.ringStatus === state.mapRingFilter)
-        .sort((a, b) => a.id.localeCompare(b.id));
+    if (state.mapRingFilter) {
+      return driversSimulated.filter(
+        (d) => d.ringStatus === state.mapRingFilter,
+      );
     }
-    return pool;
+    return driversSimulated;
   }, [
     driversSimulated,
     selectedLoad,
     showAllDrivers,
-    state.mapRingFilter,
     top5Set,
+    state.mapRingFilter,
   ]);
 
-  const fleetRingDriversSorted = useMemo(() => {
-    if (!state.mapRingFilter) return [];
-    return driversSimulated
-      .filter((d) => d.ringStatus === state.mapRingFilter)
-      .sort((a, b) => a.id.localeCompare(b.id));
-  }, [driversSimulated, state.mapRingFilter]);
+  const openLoads = useMemo(
+    () => LOADS.filter((l) => !state.assignments[l.id]),
+    [state.assignments],
+  );
 
-  const fleetBrowsePrevPageRef = useRef<number | null>(null);
+  const pressureHeatmapGeoJSON: FeatureCollection = useMemo(
+    () =>
+      buildPressureHeatmapGeoJSON(
+        openLoads,
+        driversSimulated,
+        heatmapNowMs,
+        state.simulatedHoursOffset,
+      ),
+    [
+      openLoads,
+      driversSimulated,
+      heatmapNowMs,
+      state.simulatedHoursOffset,
+    ],
+  );
 
-  /**
-   * Fleet ring browse: clamp page; when the *page index* changes (prev/next, clamp, or effect 2 after a map
-   * click), select the driver at that page. Do not force-select L[page] when only `selectedDriverId`
-   * changed — that fights the effect below that moves the page to the clicked driver → infinite updates.
-   */
+  /** Wall + timeline scrub — matches heatmap / dispatch simulation clock. */
+  const simulatedWeatherMs = useMemo(
+    () => heatmapNowMs + state.simulatedHoursOffset * 3600000,
+    [heatmapNowMs, state.simulatedHoursOffset],
+  );
+
+  const clampedWeatherMsForTiles = useMemo(
+    () => clampSimulatedMsForOwmMap2(simulatedWeatherMs, heatmapNowMs),
+    [simulatedWeatherMs, heatmapNowMs],
+  );
+
+  const weatherMapDateSecUtc = useMemo(
+    () => openWeatherMap2DateSecondsUtc(clampedWeatherMsForTiles),
+    [clampedWeatherMsForTiles],
+  );
+
+  const owmCloudTiles = useMemo(() => {
+    if (!effectiveOwmKey) return [];
+    if (openWeatherMap2TilesWork) {
+      return [
+        openWeatherMap2TileTemplate(
+          "CL",
+          weatherMapDateSecUtc,
+          effectiveOwmKey,
+          0.42,
+        ),
+      ];
+    }
+    return [openWeatherLegacyTileTemplate("clouds_new", effectiveOwmKey)];
+  }, [effectiveOwmKey, openWeatherMap2TilesWork, weatherMapDateSecUtc]);
+
+  const owmPrecipTiles = useMemo(() => {
+    if (!effectiveOwmKey) return [];
+    if (openWeatherMap2TilesWork) {
+      return [
+        openWeatherMap2TileTemplate(
+          "PR0",
+          weatherMapDateSecUtc,
+          effectiveOwmKey,
+          0.48,
+        ),
+      ];
+    }
+    return [
+      openWeatherLegacyTileTemplate("precipitation_new", effectiveOwmKey),
+    ];
+  }, [effectiveOwmKey, openWeatherMap2TilesWork, weatherMapDateSecUtc]);
+
+  const demoWeatherIconCollection = useMemo(
+    () => buildDemoWeatherIconCollection(state.simulatedHoursOffset),
+    [state.simulatedHoursOffset],
+  );
+
   useEffect(() => {
-    if (selectedLoad || !state.mapRingFilter) {
-      fleetBrowsePrevPageRef.current = null;
-      return;
-    }
-    const L = fleetRingDriversSorted;
-    if (L.length === 0) {
-      if (state.selectedDriverId) selectDriver(null);
-      return;
-    }
-    const idx = Math.min(state.mapRingFilterPage, L.length - 1);
-    if (idx !== state.mapRingFilterPage) {
-      setMapRingBrowsePage(idx);
-      return;
-    }
-    const id = L[idx]!.id;
-    const page = state.mapRingFilterPage;
-    const pageChanged = fleetBrowsePrevPageRef.current !== page;
-    fleetBrowsePrevPageRef.current = page;
-    if (pageChanged) {
-      selectDriver(id);
-    }
-  }, [
-    selectedLoad,
-    state.mapRingFilter,
-    state.mapRingFilterPage,
-    fleetRingDriversSorted,
-    selectDriver,
-    setMapRingBrowsePage,
-  ]);
+    if (!mapReady) return;
+    const map = mapRef.current?.getMap();
+    if (!map) return;
 
-  /**
-   * When the *selected driver* changes (map, list, etc.), align ring browse page to that driver.
-   * Do not depend on `mapRingFilterPage`: after Next/Prev, page updates before `selectedDriverId`
-   * (effect 1), and this effect would see idx !== page and reset page — undoing pagination.
-   */
+    const onStyleLoad = () => {
+      ensureDemoWeatherMapImages(map);
+    };
+    const onStyleImageMissing = (e: { id: string }) => {
+      if (e.id === DEMO_WEATHER_ICON_RAIN || e.id === DEMO_WEATHER_ICON_WIND) {
+        ensureDemoWeatherMapImages(map);
+      }
+    };
+
+    map.on("style.load", onStyleLoad);
+    map.on("styleimagemissing", onStyleImageMissing);
+    if (map.isStyleLoaded()) {
+      queueMicrotask(() => ensureDemoWeatherMapImages(map));
+    }
+
+    return () => {
+      map.off("style.load", onStyleLoad);
+      map.off("styleimagemissing", onStyleImageMissing);
+    };
+  }, [mapReady, mapStyle]);
+
+  const syncViewportBounds = useCallback(() => {
+    const map = mapRef.current?.getMap();
+    if (!map) return;
+    const b = map.getBounds();
+    if (!b) return;
+    setViewportBounds({
+      west: b.getWest(),
+      south: b.getSouth(),
+      east: b.getEast(),
+      north: b.getNorth(),
+    });
+  }, []);
+
   useEffect(() => {
-    if (selectedLoad || !state.mapRingFilter || !state.selectedDriverId) return;
-    const idx = fleetRingDriversSorted.findIndex(
-      (d) => d.id === state.selectedDriverId,
-    );
-    if (idx >= 0 && idx !== state.mapRingFilterPage) {
-      setMapRingBrowsePage(idx);
+    if (!effectiveOwmKey) {
+      queueMicrotask(() => setSevereWeatherInView(false));
+      return;
     }
-  }, [
-    selectedLoad,
-    state.mapRingFilter,
-    state.selectedDriverId,
-    fleetRingDriversSorted,
-    setMapRingBrowsePage,
-  ]); // eslint-disable-line react-hooks/exhaustive-deps -- omit mapRingFilterPage (would undo Next/Prev; see comment above)
-
-  const fleetRingNav = useMemo(() => {
-    if (!state.mapRingFilter) return null;
-    const n = fleetRingDriversSorted.length;
-    const page = Math.min(
-      state.mapRingFilterPage,
-      Math.max(0, n - 1),
-    );
-    return { n, page };
-  }, [
-    state.mapRingFilter,
-    state.mapRingFilterPage,
-    fleetRingDriversSorted,
-  ]);
+    if (!mapReady || !viewportBounds) return;
+    if (severeFetchTimerRef.current) {
+      clearTimeout(severeFetchTimerRef.current);
+    }
+    severeFetchTimerRef.current = setTimeout(() => {
+      const { west, south, east, north } = viewportBounds;
+      const q = new URLSearchParams({
+        west: String(west),
+        south: String(south),
+        east: String(east),
+        north: String(north),
+        atMs: String(simulatedWeatherMs),
+      });
+      fetch(`/api/weather/severity?${q}`)
+        .then((r) => r.json())
+        .then((body: { severe?: boolean; disabled?: boolean }) => {
+          if (body?.disabled) {
+            setSevereWeatherInView(false);
+            return;
+          }
+          setSevereWeatherInView(!!body?.severe);
+        })
+        .catch(() => setSevereWeatherInView(false));
+    }, 480);
+    return () => {
+      if (severeFetchTimerRef.current) {
+        clearTimeout(severeFetchTimerRef.current);
+      }
+    };
+  }, [mapReady, effectiveOwmKey, viewportBounds, simulatedWeatherMs]);
 
   useEffect(() => {
     queueMicrotask(() => setShowAllDrivers(false));
@@ -251,7 +381,11 @@ export function MapCanvasMapbox() {
     const enrouteDrivers =
       selectedLoad && !showAllDrivers
         ? driversSimulated.filter((d) => top5Set.has(d.id))
-        : driversSimulated;
+        : !selectedLoad && state.mapRingFilter
+          ? driversSimulated.filter(
+              (d) => d.ringStatus === state.mapRingFilter,
+            )
+          : driversSimulated;
     if (showEnRoutePaths) {
       for (const d of enrouteDrivers) {
         if (d.enRoutePath && d.enRoutePath.length >= 2) {
@@ -318,6 +452,7 @@ export function MapCanvasMapbox() {
     selectedLoad,
     showAllDrivers,
     showEnRoutePaths,
+    state.mapRingFilter,
     state.selectedDriverId,
     top5Ids,
     top5Set,
@@ -394,6 +529,7 @@ export function MapCanvasMapbox() {
     state.simulatedHoursOffset,
   ]);
 
+  /** Center on pickup when a load is chosen for dispatch; keep the viewport when clearing (free map browse). */
   useEffect(() => {
     if (!mapReady) return;
     const map = mapRef.current?.getMap();
@@ -407,33 +543,27 @@ export function MapCanvasMapbox() {
         duration: 520,
         essential: true,
       });
-    } else {
-      map.flyTo({
-        center: [DEFAULT_MAP_VIEW.longitude, DEFAULT_MAP_VIEW.latitude] as LngLatLike,
-        zoom: DEFAULT_MAP_VIEW.zoom,
-        duration: 520,
-        essential: true,
-      });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps -- selectedLoad?.id
   }, [mapReady, selectedLoad?.id]);
 
-  /** No load: ring browse — pan to the focused truck when filter or selection changes (not every sim tick). */
+  /** Center on the focused truck when browsing by fleet ring (no load selected). */
   useEffect(() => {
-    if (!mapReady || selectedLoad) return;
+    if (!mapReady) return;
+    if (selectedLoad) return;
     if (!state.mapRingFilter || !state.selectedDriverId) return;
     const map = mapRef.current?.getMap();
     if (!map) return;
-    const driver = driversSimulated.find((d) => d.id === state.selectedDriverId);
-    if (!driver) return;
-    const ll = svgToLngLat(driver.x, driver.y);
+    const d = driversSimulated.find((x) => x.id === state.selectedDriverId);
+    if (!d) return;
+    const ll = svgToLngLat(d.x, d.y);
     map.flyTo({
       center: [ll.lng, ll.lat] as LngLatLike,
       zoom: Math.max(map.getZoom(), 5.35),
-      duration: 480,
+      duration: 420,
       essential: true,
     });
-    // eslint-disable-next-line react-hooks/exhaustive-deps -- omit driversSimulated (timeline scrub); fly on browse selection only
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- only refocus when browse target changes
   }, [mapReady, selectedLoad, state.mapRingFilter, state.selectedDriverId]);
 
   useEffect(() => {
@@ -494,7 +624,7 @@ export function MapCanvasMapbox() {
 
       if (dist <= DROP_HIT_PX) {
         const row = rankedById.get(driver.id);
-        if (rankedAllowsDrag(row)) {
+        if (rankedAllowsAssignment(row)) {
           assign(selectedLoad.id, driver.id, driver.name);
         }
       }
@@ -554,6 +684,56 @@ export function MapCanvasMapbox() {
     );
   }, [mapReady]);
 
+  useEffect(() => {
+    if (!mapReady || !showPressureHeatmap) return;
+    let raf = 0;
+    let cancelled = false;
+    const tick = () => {
+      if (cancelled) return;
+      const map = mapRef.current?.getMap();
+      if (
+        map?.getLayer("heatmap-pressure-demand") &&
+        map.getLayer("heatmap-pressure-supply")
+      ) {
+        const t = performance.now() / 1000;
+        const pulse = Math.sin(
+          (t * 2 * Math.PI * 1000) / HEATMAP_PULSE_PERIOD_MS,
+        );
+        const scale = 1 + HEATMAP_PULSE_AMPLITUDE * pulse;
+        try {
+          map.setPaintProperty(
+            "heatmap-pressure-demand",
+            "heatmap-radius",
+            HEATMAP_BASE_RADIUS_DEMAND * scale,
+          );
+          map.setPaintProperty(
+            "heatmap-pressure-demand",
+            "heatmap-intensity",
+            HEATMAP_INTENSITY_DEMAND_BASE + 0.18 * pulse,
+          );
+          map.setPaintProperty(
+            "heatmap-pressure-supply",
+            "heatmap-radius",
+            HEATMAP_BASE_RADIUS_SUPPLY * scale,
+          );
+          map.setPaintProperty(
+            "heatmap-pressure-supply",
+            "heatmap-intensity",
+            HEATMAP_INTENSITY_SUPPLY_BASE + 0.16 * pulse,
+          );
+        } catch {
+          /* style swapping / layer not ready */
+        }
+      }
+      raf = requestAnimationFrame(tick);
+    };
+    raf = requestAnimationFrame(tick);
+    return () => {
+      cancelled = true;
+      cancelAnimationFrame(raf);
+    };
+  }, [mapReady, showPressureHeatmap]);
+
   return (
     <div
       className="relative min-h-0 flex-1 overflow-hidden rounded-2xl border border-[var(--border)] bg-[var(--surface-1)] shadow-[inset_0_0_48px_rgba(0,0,0,0.06)] dark:shadow-[inset_0_0_60px_rgba(0,0,0,0.35)]"
@@ -567,11 +747,109 @@ export function MapCanvasMapbox() {
         attributionControl={false}
         initialViewState={DEFAULT_MAP_VIEW}
         style={{ width: "100%", height: "100%" }}
-        onLoad={() => setMapReady(true)}
+        onLoad={() => {
+          setMapReady(true);
+          queueMicrotask(() => {
+            syncViewportBounds();
+            const map = mapRef.current?.getMap();
+            if (map?.isStyleLoaded()) {
+              ensureDemoWeatherMapImages(map);
+            }
+          });
+        }}
+        onMoveEnd={() => syncViewportBounds()}
         scrollZoom={{ around: "center" }}
       >
         <AttributionControl compact position="bottom-left" />
         <NavigationControl position="top-right" showCompass={false} />
+        {showWeatherOverlay && effectiveOwmKey && owmCloudTiles.length > 0 ? (
+          <Source
+            key={
+              openWeatherMap2TilesWork
+                ? `owm-cl-m2-${weatherMapDateSecUtc}`
+                : "owm-cl-v1"
+            }
+            id="owm-cloud-cover"
+            type="raster"
+            tileSize={256}
+            tiles={owmCloudTiles}
+            attribution='© <a href="https://openweathermap.org/" target="_blank" rel="noreferrer">OpenWeather</a>'
+          >
+            <Layer
+              id="owm-cloud-cover-layer"
+              type="raster"
+              paint={{
+                "raster-opacity": 0.4,
+                "raster-fade-duration": 0,
+              }}
+            />
+          </Source>
+        ) : null}
+        {showWeatherOverlay && effectiveOwmKey && owmPrecipTiles.length > 0 ? (
+          <Source
+            key={
+              openWeatherMap2TilesWork
+                ? `owm-pr-m2-${weatherMapDateSecUtc}`
+                : "owm-pr-v1"
+            }
+            id="owm-precipitation"
+            type="raster"
+            tileSize={256}
+            tiles={owmPrecipTiles}
+          >
+            <Layer
+              id="owm-precipitation-layer"
+              type="raster"
+              paint={{
+                "raster-opacity": 0.48,
+                "raster-fade-duration": 0,
+              }}
+            />
+          </Source>
+        ) : null}
+        {showWeatherOverlay ? (
+          <Source
+            id="demo-weather-icons"
+            type="geojson"
+            data={demoWeatherIconCollection}
+          >
+            <Layer
+              id="demo-weather-symbol"
+              type="symbol"
+              layout={{
+                "icon-image": [
+                  "match",
+                  ["get", "kind"],
+                  "rain",
+                  DEMO_WEATHER_ICON_RAIN,
+                  "wind",
+                  DEMO_WEATHER_ICON_WIND,
+                  DEMO_WEATHER_ICON_RAIN,
+                ],
+                "icon-size": [
+                  "interpolate",
+                  ["linear"],
+                  ["zoom"],
+                  4,
+                  0.34,
+                  5.85,
+                  0.5,
+                  8,
+                  0.64,
+                  10,
+                  0.76,
+                ],
+                "icon-allow-overlap": true,
+                "icon-ignore-placement": true,
+                "icon-anchor": "center",
+                "icon-pitch-alignment": "viewport",
+              }}
+              paint={{
+                "icon-opacity": ["to-number", ["get", "opacity"]],
+              }}
+            />
+          </Source>
+        ) : null}
         <Source id="dispatch-lines" type="geojson" data={linesGeoJSON}>
           <Layer
             id="enroute-lines"
@@ -627,34 +905,132 @@ export function MapCanvasMapbox() {
           />
         </Source>
 
+        {showPressureHeatmap ? (
+          <Source
+            id="dispatch-pressure-heatmap"
+            type="geojson"
+            data={pressureHeatmapGeoJSON}
+          >
+            {/* Supply first, demand on top — red “pressure” stays visible where both overlap */}
+            <Layer
+              id="heatmap-pressure-supply"
+              type="heatmap"
+              filter={["==", ["get", "kind"], "supply"]}
+              paint={{
+                "heatmap-weight": [
+                  "min",
+                  1,
+                  ["*", 4, ["get", "w"]],
+                ],
+                "heatmap-intensity": HEATMAP_INTENSITY_SUPPLY_BASE,
+                "heatmap-color": [
+                  "interpolate",
+                  ["linear"],
+                  ["heatmap-density"],
+                  0,
+                  "rgba(0,0,0,0)",
+                  0.02,
+                  "rgba(165,230,254,0.42)",
+                  0.12,
+                  "rgba(56,189,248,0.68)",
+                  0.4,
+                  "rgba(14,165,233,0.82)",
+                  0.72,
+                  "rgba(2,132,199,0.88)",
+                  1,
+                  "rgba(3,105,161,0.92)",
+                ],
+                "heatmap-radius": HEATMAP_BASE_RADIUS_SUPPLY,
+                "heatmap-opacity": 0.74,
+              }}
+            />
+            <Layer
+              id="heatmap-pressure-demand"
+              type="heatmap"
+              filter={["==", ["get", "kind"], "demand"]}
+              paint={{
+                "heatmap-weight": [
+                  "min",
+                  1,
+                  ["*", 4, ["get", "w"]],
+                ],
+                "heatmap-intensity": HEATMAP_INTENSITY_DEMAND_BASE,
+                "heatmap-color": [
+                  "interpolate",
+                  ["linear"],
+                  ["heatmap-density"],
+                  0,
+                  "rgba(0,0,0,0)",
+                  0.02,
+                  "rgba(255,200,140,0.45)",
+                  0.12,
+                  "rgba(255,150,90,0.65)",
+                  0.35,
+                  "rgba(234,88,52,0.78)",
+                  0.65,
+                  "rgba(220,60,40,0.88)",
+                  1,
+                  "rgba(185,28,28,0.92)",
+                ],
+                "heatmap-radius": HEATMAP_BASE_RADIUS_DEMAND,
+                "heatmap-opacity": 0.78,
+              }}
+            />
+          </Source>
+        ) : null}
+
+        {showLoadNodes
+          ? openLoads.map((load) => {
+              const ll = svgToLngLat(load.pickupX, load.pickupY);
+              const active = selectedLoad?.id === load.id;
+              const inboxHover =
+                showLoadNodes && hoveredLoadId === load.id;
+              return (
+                <Marker
+                  key={`load-${load.id}`}
+                  longitude={ll.lng}
+                  latitude={ll.lat}
+                  anchor="center"
+                  onClick={(e) => {
+                    e.originalEvent.stopPropagation();
+                    if (Date.now() < suppressClickUntil.current) return;
+                    selectLoad(load.id);
+                  }}
+                >
+                  <LoadMarkerContent
+                    load={load}
+                    active={active}
+                    inboxHover={inboxHover}
+                  />
+                </Marker>
+              );
+            })
+          : null}
+
         {driversOnMap.map((driver) => {
           const ll = svgToLngLat(driver.x, driver.y);
           const hasSelection = !!selectedLoad;
           const isTop = top5Ids.includes(driver.id);
           const candidatesOnlyView = hasSelection && !showAllDrivers;
-          const dimmed =
-            hasSelection && !candidatesOnlyView && !isTop;
+          const ringBrowseMode = !selectedLoad && state.mapRingFilter != null;
+          const dimmed = ringBrowseMode
+            ? false
+            : hasSelection && !candidatesOnlyView && !isTop;
           const isHovered = hoveredDriverId === driver.id;
           const r = rankedById.get(driver.id);
           const canDrag =
-            !!selectedLoad && isTop && rankedAllowsDrag(r);
+            !!selectedLoad && isTop && rankedAllowsAssignment(r);
           const rankForLoad =
             selectedLoad != null
               ? (rankByDriverId.get(driver.id) ?? null)
               : null;
           const fadedBySelection =
-            (!!selectedLoad &&
-              !!state.selectedDriverId &&
-              state.selectedDriverId !== driver.id) ||
-            (!selectedLoad &&
-              state.mapRingFilter != null &&
-              !!state.selectedDriverId &&
-              state.selectedDriverId !== driver.id);
-
-          const fleetBrowseFocused =
-            !selectedLoad &&
-            state.mapRingFilter != null &&
-            state.selectedDriverId === driver.id;
+            !!state.selectedDriverId &&
+            state.selectedDriverId !== driver.id &&
+            (!!selectedLoad || ringBrowseMode);
+          const isCandidate = ringBrowseMode
+            ? state.selectedDriverId === driver.id
+            : candidatesOnlyView || isTop;
 
           return (
             <Marker
@@ -680,12 +1056,6 @@ export function MapCanvasMapbox() {
               onClick={(e) => {
                 e.originalEvent.stopPropagation();
                 if (Date.now() < suppressClickUntil.current) return;
-                if (!selectedLoad && state.mapRingFilter) {
-                  const ix = fleetRingDriversSorted.findIndex(
-                    (d) => d.id === driver.id,
-                  );
-                  if (ix >= 0) setMapRingBrowsePage(ix);
-                }
                 selectDriver(driver.id);
               }}
             >
@@ -696,21 +1066,20 @@ export function MapCanvasMapbox() {
                 <DriverMarkerContent
                   driver={driver}
                   dimmed={dimmed}
-                  isCandidate={
-                    candidatesOnlyView || isTop || fleetBrowseFocused
-                  }
+                  isCandidate={isCandidate}
                   isHovered={isHovered}
                   fadedBySelection={fadedBySelection}
                   ranked={r}
                   dragging={draggingDriverId === driver.id}
                   rankForLoad={rankForLoad}
+                  loadPickMode={hasSelection}
                 />
               </div>
             </Marker>
           );
         })}
 
-        {selectedLoad && pickupLngLat && (
+        {selectedLoad && pickupLngLat && !showLoadNodes && (
           <Marker
             longitude={pickupLngLat.lng}
             latitude={pickupLngLat.lat}
@@ -778,11 +1147,47 @@ export function MapCanvasMapbox() {
         ) : null}
       </div>
 
-      <div className="pointer-events-none absolute left-3 top-3 max-w-[min(100%,220px)] rounded-lg border border-black/10 bg-white/90 px-2.5 py-1 text-[10px] font-medium uppercase tracking-wider text-zinc-600 backdrop-blur-sm dark:border-white/[0.06] dark:bg-black/50 dark:text-zinc-500">
-        Mapbox · Drag a top driver onto the amber pin to assign
+      <div className="pointer-events-none absolute left-3 top-3 max-w-[min(100%,min(260px,calc(100vw-8rem)))] rounded-lg border border-black/10 bg-white/90 px-2.5 py-1 text-[10px] font-medium uppercase tracking-wider text-zinc-600 backdrop-blur-sm dark:border-white/[0.06] dark:bg-black/50 dark:text-zinc-500">
+        {selectedLoad
+          ? "Mapbox · Drag a top driver onto the amber pickup pin to assign"
+          : state.mapRingFilter
+            ? "Mapbox · Fleet ring browse — use arrows in the driver panel or tap trucks"
+            : "Mapbox · Tap trucks, load pins, or a fleet alert to view details"}
       </div>
 
       <div className="pointer-events-auto absolute bottom-12 left-2 z-20 flex max-w-[min(calc(100%-1rem),260px)] flex-col gap-2 rounded-xl border border-[var(--border)] bg-[var(--surface-2)]/95 p-2 text-[11px] text-zinc-800 shadow-lg backdrop-blur-md dark:text-zinc-200">
+        <button
+          type="button"
+          id="map-controls-toggle"
+          aria-expanded={mapControlsOpen}
+          aria-controls="map-controls-drawer"
+          onClick={() => setMapControlsOpen((o) => !o)}
+          title={mapControlsOpen ? "Hide map controls" : "Show map controls"}
+          className="flex w-full items-center justify-between gap-2 rounded-lg px-1 py-0.5 text-left outline-none transition-colors hover:bg-[var(--surface-1)]/80 focus-visible:ring-2 focus-visible:ring-[var(--ring-focus)]"
+        >
+          <span className="text-[10px] font-semibold uppercase tracking-wider text-[var(--muted)]">
+            Map controls
+          </span>
+          <svg
+            className={`h-4 w-4 shrink-0 text-zinc-500 transition-transform duration-200 dark:text-zinc-400 ${mapControlsOpen ? "rotate-180" : ""}`}
+            viewBox="0 0 20 20"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="1.75"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            aria-hidden
+          >
+            <path d="M5 7.5 10 12.5 15 7.5" />
+          </svg>
+        </button>
+        {mapControlsOpen ? (
+          <div
+            id="map-controls-drawer"
+            role="region"
+            aria-labelledby="map-controls-toggle"
+            className="flex flex-col gap-2"
+          >
         <div className="flex flex-col gap-1.5 border-b border-[var(--border)] pb-2">
           <span className="px-0.5 text-[10px] font-semibold uppercase tracking-wider text-[var(--muted)]">
             Map colors
@@ -818,35 +1223,22 @@ export function MapCanvasMapbox() {
             </button>
           </div>
         </div>
-        {!selectedLoad && state.mapRingFilter && fleetRingNav && fleetRingNav.n > 0 && (
-          <div
-            className="flex items-center justify-between gap-1 border-b border-[var(--border)] pb-2"
-            role="navigation"
-            aria-label="Drivers in filtered fleet group"
-          >
-            <button
-              type="button"
-              disabled={fleetRingNav.page <= 0}
-              onClick={() => bumpMapRingFilterPage(-1)}
-              className="flex size-8 shrink-0 items-center justify-center rounded-lg font-medium text-[var(--foreground)] outline-none transition-colors hover:bg-[var(--surface-1)] disabled:cursor-not-allowed disabled:opacity-35"
-              aria-label="Previous driver"
-            >
-              ←
-            </button>
-            <span className="min-w-[3.5rem] select-none text-center text-[10px] tabular-nums text-[var(--muted)]">
-              {fleetRingNav.page + 1} / {fleetRingNav.n}
+        <label className="flex cursor-pointer select-none items-start gap-2 rounded-lg px-0.5 py-1 hover:bg-[var(--surface-1)]/80">
+          <input
+            type="checkbox"
+            className="mt-0.5 size-3.5 shrink-0 rounded border-zinc-400 bg-white text-amber-500 accent-amber-500 dark:border-zinc-500 dark:bg-zinc-800"
+            checked={showLoadNodes}
+            onChange={(e) => setShowLoadNodes(e.target.checked)}
+          />
+          <span className="leading-snug">
+            <span className="font-semibold text-zinc-900 dark:text-zinc-100">
+              Load pins
             </span>
-            <button
-              type="button"
-              disabled={fleetRingNav.page >= fleetRingNav.n - 1}
-              onClick={() => bumpMapRingFilterPage(1)}
-              className="flex size-8 shrink-0 items-center justify-center rounded-lg font-medium text-[var(--foreground)] outline-none transition-colors hover:bg-[var(--surface-1)] disabled:cursor-not-allowed disabled:opacity-35"
-              aria-label="Next driver"
-            >
-              →
-            </button>
-          </div>
-        )}
+            <span className="mt-0.5 block text-[10px] font-normal text-zinc-600 dark:text-zinc-500">
+              Open loads at pickup; click for details
+            </span>
+          </span>
+        </label>
         <label className="flex cursor-pointer select-none items-start gap-2 rounded-lg px-0.5 py-1 hover:bg-[var(--surface-1)]/80">
           <input
             type="checkbox"
@@ -863,6 +1255,71 @@ export function MapCanvasMapbox() {
             </span>
           </span>
         </label>
+        <label className="flex cursor-pointer select-none items-start gap-2 rounded-lg border-t border-[var(--border)] px-0.5 pt-2 hover:bg-[var(--surface-1)]/80">
+          <input
+            type="checkbox"
+            className="mt-0.5 size-3.5 shrink-0 rounded border-zinc-400 bg-white text-rose-500 accent-rose-500 dark:border-zinc-500 dark:bg-zinc-800"
+            checked={showPressureHeatmap}
+            onChange={(e) => setShowPressureHeatmap(e.target.checked)}
+          />
+          <span className="leading-snug">
+            <span className="font-semibold text-zinc-900 dark:text-zinc-100">
+              Heatmap
+            </span>
+            <span className="mt-0.5 block text-[10px] font-normal text-zinc-600 dark:text-zinc-500">
+              Demand (red) vs idle capacity (blue); follows timeline scrub
+            </span>
+          </span>
+        </label>
+        <div className="border-t border-[var(--border)] pt-2">
+          <button
+            type="button"
+            aria-pressed={showWeatherOverlay}
+            aria-label={
+              severeWeatherInView
+                ? "Weather overlay. Adverse conditions possible in the visible map area for the scrubbed time."
+                : undefined
+            }
+            title={
+              severeWeatherInView
+                ? "Adverse weather possible in view for the scrubbed time — click to toggle overlay"
+                : showWeatherOverlay
+                  ? "Hide weather overlay"
+                  : effectiveOwmKey
+                    ? openWeatherMap2TilesWork
+                      ? "Show demo weather icons + OpenWeather forecast raster"
+                      : "Show demo weather icons + OpenWeather current raster"
+                    : openWeatherKeyRejected
+                      ? "Show demo weather (local). OpenWeather key invalid — raster off."
+                      : "Show demo weather (local). Add key for optional raster below."
+            }
+            onClick={() => setShowWeatherOverlay((v) => !v)}
+            className={`relative w-full rounded-lg px-2 py-2 text-left outline-none transition-colors focus-visible:ring-2 focus-visible:ring-[var(--ring-focus)] ${
+              showWeatherOverlay
+                ? "bg-sky-500/15 ring-1 ring-sky-500/35 dark:bg-sky-500/20"
+                : "hover:bg-[var(--surface-1)]/80"
+            }`}
+          >
+            {severeWeatherInView ? (
+              <span
+                className="pointer-events-none absolute right-2 top-2 size-2.5 rounded-full bg-amber-400 shadow-[0_0_0_2px_rgba(251,191,36,0.45)]"
+                aria-hidden
+              />
+            ) : null}
+            <span className="block text-[10px] font-semibold uppercase tracking-wider text-[var(--muted)]">
+              Overlay
+            </span>
+            <span className="mt-0.5 block text-[11px] font-semibold text-zinc-900 dark:text-zinc-100">
+              Weather
+            </span>
+            <span className="mt-1 block text-[10px] font-normal leading-snug text-zinc-600 dark:text-zinc-500">
+              Demo weather icons (scrub 0–24h). Max opacity 0.3.
+              {effectiveOwmKey
+                ? " OWM raster stacks underneath."
+                : ""}
+            </span>
+          </button>
+        </div>
         {selectedLoad && (
           <label className="flex cursor-pointer select-none items-start gap-2 rounded-lg border-t border-[var(--border)] px-0.5 pt-2 hover:bg-[var(--surface-1)]/80">
             <input
@@ -876,11 +1333,13 @@ export function MapCanvasMapbox() {
                 All drivers
               </span>
               <span className="mt-0.5 block text-[10px] font-normal text-zinc-600 dark:text-zinc-500">
-                Off = top 5 only + rank
+                Off = top 5 assignable + rank
               </span>
             </span>
           </label>
         )}
+          </div>
+        ) : null}
       </div>
     </div>
   );

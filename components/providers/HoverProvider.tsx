@@ -12,6 +12,8 @@ import {
 type HoverCtx = {
   hoveredDriverId: string | null;
   setHoveredDriverId: (id: string | null) => void;
+  hoveredLoadId: string | null;
+  setHoveredLoadId: (id: string | null) => void;
 };
 
 const HoverCtx = createContext<HoverCtx | null>(null);
@@ -28,21 +30,32 @@ type Props = {
  * hover enter/leave).
  */
 export function HoverProvider({ activeLoadId, children }: Props) {
-  const [hoveredDriverId, setHoveredState] = useState<string | null>(null);
+  const [hoveredDriverId, setHoveredDriverState] = useState<string | null>(null);
+  const [hoveredLoadId, setHoveredLoadState] = useState<string | null>(null);
 
   useEffect(() => {
     queueMicrotask(() => {
-      setHoveredState(null);
+      setHoveredDriverState(null);
+      setHoveredLoadState(null);
     });
   }, [activeLoadId]);
 
   const setHoveredDriverId = useCallback((id: string | null) => {
-    setHoveredState((prev) => (prev === id ? prev : id));
+    setHoveredDriverState((prev) => (prev === id ? prev : id));
+  }, []);
+
+  const setHoveredLoadId = useCallback((id: string | null) => {
+    setHoveredLoadState((prev) => (prev === id ? prev : id));
   }, []);
 
   const value = useMemo(
-    () => ({ hoveredDriverId, setHoveredDriverId }),
-    [hoveredDriverId, setHoveredDriverId],
+    () => ({
+      hoveredDriverId,
+      setHoveredDriverId,
+      hoveredLoadId,
+      setHoveredLoadId,
+    }),
+    [hoveredDriverId, setHoveredDriverId, hoveredLoadId, setHoveredLoadId],
   );
 
   return <HoverCtx.Provider value={value}>{children}</HoverCtx.Provider>;
