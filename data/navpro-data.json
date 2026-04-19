@@ -1,0 +1,1976 @@
+{
+  "sourceFiles": [
+    "00_drivers_invite_response.json",
+    "00b_drivers_query_response.json",
+    "00c_driver_performance_response.json",
+    "01_vehicles_query_response.json",
+    "02_tracking_driver_dispatch_response.json",
+    "03_document_query_response.json",
+    "04_terminal_list_response.json",
+    "04b_terminal_members_response.json",
+    "05_users_response.json",
+    "06_poi_query_response.json",
+    "07_trip_create_response.json",
+    "08_routing_profile_response.json"
+  ],
+  "generatedAt": 1776589188552,
+  "navProNowMs": 1776537000000,
+  "driversInvited": [
+    {
+      "driver_id": 36101,
+      "driver_email": "marcus.webb@desertsunlog.com"
+    },
+    {
+      "driver_id": 36102,
+      "driver_email": "rosa.delgado@desertsunlog.com"
+    },
+    {
+      "driver_id": 36103,
+      "driver_email": "jake.torres@desertsunlog.com"
+    },
+    {
+      "driver_id": 36104,
+      "driver_email": "anita.pham@desertsunlog.com"
+    },
+    {
+      "driver_id": 36105,
+      "driver_email": "derek.okonkwo@desertsunlog.com"
+    },
+    {
+      "driver_id": 36106,
+      "driver_email": "yolanda.cruz@desertsunlog.com"
+    },
+    {
+      "driver_id": 36107,
+      "driver_email": "sam.nguyen@desertsunlog.com"
+    },
+    {
+      "driver_id": 36108,
+      "driver_email": "tanya.osei@desertsunlog.com"
+    },
+    {
+      "driver_id": 36109,
+      "driver_email": "carlos.vega@desertsunlog.com"
+    },
+    {
+      "driver_id": 36110,
+      "driver_email": "pam.kowalski@desertsunlog.com"
+    }
+  ],
+  "driversQuery": [
+    {
+      "driver_id": 36101,
+      "basic_info": {
+        "driver_first_name": "Marcus",
+        "driver_last_name": "Webb",
+        "carrier": "Desert Sun Logistics",
+        "work_status": "AVAILABLE",
+        "driver_owner": "Admin",
+        "terminal": "Desert Sun Logistics \u2014 Phoenix Hub",
+        "driver_type": "COMPANY_DRIVER_CM",
+        "driver_phone_number": "602-555-0114",
+        "driver_email": "marcus.webb@desertsunlog.com",
+        "assignments_vehicles": {
+          "truck": {
+            "vehicle_id": 72201,
+            "vehicle_no": "DSL-Truck-01"
+          },
+          "trailer": null
+        }
+      },
+      "driver_location": {
+        "last_known_location": "E University Dr, Mesa, AZ 85201",
+        "latest_update": 1745010600000,
+        "timezone": "MST"
+      },
+      "driver_activities": [
+        {
+          "time": 1745010600000,
+          "activities": [
+            "Marcus Webb joined Desert Sun Logistics."
+          ]
+        }
+      ],
+      "loads": {
+        "driver_assign_loads": [],
+        "driver_current_load": null
+      },
+      "contact_detail_info": {
+        "driver_street_address": "1402 E University Dr",
+        "driver_city": "Mesa",
+        "driver_country": "UNITED_STATES",
+        "driver_state": "AZ",
+        "zip_code": "85201",
+        "emergency_contact_name": "Sandra Webb",
+        "emergency_contact_number": "602-555-0115",
+        "emergency_contact_email": "sandra.webb@email.com"
+      },
+      "license_detail_info": {
+        "license_expiration": "2027-03-14",
+        "license_country": "UNITED_STATES",
+        "license_state": "AZ",
+        "license_type": "A",
+        "restrictions": [
+          "E"
+        ],
+        "endorsements": [
+          "N",
+          "T"
+        ]
+      }
+    },
+    {
+      "driver_id": 36102,
+      "basic_info": {
+        "driver_first_name": "Rosa",
+        "driver_last_name": "Delgado",
+        "carrier": "Desert Sun Logistics",
+        "work_status": "AVAILABLE",
+        "driver_owner": "Admin",
+        "terminal": "Desert Sun Logistics \u2014 Phoenix Hub",
+        "driver_type": "COMPANY_DRIVER_CM",
+        "driver_phone_number": "480-555-0227",
+        "driver_email": "rosa.delgado@desertsunlog.com",
+        "assignments_vehicles": {
+          "truck": {
+            "vehicle_id": 72202,
+            "vehicle_no": "DSL-Truck-02"
+          },
+          "trailer": null
+        }
+      },
+      "driver_location": {
+        "last_known_location": "S Dobson Rd, Chandler, AZ 85224",
+        "latest_update": 1745010600000,
+        "timezone": "MST"
+      },
+      "driver_activities": [
+        {
+          "time": 1745010600000,
+          "activities": [
+            "Rosa Delgado joined Desert Sun Logistics."
+          ]
+        }
+      ],
+      "loads": {
+        "driver_assign_loads": [],
+        "driver_current_load": null
+      },
+      "contact_detail_info": {
+        "driver_street_address": "874 S Dobson Rd Apt 12",
+        "driver_city": "Chandler",
+        "driver_country": "UNITED_STATES",
+        "driver_state": "AZ",
+        "zip_code": "85224",
+        "emergency_contact_name": "Miguel Delgado",
+        "emergency_contact_number": "480-555-0228",
+        "emergency_contact_email": "miguel.delgado@email.com"
+      },
+      "license_detail_info": {
+        "license_expiration": "2026-11-30",
+        "license_country": "UNITED_STATES",
+        "license_state": "AZ",
+        "license_type": "A",
+        "restrictions": [
+          "E"
+        ],
+        "endorsements": [
+          "H",
+          "N"
+        ]
+      }
+    },
+    {
+      "driver_id": 36103,
+      "basic_info": {
+        "driver_first_name": "Jake",
+        "driver_last_name": "Torres",
+        "carrier": "Desert Sun Logistics",
+        "work_status": "AVAILABLE",
+        "driver_owner": "Admin",
+        "terminal": "Desert Sun Logistics \u2014 Phoenix Hub",
+        "driver_type": "COMPANY_DRIVER_CM",
+        "driver_phone_number": "480-555-0339",
+        "driver_email": "jake.torres@desertsunlog.com",
+        "assignments_vehicles": {
+          "truck": {
+            "vehicle_id": 72203,
+            "vehicle_no": "DSL-Truck-03"
+          },
+          "trailer": null
+        }
+      },
+      "driver_location": {
+        "last_known_location": "E Shea Blvd, Scottsdale, AZ 85260",
+        "latest_update": 1745010600000,
+        "timezone": "MST"
+      },
+      "driver_activities": [
+        {
+          "time": 1745010600000,
+          "activities": [
+            "Jake Torres joined Desert Sun Logistics."
+          ]
+        }
+      ],
+      "loads": {
+        "driver_assign_loads": [],
+        "driver_current_load": null
+      },
+      "contact_detail_info": {
+        "driver_street_address": "9210 E Shea Blvd Unit 5",
+        "driver_city": "Scottsdale",
+        "driver_country": "UNITED_STATES",
+        "driver_state": "AZ",
+        "zip_code": "85260",
+        "emergency_contact_name": "Lisa Torres",
+        "emergency_contact_number": "480-555-0340",
+        "emergency_contact_email": "lisa.torres@email.com"
+      },
+      "license_detail_info": {
+        "license_expiration": "2028-06-22",
+        "license_country": "UNITED_STATES",
+        "license_state": "AZ",
+        "license_type": "A",
+        "restrictions": [],
+        "endorsements": [
+          "T",
+          "X"
+        ]
+      }
+    },
+    {
+      "driver_id": 36104,
+      "basic_info": {
+        "driver_first_name": "Anita",
+        "driver_last_name": "Pham",
+        "carrier": "Desert Sun Logistics",
+        "work_status": "AVAILABLE",
+        "driver_owner": "Admin",
+        "terminal": "Desert Sun Logistics \u2014 Phoenix Hub",
+        "driver_type": "COMPANY_DRIVER_CM",
+        "driver_phone_number": "602-555-0441",
+        "driver_email": "anita.pham@desertsunlog.com",
+        "assignments_vehicles": {
+          "truck": {
+            "vehicle_id": 72204,
+            "vehicle_no": "DSL-Truck-04"
+          },
+          "trailer": null
+        }
+      },
+      "driver_location": {
+        "last_known_location": "S Mill Ave, Tempe, AZ 85282",
+        "latest_update": 1745010600000,
+        "timezone": "MST"
+      },
+      "driver_activities": [
+        {
+          "time": 1745010600000,
+          "activities": [
+            "Anita Pham joined Desert Sun Logistics."
+          ]
+        }
+      ],
+      "loads": {
+        "driver_assign_loads": [],
+        "driver_current_load": null
+      },
+      "contact_detail_info": {
+        "driver_street_address": "3301 S Mill Ave Apt 8",
+        "driver_city": "Tempe",
+        "driver_country": "UNITED_STATES",
+        "driver_state": "AZ",
+        "zip_code": "85282",
+        "emergency_contact_name": "Huy Pham",
+        "emergency_contact_number": "602-555-0442",
+        "emergency_contact_email": "huy.pham@email.com"
+      },
+      "license_detail_info": {
+        "license_expiration": "2029-01-09",
+        "license_country": "UNITED_STATES",
+        "license_state": "AZ",
+        "license_type": "A",
+        "restrictions": [
+          "E"
+        ],
+        "endorsements": [
+          "N"
+        ]
+      }
+    },
+    {
+      "driver_id": 36105,
+      "basic_info": {
+        "driver_first_name": "Derek",
+        "driver_last_name": "Okonkwo",
+        "carrier": "Desert Sun Logistics",
+        "work_status": "AVAILABLE",
+        "driver_owner": "Admin",
+        "terminal": "Desert Sun Logistics \u2014 Phoenix Hub",
+        "driver_type": "COMPANY_DRIVER_CM",
+        "driver_phone_number": "623-555-0552",
+        "driver_email": "derek.okonkwo@desertsunlog.com",
+        "assignments_vehicles": {
+          "truck": {
+            "vehicle_id": 72205,
+            "vehicle_no": "DSL-Truck-05"
+          },
+          "trailer": null
+        }
+      },
+      "driver_location": {
+        "last_known_location": "W Peoria Ave, Glendale, AZ 85302",
+        "latest_update": 1745010600000,
+        "timezone": "MST"
+      },
+      "driver_activities": [
+        {
+          "time": 1745010600000,
+          "activities": [
+            "Derek Okonkwo joined Desert Sun Logistics."
+          ]
+        }
+      ],
+      "loads": {
+        "driver_assign_loads": [],
+        "driver_current_load": null
+      },
+      "contact_detail_info": {
+        "driver_street_address": "6750 W Peoria Ave",
+        "driver_city": "Glendale",
+        "driver_country": "UNITED_STATES",
+        "driver_state": "AZ",
+        "zip_code": "85302",
+        "emergency_contact_name": "Chioma Okonkwo",
+        "emergency_contact_number": "623-555-0553",
+        "emergency_contact_email": "chioma.okonkwo@email.com"
+      },
+      "license_detail_info": {
+        "license_expiration": "2026-08-17",
+        "license_country": "UNITED_STATES",
+        "license_state": "AZ",
+        "license_type": "A",
+        "restrictions": [
+          "E"
+        ],
+        "endorsements": [
+          "H",
+          "T",
+          "N"
+        ]
+      }
+    },
+    {
+      "driver_id": 36106,
+      "basic_info": {
+        "driver_first_name": "Yolanda",
+        "driver_last_name": "Cruz",
+        "carrier": "Desert Sun Logistics",
+        "work_status": "AVAILABLE",
+        "driver_owner": "Admin",
+        "terminal": "Desert Sun Logistics \u2014 Phoenix Hub",
+        "driver_type": "COMPANY_DRIVER_CM",
+        "driver_phone_number": "623-555-0663",
+        "driver_email": "yolanda.cruz@desertsunlog.com",
+        "assignments_vehicles": {
+          "truck": {
+            "vehicle_id": 72206,
+            "vehicle_no": "DSL-Truck-06"
+          },
+          "trailer": null
+        }
+      },
+      "driver_location": {
+        "last_known_location": "N 83rd Ave, Peoria, AZ 85345",
+        "latest_update": 1745010600000,
+        "timezone": "MST"
+      },
+      "driver_activities": [
+        {
+          "time": 1745010600000,
+          "activities": [
+            "Yolanda Cruz joined Desert Sun Logistics."
+          ]
+        }
+      ],
+      "loads": {
+        "driver_assign_loads": [],
+        "driver_current_load": null
+      },
+      "contact_detail_info": {
+        "driver_street_address": "11432 N 83rd Ave",
+        "driver_city": "Peoria",
+        "driver_country": "UNITED_STATES",
+        "driver_state": "AZ",
+        "zip_code": "85345",
+        "emergency_contact_name": "Ramon Cruz",
+        "emergency_contact_number": "623-555-0664",
+        "emergency_contact_email": "ramon.cruz@email.com"
+      },
+      "license_detail_info": {
+        "license_expiration": "2027-09-05",
+        "license_country": "UNITED_STATES",
+        "license_state": "AZ",
+        "license_type": "A",
+        "restrictions": [],
+        "endorsements": [
+          "N",
+          "X"
+        ]
+      }
+    },
+    {
+      "driver_id": 36107,
+      "basic_info": {
+        "driver_first_name": "Sam",
+        "driver_last_name": "Nguyen",
+        "carrier": "Desert Sun Logistics",
+        "work_status": "AVAILABLE",
+        "driver_owner": "Admin",
+        "terminal": "Desert Sun Logistics \u2014 Phoenix Hub",
+        "driver_type": "COMPANY_DRIVER_CM",
+        "driver_phone_number": "480-555-0774",
+        "driver_email": "sam.nguyen@desertsunlog.com",
+        "assignments_vehicles": {
+          "truck": {
+            "vehicle_id": 72207,
+            "vehicle_no": "DSL-Truck-07"
+          },
+          "trailer": null
+        }
+      },
+      "driver_location": {
+        "last_known_location": "S Lindsay Rd, Gilbert, AZ 85295",
+        "latest_update": 1745010600000,
+        "timezone": "MST"
+      },
+      "driver_activities": [
+        {
+          "time": 1745010600000,
+          "activities": [
+            "Sam Nguyen joined Desert Sun Logistics."
+          ]
+        }
+      ],
+      "loads": {
+        "driver_assign_loads": [],
+        "driver_current_load": null
+      },
+      "contact_detail_info": {
+        "driver_street_address": "2255 S Lindsay Rd Unit 3",
+        "driver_city": "Gilbert",
+        "driver_country": "UNITED_STATES",
+        "driver_state": "AZ",
+        "zip_code": "85295",
+        "emergency_contact_name": "Linh Nguyen",
+        "emergency_contact_number": "480-555-0775",
+        "emergency_contact_email": "linh.nguyen@email.com"
+      },
+      "license_detail_info": {
+        "license_expiration": "2028-12-19",
+        "license_country": "UNITED_STATES",
+        "license_state": "AZ",
+        "license_type": "A",
+        "restrictions": [
+          "E"
+        ],
+        "endorsements": [
+          "T"
+        ]
+      }
+    },
+    {
+      "driver_id": 36108,
+      "basic_info": {
+        "driver_first_name": "Tanya",
+        "driver_last_name": "Osei",
+        "carrier": "Desert Sun Logistics",
+        "work_status": "AVAILABLE",
+        "driver_owner": "Admin",
+        "terminal": "Desert Sun Logistics \u2014 Phoenix Hub",
+        "driver_type": "COMPANY_DRIVER_CM",
+        "driver_phone_number": "623-555-0885",
+        "driver_email": "tanya.osei@desertsunlog.com",
+        "assignments_vehicles": {
+          "truck": {
+            "vehicle_id": 72208,
+            "vehicle_no": "DSL-Truck-08"
+          },
+          "trailer": null
+        }
+      },
+      "driver_location": {
+        "last_known_location": "N Dysart Rd, Avondale, AZ 85323",
+        "latest_update": 1745010600000,
+        "timezone": "MST"
+      },
+      "driver_activities": [
+        {
+          "time": 1745010600000,
+          "activities": [
+            "Tanya Osei joined Desert Sun Logistics."
+          ]
+        }
+      ],
+      "loads": {
+        "driver_assign_loads": [],
+        "driver_current_load": null
+      },
+      "contact_detail_info": {
+        "driver_street_address": "1188 N Dysart Rd Apt 22",
+        "driver_city": "Avondale",
+        "driver_country": "UNITED_STATES",
+        "driver_state": "AZ",
+        "zip_code": "85323",
+        "emergency_contact_name": "Kofi Osei",
+        "emergency_contact_number": "623-555-0886",
+        "emergency_contact_email": "kofi.osei@email.com"
+      },
+      "license_detail_info": {
+        "license_expiration": "2027-05-28",
+        "license_country": "UNITED_STATES",
+        "license_state": "AZ",
+        "license_type": "B",
+        "restrictions": [
+          "E"
+        ],
+        "endorsements": []
+      }
+    },
+    {
+      "driver_id": 36109,
+      "basic_info": {
+        "driver_first_name": "Carlos",
+        "driver_last_name": "Vega",
+        "carrier": "Desert Sun Logistics",
+        "work_status": "INACTIVE",
+        "driver_owner": "Admin",
+        "terminal": "Desert Sun Logistics \u2014 Phoenix Hub",
+        "driver_type": "COMPANY_DRIVER_CM",
+        "driver_phone_number": "480-555-0996",
+        "driver_email": "carlos.vega@desertsunlog.com",
+        "assignments_vehicles": {
+          "truck": {
+            "vehicle_id": 72209,
+            "vehicle_no": "DSL-Truck-09"
+          },
+          "trailer": null
+        }
+      },
+      "driver_location": {
+        "last_known_location": "S Ellsworth Rd, Queen Creek, AZ 85142",
+        "latest_update": 1745010600000,
+        "timezone": "MST"
+      },
+      "driver_activities": [
+        {
+          "time": 1745010600000,
+          "activities": [
+            "Carlos Vega joined Desert Sun Logistics."
+          ]
+        }
+      ],
+      "loads": {
+        "driver_assign_loads": [],
+        "driver_current_load": null
+      },
+      "contact_detail_info": {
+        "driver_street_address": "22140 S Ellsworth Rd",
+        "driver_city": "Queen Creek",
+        "driver_country": "UNITED_STATES",
+        "driver_state": "AZ",
+        "zip_code": "85142",
+        "emergency_contact_name": "Maria Vega",
+        "emergency_contact_number": "480-555-0997",
+        "emergency_contact_email": "maria.vega@email.com"
+      },
+      "license_detail_info": {
+        "license_expiration": "2026-07-11",
+        "license_country": "UNITED_STATES",
+        "license_state": "AZ",
+        "license_type": "A",
+        "restrictions": [],
+        "endorsements": [
+          "H",
+          "N",
+          "T",
+          "X"
+        ]
+      }
+    },
+    {
+      "driver_id": 36110,
+      "basic_info": {
+        "driver_first_name": "Pamela",
+        "driver_last_name": "Kowalski",
+        "carrier": "Desert Sun Logistics",
+        "work_status": "INACTIVE",
+        "driver_owner": "Admin",
+        "terminal": "Desert Sun Logistics \u2014 Phoenix Hub",
+        "driver_type": "COMPANY_DRIVER_CM",
+        "driver_phone_number": "623-555-1007",
+        "driver_email": "pam.kowalski@desertsunlog.com",
+        "assignments_vehicles": {
+          "truck": {
+            "vehicle_id": 72210,
+            "vehicle_no": "DSL-Truck-10"
+          },
+          "trailer": null
+        }
+      },
+      "driver_location": {
+        "last_known_location": "N Del Webb Blvd, Sun City, AZ 85351",
+        "latest_update": 1745010600000,
+        "timezone": "MST"
+      },
+      "driver_activities": [
+        {
+          "time": 1745010600000,
+          "activities": [
+            "Pamela Kowalski joined Desert Sun Logistics."
+          ]
+        }
+      ],
+      "loads": {
+        "driver_assign_loads": [],
+        "driver_current_load": null
+      },
+      "contact_detail_info": {
+        "driver_street_address": "14002 N Del Webb Blvd",
+        "driver_city": "Sun City",
+        "driver_country": "UNITED_STATES",
+        "driver_state": "AZ",
+        "zip_code": "85351",
+        "emergency_contact_name": "Brian Kowalski",
+        "emergency_contact_number": "623-555-1008",
+        "emergency_contact_email": "brian.kowalski@email.com"
+      },
+      "license_detail_info": {
+        "license_expiration": "2028-02-03",
+        "license_country": "UNITED_STATES",
+        "license_state": "AZ",
+        "license_type": "A",
+        "restrictions": [
+          "E"
+        ],
+        "endorsements": [
+          "T",
+          "N"
+        ]
+      }
+    }
+  ],
+  "performance": [
+    {
+      "driver_id": 36101,
+      "oor_miles": 2.1,
+      "schedule_miles": 148.0,
+      "actual_miles": 150.1,
+      "schedule_time": 162,
+      "actual_time": 165
+    },
+    {
+      "driver_id": 36102,
+      "oor_miles": 0.8,
+      "schedule_miles": 210.5,
+      "actual_miles": 211.3,
+      "schedule_time": 228,
+      "actual_time": 229
+    },
+    {
+      "driver_id": 36103,
+      "oor_miles": 3.4,
+      "schedule_miles": 95.0,
+      "actual_miles": 98.4,
+      "schedule_time": 108,
+      "actual_time": 112
+    },
+    {
+      "driver_id": 36104,
+      "oor_miles": 1.2,
+      "schedule_miles": 175.0,
+      "actual_miles": 176.2,
+      "schedule_time": 195,
+      "actual_time": 197
+    },
+    {
+      "driver_id": 36105,
+      "oor_miles": 5.7,
+      "schedule_miles": 320.0,
+      "actual_miles": 325.7,
+      "schedule_time": 358,
+      "actual_time": 364
+    },
+    {
+      "driver_id": 36106,
+      "oor_miles": 0.5,
+      "schedule_miles": 88.0,
+      "actual_miles": 88.5,
+      "schedule_time": 96,
+      "actual_time": 97
+    },
+    {
+      "driver_id": 36107,
+      "oor_miles": 1.9,
+      "schedule_miles": 260.0,
+      "actual_miles": 261.9,
+      "schedule_time": 288,
+      "actual_time": 291
+    },
+    {
+      "driver_id": 36108,
+      "oor_miles": 4.2,
+      "schedule_miles": 112.0,
+      "actual_miles": 116.2,
+      "schedule_time": 126,
+      "actual_time": 132
+    },
+    {
+      "driver_id": 36109,
+      "oor_miles": 0.0,
+      "schedule_miles": 0.0,
+      "actual_miles": 0.0,
+      "schedule_time": 0,
+      "actual_time": 0
+    },
+    {
+      "driver_id": 36110,
+      "oor_miles": 0.0,
+      "schedule_miles": 0.0,
+      "actual_miles": 0.0,
+      "schedule_time": 0,
+      "actual_time": 0
+    }
+  ],
+  "vehicles": [
+    {
+      "vehicle_id": 72201,
+      "created_date": "Apr 18, 2026",
+      "owner_id": 36101,
+      "owner_name": "Marcus Webb",
+      "vehicle_status": "ACTIVE",
+      "vehicle_no": "DSL-Truck-01",
+      "vehicle_type": "TRUCK",
+      "vehicle_vin": "1HTMKAAR5GH401221",
+      "gross_vehicle_weight": 80000,
+      "trailer_type": null,
+      "vehicle_make": "International",
+      "vehicle_model": "ProStar",
+      "assignments_drivers": {
+        "driver_ids": [
+          36101
+        ],
+        "assign_driver_info": [
+          {
+            "assign_driver_id": 36101,
+            "assign_driver_name": "Marcus Webb"
+          }
+        ]
+      }
+    },
+    {
+      "vehicle_id": 72202,
+      "created_date": "Apr 18, 2026",
+      "owner_id": 36102,
+      "owner_name": "Rosa Delgado",
+      "vehicle_status": "ACTIVE",
+      "vehicle_no": "DSL-Truck-02",
+      "vehicle_type": "TRUCK",
+      "vehicle_vin": "3HSDJAPR7GN523491",
+      "gross_vehicle_weight": 80000,
+      "trailer_type": null,
+      "vehicle_make": "Freightliner",
+      "vehicle_model": "Cascadia",
+      "assignments_drivers": {
+        "driver_ids": [
+          36102
+        ],
+        "assign_driver_info": [
+          {
+            "assign_driver_id": 36102,
+            "assign_driver_name": "Rosa Delgado"
+          }
+        ]
+      }
+    },
+    {
+      "vehicle_id": 72203,
+      "created_date": "Apr 18, 2026",
+      "owner_id": 36103,
+      "owner_name": "Jake Torres",
+      "vehicle_status": "ACTIVE",
+      "vehicle_no": "DSL-Truck-03",
+      "vehicle_type": "TRUCK",
+      "vehicle_vin": "1FUJGBDV4CLBP1184",
+      "gross_vehicle_weight": 80000,
+      "trailer_type": null,
+      "vehicle_make": "Kenworth",
+      "vehicle_model": "T680",
+      "assignments_drivers": {
+        "driver_ids": [
+          36103
+        ],
+        "assign_driver_info": [
+          {
+            "assign_driver_id": 36103,
+            "assign_driver_name": "Jake Torres"
+          }
+        ]
+      }
+    },
+    {
+      "vehicle_id": 72204,
+      "created_date": "Apr 18, 2026",
+      "owner_id": 36104,
+      "owner_name": "Anita Pham",
+      "vehicle_status": "ACTIVE",
+      "vehicle_no": "DSL-Truck-04",
+      "vehicle_type": "TRUCK",
+      "vehicle_vin": "1XKYDP9X2KJ388041",
+      "gross_vehicle_weight": 80000,
+      "trailer_type": null,
+      "vehicle_make": "Peterbilt",
+      "vehicle_model": "579",
+      "assignments_drivers": {
+        "driver_ids": [
+          36104
+        ],
+        "assign_driver_info": [
+          {
+            "assign_driver_id": 36104,
+            "assign_driver_name": "Anita Pham"
+          }
+        ]
+      }
+    },
+    {
+      "vehicle_id": 72205,
+      "created_date": "Apr 18, 2026",
+      "owner_id": 36105,
+      "owner_name": "Derek Okonkwo",
+      "vehicle_status": "ACTIVE",
+      "vehicle_no": "DSL-Truck-05",
+      "vehicle_type": "TRUCK",
+      "vehicle_vin": "3HSDJAPR5JN801223",
+      "gross_vehicle_weight": 80000,
+      "trailer_type": null,
+      "vehicle_make": "Freightliner",
+      "vehicle_model": "Cascadia",
+      "assignments_drivers": {
+        "driver_ids": [
+          36105
+        ],
+        "assign_driver_info": [
+          {
+            "assign_driver_id": 36105,
+            "assign_driver_name": "Derek Okonkwo"
+          }
+        ]
+      }
+    },
+    {
+      "vehicle_id": 72206,
+      "created_date": "Apr 18, 2026",
+      "owner_id": 36106,
+      "owner_name": "Yolanda Cruz",
+      "vehicle_status": "ACTIVE",
+      "vehicle_no": "DSL-Truck-06",
+      "vehicle_type": "TRUCK",
+      "vehicle_vin": "1NPXGGEJ4GD254810",
+      "gross_vehicle_weight": 80000,
+      "trailer_type": null,
+      "vehicle_make": "Volvo",
+      "vehicle_model": "VNL 860",
+      "assignments_drivers": {
+        "driver_ids": [
+          36106
+        ],
+        "assign_driver_info": [
+          {
+            "assign_driver_id": 36106,
+            "assign_driver_name": "Yolanda Cruz"
+          }
+        ]
+      }
+    },
+    {
+      "vehicle_id": 72207,
+      "created_date": "Apr 18, 2026",
+      "owner_id": 36107,
+      "owner_name": "Sam Nguyen",
+      "vehicle_status": "ACTIVE",
+      "vehicle_no": "DSL-Truck-07",
+      "vehicle_type": "TRUCK",
+      "vehicle_vin": "1FUJGHDV8DLBX3819",
+      "gross_vehicle_weight": 80000,
+      "trailer_type": null,
+      "vehicle_make": "Kenworth",
+      "vehicle_model": "W900",
+      "assignments_drivers": {
+        "driver_ids": [
+          36107
+        ],
+        "assign_driver_info": [
+          {
+            "assign_driver_id": 36107,
+            "assign_driver_name": "Sam Nguyen"
+          }
+        ]
+      }
+    },
+    {
+      "vehicle_id": 72208,
+      "created_date": "Apr 18, 2026",
+      "owner_id": 36108,
+      "owner_name": "Tanya Osei",
+      "vehicle_status": "ACTIVE",
+      "vehicle_no": "DSL-Truck-08",
+      "vehicle_type": "TRUCK",
+      "vehicle_vin": "1HTMKAAN0GH201998",
+      "gross_vehicle_weight": 54000,
+      "trailer_type": null,
+      "vehicle_make": "International",
+      "vehicle_model": "LT",
+      "assignments_drivers": {
+        "driver_ids": [
+          36108
+        ],
+        "assign_driver_info": [
+          {
+            "assign_driver_id": 36108,
+            "assign_driver_name": "Tanya Osei"
+          }
+        ]
+      }
+    },
+    {
+      "vehicle_id": 72209,
+      "created_date": "Apr 18, 2026",
+      "owner_id": 36109,
+      "owner_name": "Carlos Vega",
+      "vehicle_status": "ACTIVE",
+      "vehicle_no": "DSL-Truck-09",
+      "vehicle_type": "TRUCK",
+      "vehicle_vin": "3AKJGLD57GSGS2218",
+      "gross_vehicle_weight": 80000,
+      "trailer_type": null,
+      "vehicle_make": "Mack",
+      "vehicle_model": "Anthem",
+      "assignments_drivers": {
+        "driver_ids": [
+          36109
+        ],
+        "assign_driver_info": [
+          {
+            "assign_driver_id": 36109,
+            "assign_driver_name": "Carlos Vega"
+          }
+        ]
+      }
+    },
+    {
+      "vehicle_id": 72210,
+      "created_date": "Apr 18, 2026",
+      "owner_id": 36110,
+      "owner_name": "Pamela Kowalski",
+      "vehicle_status": "ACTIVE",
+      "vehicle_no": "DSL-Truck-10",
+      "vehicle_type": "TRUCK",
+      "vehicle_vin": "1FUJGHDR6CLBY9044",
+      "gross_vehicle_weight": 80000,
+      "trailer_type": null,
+      "vehicle_make": "Peterbilt",
+      "vehicle_model": "389",
+      "assignments_drivers": {
+        "driver_ids": [
+          36110
+        ],
+        "assign_driver_info": [
+          {
+            "assign_driver_id": 36110,
+            "assign_driver_name": "Pamela Kowalski"
+          }
+        ]
+      }
+    }
+  ],
+  "tracking": [
+    {
+      "driver_id": 36101,
+      "trail": [
+        {
+          "id": 5100101,
+          "latitude": 33.4153,
+          "longitude": -111.8315,
+          "time": "2026-04-18T18:00:00"
+        },
+        {
+          "id": 5100102,
+          "latitude": 33.4198,
+          "longitude": -111.8401,
+          "time": "2026-04-18T18:15:00"
+        },
+        {
+          "id": 5100103,
+          "latitude": 33.4234,
+          "longitude": -111.8512,
+          "time": "2026-04-18T18:30:00"
+        }
+      ],
+      "active_trip": null
+    },
+    {
+      "driver_id": 36102,
+      "trail": [
+        {
+          "id": 5100201,
+          "latitude": 33.3062,
+          "longitude": -111.8413,
+          "time": "2026-04-18T18:00:00"
+        },
+        {
+          "id": 5100202,
+          "latitude": 33.3115,
+          "longitude": -111.849,
+          "time": "2026-04-18T18:15:00"
+        },
+        {
+          "id": 5100203,
+          "latitude": 33.3178,
+          "longitude": -111.8571,
+          "time": "2026-04-18T18:30:00"
+        }
+      ],
+      "active_trip": null
+    },
+    {
+      "driver_id": 36103,
+      "trail": [
+        {
+          "id": 5100301,
+          "latitude": 33.5092,
+          "longitude": -111.8979,
+          "time": "2026-04-18T18:00:00"
+        },
+        {
+          "id": 5100302,
+          "latitude": 33.5041,
+          "longitude": -111.901,
+          "time": "2026-04-18T18:15:00"
+        },
+        {
+          "id": 5100303,
+          "latitude": 33.499,
+          "longitude": -111.9055,
+          "time": "2026-04-18T18:30:00"
+        }
+      ],
+      "active_trip": null
+    },
+    {
+      "driver_id": 36104,
+      "trail": [
+        {
+          "id": 5100401,
+          "latitude": 33.4148,
+          "longitude": -111.9097,
+          "time": "2026-04-18T18:00:00"
+        },
+        {
+          "id": 5100402,
+          "latitude": 33.4201,
+          "longitude": -111.9145,
+          "time": "2026-04-18T18:15:00"
+        },
+        {
+          "id": 5100403,
+          "latitude": 33.4255,
+          "longitude": -111.9202,
+          "time": "2026-04-18T18:30:00"
+        }
+      ],
+      "active_trip": null
+    },
+    {
+      "driver_id": 36105,
+      "trail": [
+        {
+          "id": 5100501,
+          "latitude": 33.5387,
+          "longitude": -112.186,
+          "time": "2026-04-18T18:00:00"
+        },
+        {
+          "id": 5100502,
+          "latitude": 33.533,
+          "longitude": -112.1795,
+          "time": "2026-04-18T18:15:00"
+        },
+        {
+          "id": 5100503,
+          "latitude": 33.5278,
+          "longitude": -112.1731,
+          "time": "2026-04-18T18:30:00"
+        }
+      ],
+      "active_trip": null
+    },
+    {
+      "driver_id": 36106,
+      "trail": [
+        {
+          "id": 5100601,
+          "latitude": 33.5806,
+          "longitude": -112.2374,
+          "time": "2026-04-18T18:00:00"
+        },
+        {
+          "id": 5100602,
+          "latitude": 33.5751,
+          "longitude": -112.244,
+          "time": "2026-04-18T18:15:00"
+        },
+        {
+          "id": 5100603,
+          "latitude": 33.5699,
+          "longitude": -112.251,
+          "time": "2026-04-18T18:30:00"
+        }
+      ],
+      "active_trip": null
+    },
+    {
+      "driver_id": 36107,
+      "trail": [
+        {
+          "id": 5100701,
+          "latitude": 33.3528,
+          "longitude": -111.789,
+          "time": "2026-04-18T18:00:00"
+        },
+        {
+          "id": 5100702,
+          "latitude": 33.3475,
+          "longitude": -111.7952,
+          "time": "2026-04-18T18:15:00"
+        },
+        {
+          "id": 5100703,
+          "latitude": 33.3422,
+          "longitude": -111.8014,
+          "time": "2026-04-18T18:30:00"
+        }
+      ],
+      "active_trip": null
+    },
+    {
+      "driver_id": 36108,
+      "trail": [
+        {
+          "id": 5100801,
+          "latitude": 33.4355,
+          "longitude": -112.3496,
+          "time": "2026-04-18T18:00:00"
+        },
+        {
+          "id": 5100802,
+          "latitude": 33.441,
+          "longitude": -112.343,
+          "time": "2026-04-18T18:15:00"
+        },
+        {
+          "id": 5100803,
+          "latitude": 33.4462,
+          "longitude": -112.3365,
+          "time": "2026-04-18T18:30:00"
+        }
+      ],
+      "active_trip": null
+    },
+    {
+      "driver_id": 36109,
+      "trail": [
+        {
+          "id": 5100901,
+          "latitude": 33.2487,
+          "longitude": -111.6345,
+          "time": "2026-04-18T18:00:00"
+        }
+      ],
+      "active_trip": null
+    },
+    {
+      "driver_id": 36110,
+      "trail": [
+        {
+          "id": 5101001,
+          "latitude": 33.6003,
+          "longitude": -112.2841,
+          "time": "2026-04-18T18:00:00"
+        }
+      ],
+      "active_trip": null
+    }
+  ],
+  "documents": [
+    {
+      "document_id": 801001,
+      "document_name": "DSL_BOL_Load1_MarcusWebb.pdf",
+      "document_type": "BILL_OF_LADING",
+      "document_url": "https://cdn.navpro.truckerpath.com/docs/801001.pdf",
+      "upload_by": "Admin",
+      "upload_date": 1745010600000,
+      "file_type": "pdf",
+      "document_tag": [
+        {
+          "tag_name": "driver",
+          "related_id": 36101,
+          "related_name": "Marcus Webb"
+        },
+        {
+          "tag_name": "vehicle",
+          "related_id": 72201,
+          "related_name": "DSL-Truck-01"
+        }
+      ],
+      "is_private": false,
+      "size": "312.44KB",
+      "scope": "UPLOAD_FILE"
+    },
+    {
+      "document_id": 801002,
+      "document_name": "DSL_BOL_Load2_RosaDelgado.pdf",
+      "document_type": "BILL_OF_LADING",
+      "document_url": "https://cdn.navpro.truckerpath.com/docs/801002.pdf",
+      "upload_by": "Admin",
+      "upload_date": 1745010600000,
+      "file_type": "pdf",
+      "document_tag": [
+        {
+          "tag_name": "driver",
+          "related_id": 36102,
+          "related_name": "Rosa Delgado"
+        },
+        {
+          "tag_name": "vehicle",
+          "related_id": 72202,
+          "related_name": "DSL-Truck-02"
+        }
+      ],
+      "is_private": false,
+      "size": "287.10KB",
+      "scope": "UPLOAD_FILE"
+    },
+    {
+      "document_id": 801003,
+      "document_name": "DSL_RateConf_Load3_AnitaPham.pdf",
+      "document_type": "RATE_CONFIRMATION",
+      "document_url": "https://cdn.navpro.truckerpath.com/docs/801003.pdf",
+      "upload_by": "Admin",
+      "upload_date": 1745010600000,
+      "file_type": "pdf",
+      "document_tag": [
+        {
+          "tag_name": "driver",
+          "related_id": 36104,
+          "related_name": "Anita Pham"
+        },
+        {
+          "tag_name": "vehicle",
+          "related_id": 72204,
+          "related_name": "DSL-Truck-04"
+        }
+      ],
+      "is_private": false,
+      "size": "198.75KB",
+      "scope": "UPLOAD_FILE"
+    },
+    {
+      "document_id": 801004,
+      "document_name": "DSL_RateConf_Load4_YolandaCruz.pdf",
+      "document_type": "RATE_CONFIRMATION",
+      "document_url": "https://cdn.navpro.truckerpath.com/docs/801004.pdf",
+      "upload_by": "Admin",
+      "upload_date": 1745010600000,
+      "file_type": "pdf",
+      "document_tag": [
+        {
+          "tag_name": "driver",
+          "related_id": 36106,
+          "related_name": "Yolanda Cruz"
+        },
+        {
+          "tag_name": "vehicle",
+          "related_id": 72206,
+          "related_name": "DSL-Truck-06"
+        }
+      ],
+      "is_private": false,
+      "size": "221.30KB",
+      "scope": "UPLOAD_FILE"
+    },
+    {
+      "document_id": 801005,
+      "document_name": "Webb_CDL_License.pdf",
+      "document_type": "DOT_DOC",
+      "document_url": "https://cdn.navpro.truckerpath.com/docs/801005.pdf",
+      "upload_by": "Marcus Webb",
+      "upload_date": 1745010600000,
+      "file_type": "pdf",
+      "document_tag": [
+        {
+          "tag_name": "driver",
+          "related_id": 36101,
+          "related_name": "Marcus Webb"
+        }
+      ],
+      "is_private": true,
+      "size": "145.88KB",
+      "scope": "UPLOAD_FILE"
+    },
+    {
+      "document_id": 801006,
+      "document_name": "Delgado_CDL_License.pdf",
+      "document_type": "DOT_DOC",
+      "document_url": "https://cdn.navpro.truckerpath.com/docs/801006.pdf",
+      "upload_by": "Rosa Delgado",
+      "upload_date": 1745010600000,
+      "file_type": "pdf",
+      "document_tag": [
+        {
+          "tag_name": "driver",
+          "related_id": 36102,
+          "related_name": "Rosa Delgado"
+        }
+      ],
+      "is_private": true,
+      "size": "138.22KB",
+      "scope": "UPLOAD_FILE"
+    },
+    {
+      "document_id": 801007,
+      "document_name": "DSL_COI_April2026.pdf",
+      "document_type": "COI_DOC",
+      "document_url": "https://cdn.navpro.truckerpath.com/docs/801007.pdf",
+      "upload_by": "Admin",
+      "upload_date": 1745010600000,
+      "file_type": "pdf",
+      "document_tag": [],
+      "is_private": false,
+      "size": "402.60KB",
+      "scope": "UPLOAD_FILE"
+    },
+    {
+      "document_id": 801008,
+      "document_name": "DSL_W9_2026.pdf",
+      "document_type": "W9_DOC",
+      "document_url": "https://cdn.navpro.truckerpath.com/docs/801008.pdf",
+      "upload_by": "Admin",
+      "upload_date": 1745010600000,
+      "file_type": "pdf",
+      "document_tag": [],
+      "is_private": false,
+      "size": "188.50KB",
+      "scope": "UPLOAD_FILE"
+    }
+  ],
+  "terminals": [
+    {
+      "terminal_id": 45700,
+      "terminal_name": "Desert Sun Logistics \u2014 Phoenix Hub",
+      "created_by": "Admin",
+      "member_number": 10
+    }
+  ],
+  "terminalMembers": [
+    {
+      "member_id": 36101,
+      "member_email": "marcus.webb@desertsunlog.com",
+      "member_first_name": "Marcus",
+      "member_last_name": "Webb",
+      "member_phone_number": "602-555-0114",
+      "member_status": "Active",
+      "member_role": "Driver"
+    },
+    {
+      "member_id": 36102,
+      "member_email": "rosa.delgado@desertsunlog.com",
+      "member_first_name": "Rosa",
+      "member_last_name": "Delgado",
+      "member_phone_number": "480-555-0227",
+      "member_status": "Active",
+      "member_role": "Driver"
+    },
+    {
+      "member_id": 36103,
+      "member_email": "jake.torres@desertsunlog.com",
+      "member_first_name": "Jake",
+      "member_last_name": "Torres",
+      "member_phone_number": "480-555-0339",
+      "member_status": "Active",
+      "member_role": "Driver"
+    },
+    {
+      "member_id": 36104,
+      "member_email": "anita.pham@desertsunlog.com",
+      "member_first_name": "Anita",
+      "member_last_name": "Pham",
+      "member_phone_number": "602-555-0441",
+      "member_status": "Active",
+      "member_role": "Driver"
+    },
+    {
+      "member_id": 36105,
+      "member_email": "derek.okonkwo@desertsunlog.com",
+      "member_first_name": "Derek",
+      "member_last_name": "Okonkwo",
+      "member_phone_number": "623-555-0552",
+      "member_status": "Active",
+      "member_role": "Driver"
+    },
+    {
+      "member_id": 36106,
+      "member_email": "yolanda.cruz@desertsunlog.com",
+      "member_first_name": "Yolanda",
+      "member_last_name": "Cruz",
+      "member_phone_number": "623-555-0663",
+      "member_status": "Active",
+      "member_role": "Driver"
+    },
+    {
+      "member_id": 36107,
+      "member_email": "sam.nguyen@desertsunlog.com",
+      "member_first_name": "Sam",
+      "member_last_name": "Nguyen",
+      "member_phone_number": "480-555-0774",
+      "member_status": "Active",
+      "member_role": "Driver"
+    },
+    {
+      "member_id": 36108,
+      "member_email": "tanya.osei@desertsunlog.com",
+      "member_first_name": "Tanya",
+      "member_last_name": "Osei",
+      "member_phone_number": "623-555-0885",
+      "member_status": "Active",
+      "member_role": "Driver"
+    },
+    {
+      "member_id": 36109,
+      "member_email": "carlos.vega@desertsunlog.com",
+      "member_first_name": "Carlos",
+      "member_last_name": "Vega",
+      "member_phone_number": "480-555-0996",
+      "member_status": "Inactive",
+      "member_role": "Driver"
+    },
+    {
+      "member_id": 36110,
+      "member_email": "pam.kowalski@desertsunlog.com",
+      "member_first_name": "Pamela",
+      "member_last_name": "Kowalski",
+      "member_phone_number": "623-555-1007",
+      "member_status": "Inactive",
+      "member_role": "Driver"
+    }
+  ],
+  "users": [
+    {
+      "user_id": 90001,
+      "user_full_name": "Jordan Hale",
+      "user_email": "jordan.hale@desertsunlog.com",
+      "user_rank": "ADMIN"
+    },
+    {
+      "user_id": 90002,
+      "user_full_name": "Priya Mendez",
+      "user_email": "priya.mendez@desertsunlog.com",
+      "user_rank": "OPERATOR"
+    },
+    {
+      "user_id": 36101,
+      "user_full_name": "Marcus Webb",
+      "user_email": "marcus.webb@desertsunlog.com",
+      "user_rank": "DRIVER"
+    },
+    {
+      "user_id": 36102,
+      "user_full_name": "Rosa Delgado",
+      "user_email": "rosa.delgado@desertsunlog.com",
+      "user_rank": "DRIVER"
+    },
+    {
+      "user_id": 36103,
+      "user_full_name": "Jake Torres",
+      "user_email": "jake.torres@desertsunlog.com",
+      "user_rank": "DRIVER"
+    },
+    {
+      "user_id": 36104,
+      "user_full_name": "Anita Pham",
+      "user_email": "anita.pham@desertsunlog.com",
+      "user_rank": "DRIVER"
+    },
+    {
+      "user_id": 36105,
+      "user_full_name": "Derek Okonkwo",
+      "user_email": "derek.okonkwo@desertsunlog.com",
+      "user_rank": "DRIVER"
+    },
+    {
+      "user_id": 36106,
+      "user_full_name": "Yolanda Cruz",
+      "user_email": "yolanda.cruz@desertsunlog.com",
+      "user_rank": "DRIVER"
+    },
+    {
+      "user_id": 36107,
+      "user_full_name": "Sam Nguyen",
+      "user_email": "sam.nguyen@desertsunlog.com",
+      "user_rank": "DRIVER"
+    },
+    {
+      "user_id": 36108,
+      "user_full_name": "Tanya Osei",
+      "user_email": "tanya.osei@desertsunlog.com",
+      "user_rank": "DRIVER"
+    },
+    {
+      "user_id": 36109,
+      "user_full_name": "Carlos Vega",
+      "user_email": "carlos.vega@desertsunlog.com",
+      "user_rank": "DRIVER"
+    },
+    {
+      "user_id": 36110,
+      "user_full_name": "Pamela Kowalski",
+      "user_email": "pam.kowalski@desertsunlog.com",
+      "user_rank": "DRIVER"
+    }
+  ],
+  "pois": [
+    {
+      "poi_id": 701001,
+      "latitude": 33.4484,
+      "longitude": -111.9916,
+      "external_id": "DSL-HQ-001",
+      "poi_detail": {
+        "street": "4201 E Van Buren St",
+        "city": "Phoenix",
+        "state": "AZ",
+        "country": "US",
+        "zip_code": "85008",
+        "contact_number": "602-555-0100",
+        "site_instruction": "Main HQ. Check in at front gate. Security badge required."
+      },
+      "site_detail": {
+        "entrance": [
+          {
+            "site_id": 801101,
+            "latitude": 33.449,
+            "longitude": -111.992,
+            "path": [
+              {
+                "latitude": 33.448,
+                "longitude": -111.991
+              },
+              {
+                "latitude": 33.4485,
+                "longitude": -111.9915
+              }
+            ],
+            "path_type": "ROAD_PATH"
+          }
+        ],
+        "exit": [
+          {
+            "site_id": 801102,
+            "latitude": 33.4478,
+            "longitude": -111.9912,
+            "path": [
+              {
+                "latitude": 33.4483,
+                "longitude": -111.9918
+              },
+              {
+                "latitude": 33.4476,
+                "longitude": -111.9908
+              }
+            ],
+            "path_type": "ROAD_PATH"
+          }
+        ]
+      }
+    },
+    {
+      "poi_id": 701002,
+      "latitude": 33.4822,
+      "longitude": -112.0167,
+      "external_id": "DSL-PICKUP-001",
+      "poi_detail": {
+        "street": "1220 N 48th St",
+        "city": "Phoenix",
+        "state": "AZ",
+        "country": "US",
+        "zip_code": "85008",
+        "contact_number": "602-555-0200",
+        "site_instruction": "Load 1 pickup. Dock 4B. Call yard manager on arrival."
+      },
+      "site_detail": {
+        "entrance": [
+          {
+            "site_id": 801201,
+            "latitude": 33.4828,
+            "longitude": -112.0172,
+            "path": [
+              {
+                "latitude": 33.4815,
+                "longitude": -112.016
+              },
+              {
+                "latitude": 33.4821,
+                "longitude": -112.0165
+              }
+            ],
+            "path_type": "ROAD_PATH"
+          }
+        ],
+        "exit": [
+          {
+            "site_id": 801202,
+            "latitude": 33.4818,
+            "longitude": -112.0163,
+            "path": [
+              {
+                "latitude": 33.4823,
+                "longitude": -112.0168
+              },
+              {
+                "latitude": 33.4812,
+                "longitude": -112.0158
+              }
+            ],
+            "path_type": "ROAD_PATH"
+          }
+        ]
+      }
+    },
+    {
+      "poi_id": 701003,
+      "latitude": 33.4315,
+      "longitude": -111.7793,
+      "external_id": "DSL-DELIVERY-001",
+      "poi_detail": {
+        "street": "5230 E Oak St",
+        "city": "Mesa",
+        "state": "AZ",
+        "country": "US",
+        "zip_code": "85205",
+        "contact_number": "480-555-0300",
+        "site_instruction": "Load 1 delivery. Rear receiving dock. Call ahead."
+      },
+      "site_detail": {
+        "entrance": [
+          {
+            "site_id": 801301,
+            "latitude": 33.432,
+            "longitude": -111.7798,
+            "path": [
+              {
+                "latitude": 33.4309,
+                "longitude": -111.7786
+              },
+              {
+                "latitude": 33.4314,
+                "longitude": -111.7791
+              }
+            ],
+            "path_type": "ROAD_PATH"
+          }
+        ],
+        "exit": [
+          {
+            "site_id": 801302,
+            "latitude": 33.4311,
+            "longitude": -111.7789,
+            "path": [
+              {
+                "latitude": 33.4316,
+                "longitude": -111.7794
+              },
+              {
+                "latitude": 33.4308,
+                "longitude": -111.7784
+              }
+            ],
+            "path_type": "ROAD_PATH"
+          }
+        ]
+      }
+    },
+    {
+      "poi_id": 701004,
+      "latitude": 33.6411,
+      "longitude": -112.3682,
+      "external_id": "DSL-PICKUP-004",
+      "poi_detail": {
+        "street": "16801 N Litchfield Rd",
+        "city": "Surprise",
+        "state": "AZ",
+        "country": "US",
+        "zip_code": "85379",
+        "contact_number": "623-555-0400",
+        "site_instruction": "Load 4 pickup. Tanker top-load fill station on north side."
+      },
+      "site_detail": {
+        "entrance": [
+          {
+            "site_id": 801401,
+            "latitude": 33.6418,
+            "longitude": -112.3688,
+            "path": [
+              {
+                "latitude": 33.6405,
+                "longitude": -112.3675
+              },
+              {
+                "latitude": 33.6411,
+                "longitude": -112.3681
+              }
+            ],
+            "path_type": "ROAD_PATH"
+          }
+        ],
+        "exit": [
+          {
+            "site_id": 801402,
+            "latitude": 33.6404,
+            "longitude": -112.3677,
+            "path": [
+              {
+                "latitude": 33.641,
+                "longitude": -112.3683
+              },
+              {
+                "latitude": 33.6401,
+                "longitude": -112.3672
+              }
+            ],
+            "path_type": "ROAD_PATH"
+          }
+        ]
+      }
+    },
+    {
+      "poi_id": 701005,
+      "latitude": 33.4695,
+      "longitude": -112.3625,
+      "external_id": "DSL-DELIVERY-004",
+      "poi_detail": {
+        "street": "13501 W McDowell Rd",
+        "city": "Goodyear",
+        "state": "AZ",
+        "country": "US",
+        "zip_code": "85395",
+        "contact_number": "623-555-0500",
+        "site_instruction": "Load 4 delivery. Offload via bottom valve. Hard hat and safety vest required."
+      },
+      "site_detail": {
+        "entrance": [
+          {
+            "site_id": 801501,
+            "latitude": 33.4701,
+            "longitude": -112.363,
+            "path": [
+              {
+                "latitude": 33.4688,
+                "longitude": -112.3618
+              },
+              {
+                "latitude": 33.4694,
+                "longitude": -112.3624
+              }
+            ],
+            "path_type": "ROAD_PATH"
+          }
+        ],
+        "exit": [
+          {
+            "site_id": 801502,
+            "latitude": 33.469,
+            "longitude": -112.362,
+            "path": [
+              {
+                "latitude": 33.4696,
+                "longitude": -112.3626
+              },
+              {
+                "latitude": 33.4686,
+                "longitude": -112.3615
+              }
+            ],
+            "path_type": "ROAD_PATH"
+          }
+        ]
+      }
+    }
+  ],
+  "trips": [
+    {
+      "code": 200,
+      "success": true,
+      "msg": "success",
+      "trip_id": "20260418-1",
+      "_meta": {
+        "load": "Load 1 \u2014 Dry Van | Phoenix \u2192 Mesa",
+        "scheduled_start_time": "2026-04-18T20:00:00Z"
+      }
+    },
+    {
+      "code": 200,
+      "success": true,
+      "msg": "success",
+      "trip_id": "20260418-2",
+      "_meta": {
+        "load": "Load 2 \u2014 Reefer | Phoenix \u2192 Chandler",
+        "scheduled_start_time": "2026-04-18T19:30:00Z"
+      }
+    },
+    {
+      "code": 200,
+      "success": true,
+      "msg": "success",
+      "trip_id": "20260418-3",
+      "_meta": {
+        "load": "Load 3 \u2014 Flatbed | South Phoenix \u2192 North Phoenix",
+        "scheduled_start_time": "2026-04-18T22:00:00Z"
+      }
+    },
+    {
+      "code": 200,
+      "success": true,
+      "msg": "success",
+      "trip_id": "20260418-4",
+      "_meta": {
+        "load": "Load 4 \u2014 Tanker | Surprise \u2192 Goodyear",
+        "scheduled_start_time": "2026-04-18T18:00:00Z"
+      }
+    }
+  ],
+  "routingProfiles": [
+    {
+      "id": 6831,
+      "name": "DSL Standard 5-Axle 80K",
+      "truck_ft_length": 70,
+      "truck_in_length": 0,
+      "truck_ft_width": 8,
+      "truck_in_width": 6,
+      "truck_ft_height": 13,
+      "truck_in_height": 6,
+      "weight_limit": 80000,
+      "weight_per_axle": 16000,
+      "axles": 5,
+      "trailers": 1,
+      "avoid_areas": [
+        {
+          "area_name": "Downtown Phoenix Construction Zone",
+          "type": "rectangle",
+          "coordinates": [
+            [
+              {
+                "lat": 33.448,
+                "lng": -112.078
+              },
+              {
+                "lat": 33.455,
+                "lng": -112.078
+              },
+              {
+                "lat": 33.455,
+                "lng": -112.065
+              },
+              {
+                "lat": 33.448,
+                "lng": -112.065
+              }
+            ]
+          ]
+        }
+      ],
+      "avoid_bridges": [
+        {
+          "state": "AZ",
+          "rules": [
+            "TTT1"
+          ]
+        }
+      ]
+    },
+    {
+      "id": 6832,
+      "name": "DSL Flatbed 5-Axle Overwidth",
+      "truck_ft_length": 70,
+      "truck_in_length": 0,
+      "truck_ft_width": 10,
+      "truck_in_width": 0,
+      "truck_ft_height": 13,
+      "truck_in_height": 6,
+      "weight_limit": 80000,
+      "weight_per_axle": 16000,
+      "axles": 5,
+      "trailers": 1,
+      "avoid_areas": [
+        {
+          "area_name": "Downtown Phoenix Construction Zone",
+          "type": "rectangle",
+          "coordinates": [
+            [
+              {
+                "lat": 33.448,
+                "lng": -112.078
+              },
+              {
+                "lat": 33.455,
+                "lng": -112.078
+              },
+              {
+                "lat": 33.455,
+                "lng": -112.065
+              },
+              {
+                "lat": 33.448,
+                "lng": -112.065
+              }
+            ]
+          ]
+        }
+      ],
+      "avoid_bridges": [
+        {
+          "state": "AZ",
+          "rules": [
+            "TTT1",
+            "CRN2"
+          ]
+        }
+      ]
+    },
+    {
+      "id": 6833,
+      "name": "DSL Medium \u2014 4-Axle 54K",
+      "truck_ft_length": 60,
+      "truck_in_length": 0,
+      "truck_ft_width": 8,
+      "truck_in_width": 0,
+      "truck_ft_height": 13,
+      "truck_in_height": 0,
+      "weight_limit": 54000,
+      "weight_per_axle": 13500,
+      "axles": 4,
+      "trailers": 1,
+      "avoid_areas": [],
+      "avoid_bridges": []
+    }
+  ]
+}
