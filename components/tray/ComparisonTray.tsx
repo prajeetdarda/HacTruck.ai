@@ -28,7 +28,8 @@ export function ComparisonTray() {
       className="pointer-events-none absolute inset-x-4 flex justify-center"
       style={{
         zIndex: Z_TRAY,
-        bottom: "calc(var(--timeline-region-height) + 0.2rem)",
+        /* Sit near the bottom of the map column (timeline is the row below). */
+        bottom: "max(0.5rem, env(safe-area-inset-bottom, 0px))",
       }}
     >
       <AnimatePresence mode="wait">
@@ -103,6 +104,41 @@ function ComparisonTrayForLoad({
       return `Heuristic fallback — ${result.error}`;
     return "Heuristic rank — add OPENAI_API_KEY for LLM reasoning";
   })();
+
+  /** Best value per metric across cards that have stats (lower is better for miles & CPM). */
+  const bestMetrics = useMemo(() => {
+    const samples = displayRows
+      .map((row) => {
+        if (!row.rankedRow) return null;
+        return {
+          miles: row.rankedRow.features.distanceToPickupMiles,
+          hos: row.driver.hosRemainingHours,
+          lane: row.driver.laneHistoryCount,
+          cpm: row.driver.costPerMile,
+        };
+      })
+      .filter(Boolean) as {
+      miles: number;
+      hos: number;
+      lane: number;
+      cpm: number;
+    }[];
+    if (samples.length < 2) return null;
+    return {
+      miles: Math.min(...samples.map((s) => s.miles)),
+      hos: Math.max(...samples.map((s) => s.hos)),
+      lane: Math.max(...samples.map((s) => s.lane)),
+      cpm: Math.min(...samples.map((s) => s.cpm)),
+    };
+  }, [displayRows]);
+
+  const metricValueClass = (isBest: boolean) =>
+    clsx(
+      "tabular-nums",
+      isBest
+        ? "font-semibold text-emerald-600 dark:text-emerald-400"
+        : "text-zinc-800 dark:text-zinc-300",
+    );
 
   return (
     <motion.div
@@ -201,25 +237,54 @@ function ComparisonTrayForLoad({
                         <dl className="mt-2 space-y-1 text-[11px] text-zinc-600 dark:text-zinc-500">
                           <div className="flex justify-between gap-2">
                             <dt>Miles to pickup</dt>
-                            <dd className="tabular-nums text-zinc-800 dark:text-zinc-300">
+                            <dd
+                              className={metricValueClass(
+                                bestMetrics != null &&
+                                  Math.abs(
+                                    r.features.distanceToPickupMiles -
+                                      bestMetrics.miles,
+                                  ) < 1e-6,
+                              )}
+                            >
                               {Math.round(r.features.distanceToPickupMiles)}
                             </dd>
                           </div>
                           <div className="flex justify-between gap-2">
                             <dt>HOS left</dt>
-                            <dd className="tabular-nums text-zinc-800 dark:text-zinc-300">
+                            <dd
+                              className={metricValueClass(
+                                bestMetrics != null &&
+                                  Math.abs(
+                                    row.driver.hosRemainingHours -
+                                      bestMetrics.hos,
+                                  ) < 1e-6,
+                              )}
+                            >
                               {row.driver.hosRemainingHours.toFixed(1)}h
                             </dd>
                           </div>
                           <div className="flex justify-between gap-2">
                             <dt>Lane history</dt>
-                            <dd className="tabular-nums text-zinc-800 dark:text-zinc-300">
+                            <dd
+                              className={metricValueClass(
+                                bestMetrics != null &&
+                                  row.driver.laneHistoryCount ===
+                                    bestMetrics.lane,
+                              )}
+                            >
                               {row.driver.laneHistoryCount}
                             </dd>
                           </div>
                           <div className="flex justify-between gap-2">
                             <dt>CPM</dt>
-                            <dd className="tabular-nums text-zinc-800 dark:text-zinc-300">
+                            <dd
+                              className={metricValueClass(
+                                bestMetrics != null &&
+                                  Math.abs(
+                                    row.driver.costPerMile - bestMetrics.cpm,
+                                  ) < 1e-6,
+                              )}
+                            >
                               {formatCpm(row.driver.costPerMile)}
                             </dd>
                           </div>
