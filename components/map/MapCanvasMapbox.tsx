@@ -237,6 +237,16 @@ export function MapCanvasMapbox({
     [state.assignments],
   );
 
+  /** With load pins on: show every open load unless a load is selected — then only that pin. */
+  const loadsForMapPins = useMemo(() => {
+    if (!loadPinsOnMap) return [];
+    if (selectedLoad) {
+      const match = openLoads.find((l) => l.id === selectedLoad.id);
+      return match ? [match] : [selectedLoad];
+    }
+    return openLoads;
+  }, [loadPinsOnMap, selectedLoad, openLoads]);
+
   const pressureHeatmapGeoJSON: FeatureCollection = useMemo(
     () =>
       buildPressureHeatmapGeoJSON(
@@ -767,7 +777,9 @@ export function MapCanvasMapbox({
       if (dist <= DROP_HIT_PX) {
         const row = rankedById.get(driver.id);
         if (rankedAllowsAssignment(row)) {
-          assign(selectedLoad.id, driver.id, driver.name);
+          assign(selectedLoad.id, driver.id, driver.name, {
+            matchPercent: row?.matchPercent,
+          });
         }
       }
       bumpMarker(driver.id);
@@ -1164,33 +1176,30 @@ export function MapCanvasMapbox({
           </Source>
         ) : null}
 
-        {loadPinsOnMap
-          ? openLoads.map((load) => {
-              const ll = svgToLngLat(load.pickupX, load.pickupY);
-              const active = selectedLoad?.id === load.id;
-              const inboxHover =
-                loadPinsOnMap && hoveredLoadId === load.id;
-              return (
-                <Marker
-                  key={`load-${load.id}`}
-                  longitude={ll.lng}
-                  latitude={ll.lat}
-                  anchor="center"
-                  onClick={(e) => {
-                    e.originalEvent.stopPropagation();
-                    if (Date.now() < suppressClickUntil.current) return;
-                    selectLoad(load.id, { source: "map_pin" });
-                  }}
-                >
-                  <LoadMarkerContent
-                    load={load}
-                    active={active}
-                    inboxHover={inboxHover}
-                  />
-                </Marker>
-              );
-            })
-          : null}
+        {loadsForMapPins.map((load) => {
+          const ll = svgToLngLat(load.pickupX, load.pickupY);
+          const active = selectedLoad?.id === load.id;
+          const inboxHover = loadPinsOnMap && hoveredLoadId === load.id;
+          return (
+            <Marker
+              key={`load-${load.id}`}
+              longitude={ll.lng}
+              latitude={ll.lat}
+              anchor="center"
+              onClick={(e) => {
+                e.originalEvent.stopPropagation();
+                if (Date.now() < suppressClickUntil.current) return;
+                selectLoad(load.id, { source: "map_pin" });
+              }}
+            >
+              <LoadMarkerContent
+                load={load}
+                active={active}
+                inboxHover={inboxHover}
+              />
+            </Marker>
+          );
+        })}
 
         {driversOnMap.map((driver) => {
           const ll = svgToLngLat(driver.x, driver.y);

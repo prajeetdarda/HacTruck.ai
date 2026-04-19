@@ -2,14 +2,19 @@
 
 import clsx from "clsx";
 import { motion } from "motion/react";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { FLEET_NAME, TERMINAL, listAlerts } from "@/lib/backend-db";
 import {
   countDriversByFleetSummaryRing,
+  DRIVER_RING_LABEL,
+  fleetSummaryRing,
+  type Driver,
+  type EquipmentType,
   type FleetSummaryRing,
 } from "@/lib/types";
 import { useDispatchContext } from "@/components/providers/DispatchProvider";
 import { useTheme } from "@/components/providers/ThemeProvider";
+import { Z_MAP } from "@/lib/layout-tokens";
 
 const RING_ORDER: FleetSummaryRing[] = [
   "urgent",
@@ -25,15 +30,69 @@ const RING_CLASS: Record<FleetSummaryRing, string> = {
   inactive: "text-zinc-500 dark:text-zinc-500",
 };
 
+/** Dropdown menu — status chips + avatars align with fleet “ring” semantics. */
+const RING_STATUS_CHIP: Record<FleetSummaryRing, string> = {
+  urgent:
+    "border border-rose-400/35 bg-gradient-to-r from-rose-500/20 to-rose-600/10 text-rose-800 dark:border-rose-500/40 dark:text-rose-300",
+  watch:
+    "border border-amber-400/35 bg-gradient-to-r from-amber-500/20 to-amber-600/10 text-amber-900 dark:border-amber-500/40 dark:text-amber-300",
+  good:
+    "border border-emerald-400/35 bg-gradient-to-r from-emerald-500/18 to-teal-600/10 text-emerald-900 dark:border-emerald-500/35 dark:text-emerald-300",
+  inactive:
+    "border border-zinc-400/25 bg-gradient-to-r from-zinc-500/15 to-zinc-600/10 text-zinc-700 dark:border-zinc-500/30 dark:text-zinc-400",
+};
+
+const RING_AVATAR: Record<FleetSummaryRing, string> = {
+  urgent:
+    "bg-gradient-to-br from-rose-400 to-rose-600 text-white shadow-[0_2px_8px_rgba(244,63,94,0.45)]",
+  watch:
+    "bg-gradient-to-br from-amber-400 to-amber-600 text-amber-950 shadow-[0_2px_8px_rgba(245,158,11,0.4)]",
+  good:
+    "bg-gradient-to-br from-emerald-400 to-teal-600 text-white shadow-[0_2px_8px_rgba(52,211,153,0.4)]",
+  inactive:
+    "bg-gradient-to-br from-zinc-400 to-zinc-600 text-white shadow-[0_2px_8px_rgba(113,113,122,0.35)]",
+};
+
+const EQUIPMENT_MENU: Record<
+  EquipmentType,
+  { label: string; chip: string }
+> = {
+  dry_van: {
+    label: "Dry van",
+    chip:
+      "border border-sky-400/25 bg-sky-500/12 text-sky-800 dark:border-sky-500/35 dark:text-sky-300",
+  },
+  reefer: {
+    label: "Reefer",
+    chip:
+      "border border-cyan-400/25 bg-cyan-500/12 text-cyan-900 dark:border-cyan-500/35 dark:text-cyan-300",
+  },
+  flatbed: {
+    label: "Flatbed",
+    chip:
+      "border border-orange-400/30 bg-orange-500/12 text-orange-900 dark:border-orange-500/35 dark:text-orange-300",
+  },
+};
+
+function hosAccent(hours: number): string {
+  if (hours <= 2) return "text-rose-500 dark:text-rose-400";
+  if (hours <= 5) return "text-amber-600 dark:text-amber-400";
+  return "text-emerald-600 dark:text-emerald-400";
+}
+
 export function TopBar() {
   const {
     openLoads,
     activeDriverCount,
     selectedLoad,
     driversSimulated,
+    driversBase,
     loadInboxExpanded,
     state,
     setMapRingFilter,
+    selectDriver,
+    setLoadInboxExpanded,
+    setLoadPinsOnMap,
   } = useDispatchContext();
   const { theme, toggleTheme } = useTheme();
   /** null until mount — avoids SSR/client clock mismatch (hydration error). */
@@ -67,7 +126,10 @@ export function TopBar() {
     !selectedLoad && !loadInboxExpanded;
 
   return (
-    <header className="flex min-h-[52px] shrink-0 items-center gap-3 border-b border-[var(--border)] bg-[var(--surface-1)]/95 px-4 py-2 backdrop-blur-md sm:gap-4 sm:px-5">
+    <header
+      className="relative flex min-h-[52px] shrink-0 items-center gap-3 border-b border-[var(--border)] bg-[var(--surface-1)]/95 px-4 py-2 backdrop-blur-md sm:gap-4 sm:px-5"
+      style={{ zIndex: Z_MAP + 10 }}
+    >
       <div className="flex shrink-0 items-center gap-3 sm:gap-4">
         <motion.div
           className="flex items-center gap-2"
@@ -160,8 +222,27 @@ export function TopBar() {
       )}
 
       <div className="ml-auto flex shrink-0 items-end gap-4 sm:gap-8">
-        <Stat label="Active drivers" value={activeDriverCount} accent="text-sky-400" />
-        <Stat label="Open loads" value={openLoads.length} accent="text-amber-400" />
+        <ActiveDriversMenu
+          count={activeDriverCount}
+          drivers={driversBase}
+          onPickDriver={(id) => selectDriver(id)}
+        />
+        <button
+          type="button"
+          onClick={() => {
+            setLoadInboxExpanded(true);
+            setLoadPinsOnMap(true);
+          }}
+          className="pb-0.5 text-left outline-none transition-opacity hover:opacity-90 focus-visible:rounded-md focus-visible:ring-2 focus-visible:ring-[var(--ring-focus)]"
+          aria-label={`Open load inbox, ${openLoads.length} open loads`}
+        >
+          <div className="text-[10px] font-medium uppercase tracking-wider text-[var(--muted)]">
+            Open loads
+          </div>
+          <div className="text-lg font-semibold tabular-nums leading-none text-amber-400 sm:text-xl">
+            {openLoads.length}
+          </div>
+        </button>
         <button
           type="button"
           onClick={toggleTheme}
@@ -221,23 +302,197 @@ function MoonIcon() {
   );
 }
 
-function Stat({
-  label,
-  value,
-  accent,
+function isActiveDriver(d: Driver): boolean {
+  return d.ringStatus !== "off_duty" && d.ringStatus !== "unavailable";
+}
+
+function ActiveDriversMenu({
+  count,
+  drivers,
+  onPickDriver,
 }: {
-  label: string;
-  value: number;
-  accent: string;
+  count: number;
+  drivers: Driver[];
+  onPickDriver: (id: string) => void;
 }) {
+  const [open, setOpen] = useState(false);
+  const rootRef = useRef<HTMLDivElement>(null);
+
+  const listed = useMemo(() => {
+    return [...drivers].filter(isActiveDriver).sort((a, b) => {
+      const n = a.name.localeCompare(b.name);
+      if (n !== 0) return n;
+      return a.id.localeCompare(b.id);
+    });
+  }, [drivers]);
+
+  useEffect(() => {
+    if (!open) return;
+    const onDoc = (e: MouseEvent) => {
+      if (rootRef.current?.contains(e.target as Node)) return;
+      setOpen(false);
+    };
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setOpen(false);
+    };
+    document.addEventListener("mousedown", onDoc);
+    document.addEventListener("keydown", onKey);
+    return () => {
+      document.removeEventListener("mousedown", onDoc);
+      document.removeEventListener("keydown", onKey);
+    };
+  }, [open]);
+
   return (
-    <div className="pb-0.5">
-      <div className="text-[10px] font-medium uppercase tracking-wider text-[var(--muted)]">
-        {label}
-      </div>
-      <div className={`text-lg font-semibold tabular-nums leading-none sm:text-xl ${accent}`}>
-        {value}
-      </div>
+    <div ref={rootRef} className="relative pb-0.5">
+      <button
+        type="button"
+        aria-expanded={open}
+        aria-haspopup="menu"
+        aria-controls="active-drivers-menu"
+        id="active-drivers-trigger"
+        onClick={() => setOpen((o) => !o)}
+        className="flex w-full min-w-[86px] flex-col items-stretch gap-0.5 text-left outline-none transition-opacity hover:opacity-90 focus-visible:rounded-md focus-visible:ring-2 focus-visible:ring-[var(--ring-focus)]"
+      >
+        <span className="flex items-center justify-between gap-1">
+          <span className="text-[10px] font-medium uppercase tracking-wider text-[var(--muted)]">
+            Active drivers
+          </span>
+          <ChevronIcon className="mb-0.5 size-3 shrink-0 text-[var(--muted)]" open={open} />
+        </span>
+        <span className="text-lg font-semibold tabular-nums leading-none text-sky-400 sm:text-xl">
+          {count}
+        </span>
+      </button>
+
+      {open ? (
+        <div
+          id="active-drivers-menu"
+          role="menu"
+          aria-labelledby="active-drivers-trigger"
+          className="absolute right-0 top-full z-50 mt-1.5 max-h-[min(380px,56vh)] min-w-[min(300px,calc(100vw-2rem))] overflow-hidden rounded-xl border border-[var(--border)] bg-[var(--surface-2)] shadow-xl shadow-black/10 ring-1 ring-black/[0.06] backdrop-blur-md dark:bg-[var(--surface-2)] dark:shadow-black/40 dark:ring-white/[0.08]"
+        >
+          <div className="relative overflow-hidden border-b border-[var(--border)] bg-gradient-to-r from-sky-500/15 via-indigo-500/12 to-violet-500/15 px-3 py-2.5 dark:from-sky-500/20 dark:via-indigo-500/15 dark:to-violet-500/20">
+            <div
+              className="pointer-events-none absolute -right-6 -top-6 h-20 w-20 rounded-full bg-sky-400/20 blur-2xl"
+              aria-hidden
+            />
+            <p className="text-[9px] font-bold uppercase tracking-[0.2em] text-sky-800/80 dark:text-sky-200/90">
+              On the map
+            </p>
+            <p className="mt-0.5 text-sm font-semibold text-[var(--foreground)]">
+              {listed.length} active
+              <span className="font-normal text-[var(--muted)]">
+                {" "}
+                · tap to focus truck
+              </span>
+            </p>
+          </div>
+
+          <div className="max-h-[min(300px,calc(56vh-5rem))] overflow-y-auto overflow-x-hidden">
+            {listed.length === 0 ? (
+              <p
+                className="px-4 py-8 text-center text-[12px] leading-relaxed text-zinc-500 dark:text-zinc-400"
+                role="none"
+              >
+                No drivers on duty — check back after shift change.
+              </p>
+            ) : (
+              <ul className="py-1" role="none">
+                {listed.map((d) => {
+                  const ring = fleetSummaryRing(d.ringStatus);
+                  const eq = EQUIPMENT_MENU[d.equipment];
+                  return (
+                    <li key={d.id} role="none">
+                      <button
+                        type="button"
+                        role="menuitem"
+                        onClick={() => {
+                          onPickDriver(d.id);
+                          setOpen(false);
+                        }}
+                        className="group flex w-full gap-2.5 border-b border-[var(--border)]/60 px-2.5 py-2.5 text-left outline-none last:border-b-0 transition-[background,box-shadow] hover:bg-sky-500/[0.07] focus-visible:bg-sky-500/10 dark:hover:bg-white/[0.05] dark:focus-visible:bg-white/[0.07]"
+                      >
+                        <span
+                          className={clsx(
+                            "flex size-10 shrink-0 items-center justify-center rounded-xl text-[11px] font-bold tabular-nums tracking-tight",
+                            RING_AVATAR[ring],
+                          )}
+                          aria-hidden
+                        >
+                          {d.initials}
+                        </span>
+                        <span className="min-w-0 flex-1">
+                          <span className="flex flex-wrap items-center gap-1.5 gap-y-1">
+                            <span className="truncate text-[13px] font-semibold text-[var(--foreground)]">
+                              {d.name}
+                            </span>
+                            <span
+                              className={clsx(
+                                "inline-flex shrink-0 rounded-md px-1.5 py-px text-[9px] font-bold capitalize tracking-wide",
+                                RING_STATUS_CHIP[ring],
+                              )}
+                            >
+                              {ring}
+                            </span>
+                          </span>
+                          <span className="mt-1 flex flex-wrap items-center gap-1.5">
+                            <span className="inline-flex rounded-md bg-[var(--surface-1)] px-1.5 py-px font-mono text-[10px] font-medium text-zinc-700 ring-1 ring-black/[0.06] dark:bg-zinc-900/80 dark:text-zinc-300 dark:ring-white/10">
+                              {d.truckLabel}
+                            </span>
+                            <span
+                              className={clsx(
+                                "inline-flex rounded-md px-1.5 py-px text-[9px] font-semibold",
+                                eq.chip,
+                              )}
+                            >
+                              {eq.label}
+                            </span>
+                            <span
+                              className={clsx(
+                                "inline-flex items-baseline gap-0.5 text-[10px] tabular-nums",
+                                hosAccent(d.hosRemainingHours),
+                              )}
+                              title="Drive time remaining (HOS)"
+                            >
+                              <span className="font-medium">{d.hosRemainingHours}h</span>
+                              <span className="text-[9px] font-normal text-zinc-500 dark:text-zinc-500">
+                                HOS
+                              </span>
+                            </span>
+                          </span>
+                          <span className="mt-0.5 block text-[10px] text-zinc-500 dark:text-zinc-400">
+                            {DRIVER_RING_LABEL[d.ringStatus]}
+                          </span>
+                        </span>
+                      </button>
+                    </li>
+                  );
+                })}
+              </ul>
+            )}
+          </div>
+        </div>
+      ) : null}
     </div>
+  );
+}
+
+function ChevronIcon({ className, open }: { className?: string; open: boolean }) {
+  return (
+    <svg
+      className={clsx(className, open && "rotate-180")}
+      width="12"
+      height="12"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden
+    >
+      <path d="M6 9l6 6 6-6" />
+    </svg>
   );
 }

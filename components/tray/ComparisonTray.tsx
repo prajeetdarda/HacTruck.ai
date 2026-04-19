@@ -198,11 +198,9 @@ function ComparisonTrayForLoad({
                       onMouseEnter={() => setHoveredDriverId(row.driver.id)}
                       onMouseLeave={() => setHoveredDriverId(null)}
                       onClick={() =>
-                        assign(
-                          selectedLoad.id,
-                          row.driver.id,
-                          row.driver.name,
-                        )
+                        assign(selectedLoad.id, row.driver.id, row.driver.name, {
+                          matchPercent: matchPct,
+                        })
                       }
                       className={clsx(
                         "rounded-xl border p-3 text-left outline-none transition-colors focus-visible:ring-2 focus-visible:ring-[var(--ring-focus)]",

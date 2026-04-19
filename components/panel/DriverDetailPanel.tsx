@@ -5,6 +5,7 @@ import { AnimatePresence, motion } from "motion/react";
 import type { ReactNode } from "react";
 import { useEffect, useMemo, useState } from "react";
 import { useDispatchContext } from "@/components/providers/DispatchProvider";
+import { useMatchLoad } from "@/components/providers/MatchLoadProvider";
 import { RING_STATUS_COLOR } from "@/components/icons/MapMarkers";
 import {
   FLEET_NAME,
@@ -17,6 +18,7 @@ import {
 } from "@/lib/backend-db";
 import { formatCpm, formatCurrency, formatDateTimeLocal, formatEquipment } from "@/lib/format";
 import { Z_PANEL } from "@/lib/layout-tokens";
+import { shortAiReason } from "@/lib/scoring";
 import { DRIVER_RING_LABEL, fleetSummaryRing, type DriverRingStatus } from "@/lib/types";
 import type { TruckAlert } from "@/lib/types";
 
@@ -137,6 +139,89 @@ function DetailLabel({ children }: { children: ReactNode }) {
   );
 }
 
+function CollapsibleBlock({
+  buttonId,
+  panelId,
+  title,
+  titleClassName,
+  badge,
+  collapsedHint,
+  expanded,
+  onToggle,
+  shellClassName,
+  buttonHoverClassName,
+  chevronClassName,
+  children,
+}: {
+  buttonId: string;
+  panelId: string;
+  title: string;
+  titleClassName: string;
+  badge?: React.ReactNode;
+  collapsedHint?: string;
+  expanded: boolean;
+  onToggle: () => void;
+  shellClassName: string;
+  buttonHoverClassName: string;
+  chevronClassName?: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <div className={shellClassName}>
+      <button
+        type="button"
+        id={buttonId}
+        aria-expanded={expanded}
+        aria-controls={panelId}
+        onClick={onToggle}
+        className={clsx(
+          "flex w-full items-start gap-2 rounded-lg py-0.5 text-left outline-none transition-colors focus-visible:ring-2 focus-visible:ring-[var(--ring-focus)]",
+          buttonHoverClassName,
+        )}
+      >
+        <span
+          className={clsx(
+            "mt-0.5 inline-flex shrink-0 transition-transform",
+            chevronClassName,
+            expanded && "rotate-180",
+          )}
+          aria-hidden
+        >
+          <ChevronDownIcon className="size-4" />
+        </span>
+        <span className="min-w-0 flex-1">
+          <span className="flex flex-wrap items-baseline gap-x-2 gap-y-0.5">
+            <span className={titleClassName}>{title}</span>
+            {badge}
+          </span>
+          {!expanded && collapsedHint ? (
+            <span className="mt-0.5 block text-[11px] text-zinc-500 dark:text-zinc-500">
+              {collapsedHint}
+            </span>
+          ) : null}
+        </span>
+      </button>
+      <AnimatePresence initial={false}>
+        {expanded ? (
+          <motion.div
+            key={panelId}
+            id={panelId}
+            role="region"
+            aria-labelledby={buttonId}
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: "auto", opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            transition={{ duration: 0.2, ease: [0.4, 0, 0.2, 1] }}
+            className="overflow-hidden"
+          >
+            {children}
+          </motion.div>
+        ) : null}
+      </AnimatePresence>
+    </div>
+  );
+}
+
 function OpsAlertCard({ alert }: { alert: TruckAlert }) {
   const severityBorder =
     alert.severity === "critical"
@@ -253,6 +338,7 @@ export function DriverDetailPanel() {
     ranked,
     bumpMapRingFilterPage,
   } = useDispatchContext();
+  const matchLoad = useMatchLoad();
 
   const ringBrowseDrivers = useMemo(() => {
     if (!state.mapRingFilter) return [];
@@ -306,10 +392,39 @@ export function DriverDetailPanel() {
   const ringColor = driver ? RING_STATUS_COLOR[driver.ringStatus] : "#71717a";
 
   const [opsAlertsExpanded, setOpsAlertsExpanded] = useState(true);
+  const [driverInfoExpanded, setDriverInfoExpanded] = useState(true);
+  const [truckInfoExpanded, setTruckInfoExpanded] = useState(true);
+  const [activeTripExpanded, setActiveTripExpanded] = useState(true);
+  const [loadFitExpanded, setLoadFitExpanded] = useState(true);
+  const [llmInsightExpanded, setLlmInsightExpanded] = useState(true);
 
   useEffect(() => {
     setOpsAlertsExpanded(true);
+    setDriverInfoExpanded(true);
+    setTruckInfoExpanded(true);
+    setActiveTripExpanded(true);
+    setLoadFitExpanded(true);
+    setLlmInsightExpanded(true);
   }, [state.selectedDriverId]);
+
+  const slateRank = useMemo(() => {
+    if (!driver || ranked.length === 0) return null;
+    const idx = ranked.findIndex((r) => r.driver.id === driver.id);
+    return idx >= 0 ? idx + 1 : null;
+  }, [ranked, driver]);
+
+  const llmRowForDriver = useMemo(() => {
+    if (
+      matchLoad.status !== "ready" ||
+      !selectedLoad ||
+      matchLoad.loadId !== selectedLoad.id ||
+      !matchLoad.result ||
+      !driver
+    ) {
+      return null;
+    }
+    return matchLoad.result.top3.find((t) => t.driverId === driver.id) ?? null;
+  }, [matchLoad, selectedLoad?.id, driver?.id]);
 
   const hosAccent =
     driver && driver.hosRemainingHours < 3
@@ -363,77 +478,60 @@ export function DriverDetailPanel() {
           </div>
 
           {driverAlerts.length > 0 && (
-            <div className="shrink-0 border-b border-[var(--border)] bg-gradient-to-b from-amber-500/[0.06] to-transparent px-4 pb-2 pt-2 dark:from-amber-950/25">
-              <button
-                type="button"
-                id="ops-alerts-disclosure"
-                aria-expanded={opsAlertsExpanded}
-                aria-controls="driver-ops-alerts-panel"
-                onClick={() => setOpsAlertsExpanded((v) => !v)}
-                className="flex w-full items-start gap-2 rounded-lg py-0.5 text-left outline-none transition-colors hover:bg-amber-500/[0.07] focus-visible:ring-2 focus-visible:ring-[var(--ring-focus)] dark:hover:bg-amber-950/40"
-              >
-                <span
-                  className={clsx(
-                    "mt-0.5 inline-flex shrink-0 text-amber-800/90 transition-transform dark:text-amber-200/90",
-                    opsAlertsExpanded && "rotate-180",
-                  )}
-                  aria-hidden
-                >
-                  <ChevronDownIcon className="size-4" />
+            <CollapsibleBlock
+              buttonId="ops-alerts-disclosure"
+              panelId="driver-ops-alerts-panel"
+              title="Ops alerts"
+              titleClassName="text-[10px] font-semibold uppercase tracking-[0.2em] text-amber-900/90 dark:text-amber-200/90"
+              badge={
+                <span className="rounded-md bg-amber-500/20 px-1.5 py-px text-[10px] font-semibold tabular-nums text-amber-950 dark:bg-amber-500/15 dark:text-amber-100">
+                  {driverAlerts.length}
                 </span>
-                <span className="min-w-0 flex-1">
-                  <span className="flex flex-wrap items-baseline gap-x-2 gap-y-0.5">
-                    <span className="text-[10px] font-semibold uppercase tracking-[0.2em] text-amber-900/90 dark:text-amber-200/90">
-                      Ops alerts
-                    </span>
-                    <span className="rounded-md bg-amber-500/20 px-1.5 py-px text-[10px] font-semibold tabular-nums text-amber-950 dark:bg-amber-500/15 dark:text-amber-100">
-                      {driverAlerts.length}
-                    </span>
-                  </span>
-                  {!opsAlertsExpanded ? (
-                    <span className="mt-0.5 block text-[11px] text-zinc-500 dark:text-zinc-500">
-                      {driverAlerts.length === 1
-                        ? "1 active alert — expand to review"
-                        : `${driverAlerts.length} active alerts — expand to review`}
-                    </span>
-                  ) : null}
-                </span>
-              </button>
-              <AnimatePresence initial={false}>
-                {opsAlertsExpanded ? (
-                  <motion.div
-                    key="ops-alerts-body"
-                    id="driver-ops-alerts-panel"
-                    role="region"
-                    aria-labelledby="ops-alerts-disclosure"
-                    initial={{ height: 0, opacity: 0 }}
-                    animate={{ height: "auto", opacity: 1 }}
-                    exit={{ height: 0, opacity: 0 }}
-                    transition={{ duration: 0.2, ease: [0.4, 0, 0.2, 1] }}
-                    className="overflow-hidden"
-                  >
-                    <p className="mt-1 text-[11px] leading-snug text-zinc-600 dark:text-zinc-400">
-                      Active for this driver and truck — review before dispatch.
-                    </p>
-                    <ul className="mt-2 max-h-[min(42vh,320px)] space-y-2 overflow-y-auto pr-0.5 pb-1">
-                      {driverAlerts.map((a) => (
-                        <OpsAlertCard key={a.alertId} alert={a} />
-                      ))}
-                    </ul>
-                  </motion.div>
-                ) : null}
-              </AnimatePresence>
-            </div>
+              }
+              collapsedHint={
+                driverAlerts.length === 1
+                  ? "1 active alert — expand to review"
+                  : `${driverAlerts.length} active alerts — expand to review`
+              }
+              expanded={opsAlertsExpanded}
+              onToggle={() => setOpsAlertsExpanded((v) => !v)}
+              shellClassName="shrink-0 border-b border-[var(--border)] bg-gradient-to-b from-amber-500/[0.06] to-transparent px-4 pb-2 pt-2 dark:from-amber-950/25"
+              buttonHoverClassName="hover:bg-amber-500/[0.07] dark:hover:bg-amber-950/40"
+              chevronClassName="text-amber-800/90 dark:text-amber-200/90"
+            >
+              <p className="mt-1 text-[11px] leading-snug text-zinc-600 dark:text-zinc-400">
+                Active for this driver and truck — review before dispatch.
+              </p>
+              <ul className="mt-2 max-h-[min(42vh,320px)] space-y-2 overflow-y-auto pr-0.5 pb-1">
+                {driverAlerts.map((a) => (
+                  <OpsAlertCard key={a.alertId} alert={a} />
+                ))}
+              </ul>
+            </CollapsibleBlock>
           )}
 
           <div className="flex min-h-0 flex-1 flex-col overflow-hidden">
-            <div className="flex-1 space-y-4 overflow-y-auto px-4 pb-4 pt-3">
-              {/* Driver: icon + all driver fields */}
-              <section className="rounded-2xl border border-[var(--border)] bg-[var(--surface-1)]/80 p-3 shadow-sm dark:bg-zinc-900/35">
-                <p className="mb-2 text-[10px] font-bold uppercase tracking-[0.18em] text-sky-600/90 dark:text-sky-400/90">
-                  Driver
-                </p>
-                <div className="flex gap-3">
+            <div className="flex-1 space-y-0 overflow-y-auto px-4 pb-4 pt-3">
+              <CollapsibleBlock
+                buttonId="driver-info-disclosure"
+                panelId="driver-info-panel"
+                title="Driver"
+                titleClassName="text-[10px] font-bold uppercase tracking-[0.18em] text-sky-600/90 dark:text-sky-400/90"
+                badge={
+                  <span className="rounded-md bg-sky-500/15 px-1.5 py-px font-mono text-[10px] font-semibold text-sky-900 dark:text-sky-100">
+                    {driver.initials}
+                  </span>
+                }
+                collapsedHint={`${driver.name} · profile & HOS`}
+                expanded={driverInfoExpanded}
+                onToggle={() => setDriverInfoExpanded((v) => !v)}
+                shellClassName="mb-4 border-b border-[var(--border)] bg-gradient-to-b from-sky-500/[0.06] to-transparent pb-3"
+                buttonHoverClassName="hover:bg-sky-500/[0.08]"
+                chevronClassName="text-sky-700 dark:text-sky-400"
+              >
+                <div className="space-y-3 pt-1">
+                  <section className="rounded-2xl border border-[var(--border)] bg-[var(--surface-1)]/80 p-3 shadow-sm dark:bg-zinc-900/35">
+                    <div className="flex gap-3">
                   <div className="relative shrink-0">
                     <div
                       className="relative flex size-[92px] flex-col items-center justify-center rounded-2xl border-2 bg-gradient-to-b from-white/40 to-transparent dark:from-white/[0.07]"
@@ -623,13 +721,35 @@ export function DriverDetailPanel() {
                   </p>
                 </div>
               </div>
+                </div>
+              </CollapsibleBlock>
 
-              {/* Truck: icon + all truck fields */}
-              <section className="rounded-2xl border border-[var(--border)] bg-[var(--surface-1)]/80 p-3 shadow-sm dark:bg-zinc-900/35">
-                <p className="mb-2 text-[10px] font-bold uppercase tracking-[0.18em] text-amber-700/90 dark:text-amber-400/90">
-                  Truck
-                </p>
-                <div className="flex gap-3">
+              <CollapsibleBlock
+                buttonId="truck-info-disclosure"
+                panelId="truck-info-panel"
+                title="Truck"
+                titleClassName="text-[10px] font-bold uppercase tracking-[0.18em] text-amber-700/90 dark:text-amber-400/90"
+                badge={
+                  vehicle ? (
+                    <span className="rounded-md bg-amber-500/15 px-1.5 py-px font-mono text-[10px] font-semibold text-amber-950 dark:text-amber-100">
+                      {vehicle.vehicleNo}
+                    </span>
+                  ) : null
+                }
+                collapsedHint={
+                  vehicle
+                    ? `${vehicle.vehicleNo} · ${vehicle.make} ${vehicle.model}`
+                    : driver.truckLabel
+                }
+                expanded={truckInfoExpanded}
+                onToggle={() => setTruckInfoExpanded((v) => !v)}
+                shellClassName="mb-4 border-b border-[var(--border)] bg-gradient-to-b from-amber-500/[0.05] to-transparent pb-3 dark:from-amber-950/15"
+                buttonHoverClassName="hover:bg-amber-500/[0.07] dark:hover:bg-amber-950/30"
+                chevronClassName="text-amber-800 dark:text-amber-300"
+              >
+                <div className="pt-1">
+                  <section className="rounded-2xl border border-[var(--border)] bg-[var(--surface-1)]/80 p-3 shadow-sm dark:bg-zinc-900/35">
+                    <div className="flex gap-3">
                   <div className="flex size-[92px] shrink-0 items-center justify-center rounded-2xl border border-amber-400/30 bg-gradient-to-br from-amber-400/15 to-transparent dark:from-amber-500/10">
                     <HeroTruckGlyph className="size-[58px] text-amber-800/90 dark:text-amber-200/85" />
                   </div>
@@ -696,13 +816,40 @@ export function DriverDetailPanel() {
                     )}
                   </div>
                 </div>
-              </section>
+                  </section>
+                </div>
+              </CollapsibleBlock>
 
               {activeTrip && (
-                <section className="rounded-2xl border border-sky-400/25 bg-sky-500/[0.06] p-3 dark:bg-sky-950/20">
-                  <h3 className="text-[10px] font-semibold uppercase tracking-[0.2em] text-sky-800 dark:text-sky-300/90">
-                    Active trip
-                  </h3>
+                <CollapsibleBlock
+                  buttonId="active-trip-disclosure"
+                  panelId="active-trip-panel"
+                  title="Active trip"
+                  titleClassName="text-[10px] font-semibold uppercase tracking-[0.2em] text-sky-800 dark:text-sky-300/90"
+                  badge={
+                    activeLoad ? (
+                      <span className="font-mono text-[10px] font-semibold text-sky-800 dark:text-sky-200">
+                        {activeLoad.id}
+                      </span>
+                    ) : (
+                      <span className="text-[10px] text-sky-700 dark:text-sky-300">
+                        En route
+                      </span>
+                    )
+                  }
+                  collapsedHint={
+                    activeLoad
+                      ? `${activeLoad.origin} → ${activeLoad.destination}`
+                      : activeTrip.tripId
+                  }
+                  expanded={activeTripExpanded}
+                  onToggle={() => setActiveTripExpanded((v) => !v)}
+                  shellClassName="mb-4 border-b border-[var(--border)] bg-gradient-to-b from-sky-400/[0.07] to-transparent pb-3 dark:border-sky-900/40"
+                  buttonHoverClassName="hover:bg-sky-500/10 dark:hover:bg-sky-950/40"
+                  chevronClassName="text-sky-800 dark:text-sky-300"
+                >
+                  <div className="pt-1">
+                    <section className="rounded-2xl border border-sky-400/25 bg-sky-500/[0.06] p-3 dark:bg-sky-950/20">
                   {activeLoad ? (
                     <div className="mt-2">
                       <p className="font-mono text-xs font-semibold text-sky-900 dark:text-sky-200">
@@ -753,29 +900,135 @@ export function DriverDetailPanel() {
                       </dd>
                     </div>
                   </dl>
-                </section>
+                    </section>
+                  </div>
+                </CollapsibleBlock>
               )}
 
               {selectedLoad ? (
-                <section className="rounded-xl border border-[var(--border)] bg-[var(--surface-1)]/60 p-3">
-                  <h3 className="text-[10px] font-semibold uppercase tracking-wider text-[var(--muted)]">
-                    Selected load fit
-                  </h3>
-                  <p className="mt-1 text-2xl font-bold tabular-nums text-[var(--foreground)]">
-                    {rankedRow ? `${Math.min(99, rankedRow.matchPercent + 2)}%` : "—"}{" "}
-                    <span className="text-sm font-medium text-zinc-500">match</span>
-                  </p>
-                  {rankedRow && rankedRow.reasons.length > 0 ? (
-                    <ul className="mt-2 space-y-1 text-[13px] text-zinc-600 dark:text-zinc-400">
-                      {rankedRow.reasons.map((x, i) => (
-                        <li key={`${i}-${x}`} className="flex gap-2">
-                          <span className="text-emerald-600 dark:text-emerald-400">✓</span>
-                          <span>{x}</span>
-                        </li>
-                      ))}
-                    </ul>
-                  ) : null}
-                </section>
+                <CollapsibleBlock
+                  buttonId="load-fit-disclosure"
+                  panelId="load-fit-panel"
+                  title="Selected load fit"
+                  titleClassName="text-[10px] font-semibold uppercase tracking-wider text-[var(--muted)]"
+                  badge={
+                    rankedRow ? (
+                      <span className="rounded-md bg-emerald-500/15 px-1.5 py-px text-[10px] font-bold tabular-nums text-emerald-900 dark:text-emerald-100">
+                        {Math.min(99, rankedRow.matchPercent + 2)}%
+                      </span>
+                    ) : null
+                  }
+                  collapsedHint={
+                    selectedLoad
+                      ? `${selectedLoad.id} · tap to expand fit detail`
+                      : undefined
+                  }
+                  expanded={loadFitExpanded}
+                  onToggle={() => setLoadFitExpanded((v) => !v)}
+                  shellClassName="mb-4 border-b border-[var(--border)] pb-3"
+                  buttonHoverClassName="hover:bg-black/[0.03] dark:hover:bg-white/[0.04]"
+                  chevronClassName="text-zinc-600 dark:text-zinc-400"
+                >
+                  <div className="pt-1">
+                    <section className="rounded-xl border border-[var(--border)] bg-[var(--surface-1)]/60 p-3">
+                      <p className="text-2xl font-bold tabular-nums text-[var(--foreground)]">
+                        {rankedRow ? `${Math.min(99, rankedRow.matchPercent + 2)}%` : "—"}{" "}
+                        <span className="text-sm font-medium text-zinc-500">match</span>
+                      </p>
+                      {rankedRow && rankedRow.reasons.length > 0 ? (
+                        <ul className="mt-2 space-y-1 text-[13px] text-zinc-600 dark:text-zinc-400">
+                          {rankedRow.reasons.map((x, i) => (
+                            <li key={`${i}-${x}`} className="flex gap-2">
+                              <span className="text-emerald-600 dark:text-emerald-400">✓</span>
+                              <span>{x}</span>
+                            </li>
+                          ))}
+                        </ul>
+                      ) : null}
+                    </section>
+                  </div>
+                </CollapsibleBlock>
+              ) : null}
+
+              {selectedLoad && rankedRow ? (
+                <CollapsibleBlock
+                  buttonId="llm-match-disclosure"
+                  panelId="llm-match-panel"
+                  title="Dispatcher model"
+                  titleClassName="text-[10px] font-bold uppercase tracking-[0.18em] text-indigo-800/90 dark:text-indigo-300/90"
+                  badge={
+                    slateRank != null ? (
+                      <span className="rounded-md bg-indigo-500/15 px-1.5 py-px text-[10px] font-semibold tabular-nums text-indigo-950 dark:text-indigo-100">
+                        #{slateRank}
+                      </span>
+                    ) : null
+                  }
+                  collapsedHint="Why this rank for the selected load — expand"
+                  expanded={llmInsightExpanded}
+                  onToggle={() => setLlmInsightExpanded((v) => !v)}
+                  shellClassName="mb-2 border-b border-[var(--border)] bg-gradient-to-b from-indigo-500/[0.07] to-transparent pb-3 dark:from-indigo-950/25"
+                  buttonHoverClassName="hover:bg-indigo-500/[0.08] dark:hover:bg-indigo-950/40"
+                  chevronClassName="text-indigo-700 dark:text-indigo-300"
+                >
+                  <div className="rounded-xl border border-indigo-500/20 bg-indigo-500/[0.04] p-3 dark:bg-indigo-950/20">
+                    {state.loadSelectSource !== "inbox" ? (
+                      <>
+                        <p className="text-[13px] font-medium leading-snug text-[var(--foreground)]">
+                          {shortAiReason(rankedRow, slateRank ?? 1)}
+                        </p>
+                        <p className="mt-2 text-[12px] leading-snug text-zinc-500 dark:text-zinc-500">
+                          Heuristic fit for {selectedLoad.id}. Select loads from the inbox to run the
+                          full dispatcher LLM shortlist and synced reasoning for each driver.
+                        </p>
+                      </>
+                    ) : matchLoad.status === "loading" &&
+                      matchLoad.loadId === selectedLoad.id ? (
+                      <p className="text-[13px] text-zinc-600 dark:text-zinc-400">
+                        Running fleet analysis for this load…
+                      </p>
+                    ) : matchLoad.status === "ready" &&
+                      matchLoad.loadId === selectedLoad.id &&
+                      matchLoad.result ? (
+                      <>
+                        {llmRowForDriver ? (
+                          <>
+                            <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-[var(--muted)]">
+                              Shortlist rank {llmRowForDriver.rank} ·{" "}
+                              {matchLoad.result.source === "llm"
+                                ? "LLM reasoning"
+                                : "Heuristic shortlist"}
+                            </p>
+                            <p className="mt-2 text-[13px] font-medium leading-snug text-[var(--foreground)]">
+                              {llmRowForDriver.reasoning}
+                            </p>
+                            {matchLoad.result.source === "heuristic" && matchLoad.result.error ? (
+                              <p className="mt-2 text-[11px] text-amber-800 dark:text-amber-200">
+                                LLM unavailable ({matchLoad.result.error}).
+                              </p>
+                            ) : null}
+                          </>
+                        ) : (
+                          <>
+                            <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-[var(--muted)]">
+                              Full slate #{slateRank} of {ranked.length} · not in top-3 shortlist
+                            </p>
+                            <p className="mt-2 text-[13px] leading-snug text-[var(--foreground)]">
+                              {shortAiReason(rankedRow, slateRank ?? 1)}
+                            </p>
+                            <p className="mt-2 text-[12px] leading-snug text-zinc-500 dark:text-zinc-500">
+                              The comparison tray shows the model’s top three picks for {selectedLoad.id}.
+                              This driver ranked lower on combined fit.
+                            </p>
+                          </>
+                        )}
+                      </>
+                    ) : (
+                      <p className="text-[13px] text-zinc-500 dark:text-zinc-500">
+                        Match insight will appear when the run finishes.
+                      </p>
+                    )}
+                  </div>
+                </CollapsibleBlock>
               ) : null}
             </div>
 
@@ -810,7 +1063,12 @@ export function DriverDetailPanel() {
                 type="button"
                 disabled={!selectedLoad}
                 onClick={() =>
-                  selectedLoad && assign(selectedLoad.id, driver.id, driver.name)
+                  selectedLoad &&
+                  assign(selectedLoad.id, driver.id, driver.name, {
+                    matchPercent: rankedRow
+                      ? Math.min(99, rankedRow.matchPercent + 2)
+                      : undefined,
+                  })
                 }
                 className="w-full rounded-xl bg-sky-500 py-3 text-sm font-semibold text-white shadow-lg shadow-sky-500/20 transition-colors hover:bg-sky-400 disabled:cursor-not-allowed disabled:opacity-40"
               >

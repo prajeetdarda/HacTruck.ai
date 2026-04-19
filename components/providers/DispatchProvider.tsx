@@ -13,7 +13,9 @@ import {
 import { DRIVERS, LOADS } from "@/lib/backend-db";
 import { rankDriversForLoad, rankedAllowsAssignment } from "@/lib/scoring";
 import { driverForSimulation } from "@/lib/simulation";
+import { formatEquipment } from "@/lib/format";
 import {
+  ASSIGN_UNDO_TOAST_MS,
   fleetSummaryRing,
   type Driver,
   type FleetSummaryRing,
@@ -65,6 +67,7 @@ type Action =
       loadId: string;
       driverId: string;
       driverName: string;
+      matchPercent?: number;
     }
   | { type: "undo" }
   | { type: "dismissToast" }
@@ -149,6 +152,24 @@ function reducer(state: State, action: Action): State {
         [action.loadId]: action.driverId,
       };
       const nextLoad = pickNextUrgentLoadId(nextAssignments);
+      const load = LOADS.find((l) => l.id === action.loadId);
+      const driver = DRIVERS.find((d) => d.id === action.driverId);
+      const summary =
+        load && driver
+          ? {
+              loadId: load.id,
+              loadRoute: `${load.origin} → ${load.destination}`,
+              loadEquipment: load.equipment,
+              driverName: driver.name,
+              driverInitials: driver.initials,
+              truckLabel: driver.truckLabel,
+              matchPercent: action.matchPercent,
+            }
+          : undefined;
+      const sub =
+        load && driver
+          ? `${load.id} · ${formatEquipment(load.equipment)}`
+          : `Load ${action.loadId} covered`;
       return {
         ...state,
         assignments: nextAssignments,
@@ -160,7 +181,9 @@ function reducer(state: State, action: Action): State {
         toast: {
           id: crypto.randomUUID(),
           message: `Assigned ${action.driverName}`,
-          sub: `Load ${action.loadId} covered`,
+          sub,
+          summary,
+          undoDeadlineMs: Date.now() + ASSIGN_UNDO_TOAST_MS,
         },
       };
     }
@@ -296,8 +319,19 @@ function useDispatchValue() {
   }, []);
 
   const assign = useCallback(
-    (loadId: string, driverId: string, driverName: string) => {
-      dispatch({ type: "assign", loadId, driverId, driverName });
+    (
+      loadId: string,
+      driverId: string,
+      driverName: string,
+      opts?: { matchPercent?: number },
+    ) => {
+      dispatch({
+        type: "assign",
+        loadId,
+        driverId,
+        driverName,
+        matchPercent: opts?.matchPercent,
+      });
     },
     [],
   );
@@ -385,7 +419,7 @@ function useDispatchValue() {
     undoTimerRef.current = setTimeout(() => {
       dispatch({ type: "dismissToast" });
       undoTimerRef.current = null;
-    }, 3000);
+    }, ASSIGN_UNDO_TOAST_MS);
     return () => {
       if (undoTimerRef.current) clearTimeout(undoTimerRef.current);
     };

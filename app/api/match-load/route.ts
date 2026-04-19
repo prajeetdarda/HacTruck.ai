@@ -5,6 +5,7 @@ import {
   heuristicTopThreeForLoad,
 } from "@/lib/match-load-llm";
 import type { MatchLoadPayload } from "@/lib/match-load-llm";
+import { shortAiReason } from "@/lib/scoring";
 
 type LlmTopRow = { rank: number; driverId: string; reasoning: string };
 
@@ -28,6 +29,8 @@ Rules:
 
 Return **only** JSON:
 {"top3":[{"rank":1,"driverId":"<id>","reasoning":"<concise 1-2 sentences>"},{"rank":2,"driverId":"...","reasoning":"..."},{"rank":3,"driverId":"...","reasoning":"..."}]}
+
+Each "reasoning" must briefly state that driver’s rank (1st / 2nd / 3rd) and why they earn that spot for **this** load (equipment, HOS, distance, lane fit, alerts, or trips — only from DATA).
 
 DATA:
 ${JSON.stringify(payload)}`;
@@ -96,8 +99,7 @@ function fillTopThreeFromHeuristic(
       out.push({
         rank: out.length + 1,
         driverId: r.driver.id,
-        reasoning:
-          r.reasons[0] ?? "Heuristic rank to complete top three.",
+        reasoning: shortAiReason(r, out.length + 1),
       });
     }
   }
@@ -145,8 +147,7 @@ export async function POST(req: Request) {
       top3: h.map((r, i) => ({
         rank: i + 1,
         driverId: r.driver.id,
-        reasoning:
-          "Heuristic scoring (set OPENAI_API_KEY in .env.local for LLM reasoning).",
+        reasoning: shortAiReason(r, i + 1),
       })),
     });
   }
@@ -173,9 +174,7 @@ export async function POST(req: Request) {
       top3: h.map((r, i) => ({
         rank: i + 1,
         driverId: r.driver.id,
-        reasoning:
-          r.reasons[0] ??
-          "Heuristic fallback while LLM is unavailable.",
+        reasoning: shortAiReason(r, i + 1),
       })),
     });
   }

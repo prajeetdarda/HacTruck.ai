@@ -137,17 +137,26 @@ export type RankedDriver = {
   features: DriverLoadFeatures;
 };
 
+/** Undo window for assignment toast — keep in sync with `DispatchProvider` dismiss timer. */
+export const ASSIGN_UNDO_TOAST_MS = 5000;
+
+export type AssignmentToastSummary = {
+  loadId: string;
+  loadRoute: string;
+  loadEquipment: EquipmentType;
+  driverName: string;
+  driverInitials: string;
+  truckLabel: string;
+  matchPercent?: number;
+};
+
 export type ToastState = {
   id: string;
   message: string;
   sub?: string;
-} | null;
-
-export type PendingUndo = {
-  loadId: string;
-  driverId: string;
-  driverName: string;
-  loadLabel: string;
+  summary?: AssignmentToastSummary;
+  /** When undo/dismiss auto-closes the toast (client clock). */
+  undoDeadlineMs: number;
 } | null;
 
 /* --- backend-db domain (Desert Sun API shape) --- */
