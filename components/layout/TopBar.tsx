@@ -56,6 +56,8 @@ export function TopBar() {
     selectedLoad,
     state,
     setMapRingFilter,
+    loadInboxExpanded,
+    openLoadInbox,
   } = useDispatchContext();
   const { theme, toggleTheme } = useTheme();
   /** null until mount — avoids SSR/client clock mismatch (hydration error). */
@@ -149,7 +151,16 @@ export function TopBar() {
 
       <div className="ml-auto flex shrink-0 items-end gap-3 sm:gap-6">
         <Stat label="Active drivers" value={activeDriverCount} accent="text-sky-400" />
-        <Stat label="Open loads" value={openLoads.length} accent="text-amber-400" />
+        <button
+          type="button"
+          onClick={openLoadInbox}
+          title="Open load inbox"
+          aria-controls="load-inbox-panel"
+          aria-expanded={loadInboxExpanded}
+          className="pb-0.5 text-left outline-none transition-opacity hover:opacity-90 focus-visible:rounded-md focus-visible:ring-2 focus-visible:ring-[var(--ring-focus)]"
+        >
+          <Stat label="Open loads" value={openLoads.length} accent="text-amber-400" />
+        </button>
         <AlertCenter />
         <button
           type="button"

@@ -158,6 +158,9 @@ const Ctx = createContext<ReturnType<typeof useDispatchValue> | null>(null);
 function useDispatchValue() {
   const nowMs = useNow(2500);
   const [dismissedAlertIds, setDismissedAlertIds] = useState<string[]>([]);
+  const [loadInboxExpanded, setLoadInboxExpanded] = useState(false);
+
+  const openLoadInbox = useCallback(() => setLoadInboxExpanded(true), []);
 
   const [state, dispatch] = useReducer(reducer, {
     selectedLoadId: null,
@@ -349,6 +352,9 @@ function useDispatchValue() {
       setMapRingBrowsePage,
       loadsAll: LOADS,
       driversBase: DRIVERS,
+      loadInboxExpanded,
+      setLoadInboxExpanded,
+      openLoadInbox,
     }),
     [
       state,
@@ -373,6 +379,7 @@ function useDispatchValue() {
       setMapRingFilter,
       bumpMapRingFilterPage,
       setMapRingBrowsePage,
+      loadInboxExpanded,
     ],
   );
 }
