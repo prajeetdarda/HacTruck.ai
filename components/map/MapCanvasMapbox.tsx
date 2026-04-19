@@ -26,7 +26,7 @@ import { DEFAULT_MAP_VIEW, svgToLngLat } from "@/lib/geo-bridge";
 import { LOADS } from "@/lib/mock-data";
 import { Z_MAP } from "@/lib/layout-tokens";
 import type { Driver, RankedDriver, RejectTag } from "@/lib/types";
-import { PickupOriginIcon } from "@/components/icons/MapMarkers";
+import { LocateMeIcon, PickupOriginIcon } from "@/components/icons/MapMarkers";
 import { useTheme } from "@/components/providers/ThemeProvider";
 import { DriverMarkerContent } from "./DriverMarker";
 
@@ -93,6 +93,8 @@ export function MapCanvasMapbox() {
   }, [theme, basemapLook]);
   const mapRef = useRef<MapRef>(null);
   const [mapReady, setMapReady] = useState(false);
+  const [geoLocating, setGeoLocating] = useState(false);
+  const [geoHint, setGeoHint] = useState<string | null>(null);
   const [draggingDriverId, setDraggingDriverId] = useState<string | null>(null);
   const [markerReset, setMarkerReset] = useState<Record<string, number>>({});
   /** When a load is selected: false = map shows only top-5 candidates (default). */
@@ -501,6 +503,57 @@ export function MapCanvasMapbox() {
     [assign, bumpMarker, rankedById, selectedLoad],
   );
 
+  useEffect(() => {
+    if (!geoHint) return;
+    const t = window.setTimeout(() => setGeoHint(null), 6500);
+    return () => window.clearTimeout(t);
+  }, [geoHint]);
+
+  const flyToMyLocation = useCallback(() => {
+    if (!mapReady || !mapRef.current) return;
+    const map = mapRef.current.getMap();
+    if (!map) return;
+    if (typeof navigator === "undefined" || !navigator.geolocation) {
+      setGeoHint("Location is not supported in this browser");
+      return;
+    }
+    setGeoHint(null);
+    setGeoLocating(true);
+    navigator.geolocation.getCurrentPosition(
+      (pos) => {
+        setGeoLocating(false);
+        const { longitude, latitude, accuracy } = pos.coords;
+        const acc = accuracy ?? 400;
+        const zoomBoost =
+          acc > 1000 ? 9 : acc > 300 ? 10.5 : acc > 80 ? 12 : 13.5;
+        map.flyTo({
+          center: [longitude, latitude] as LngLatLike,
+          zoom: Math.max(map.getZoom(), zoomBoost),
+          duration: 900,
+          essential: true,
+        });
+      },
+      (err) => {
+        setGeoLocating(false);
+        const code = (err as GeolocationPositionError).code;
+        const msg =
+          code === 1
+            ? "Location permission denied"
+            : code === 2
+              ? "Position unavailable"
+              : code === 3
+                ? "Location request timed out"
+                : "Could not get your location";
+        setGeoHint(msg);
+      },
+      {
+        enableHighAccuracy: true,
+        timeout: 15000,
+        maximumAge: 30_000,
+      },
+    );
+  }, [mapReady]);
+
   return (
     <div
       className="relative min-h-0 flex-1 overflow-hidden rounded-2xl border border-[var(--border)] bg-[var(--surface-1)] shadow-[inset_0_0_48px_rgba(0,0,0,0.06)] dark:shadow-[inset_0_0_60px_rgba(0,0,0,0.35)]"
@@ -692,13 +745,38 @@ export function MapCanvasMapbox() {
                 }}
               />
               <div className="absolute h-10 w-10 animate-pulse rounded-full bg-amber-400/12" />
-              <div className="relative z-10 flex h-8 w-8 items-center justify-center rounded-lg border border-amber-400/70 bg-white/95 shadow-[0_0_14px_rgba(245,158,11,0.35)] dark:bg-zinc-950/90 dark:shadow-[0_0_16px_rgba(251,191,36,0.4)]">
-                <PickupOriginIcon className="h-5 w-5 text-amber-300" />
+              <div className="relative z-10 flex h-10 w-10 items-center justify-center rounded-xl border-2 border-amber-500/45 bg-gradient-to-b from-zinc-50 to-zinc-200 shadow-[0_4px_16px_rgba(245,158,11,0.4),inset_0_1px_0_rgba(255,255,255,0.8)] dark:border-amber-400/40 dark:from-zinc-800 dark:to-zinc-950 dark:shadow-[0_6px_20px_rgba(251,191,36,0.35),inset_0_1px_0_rgba(255,255,255,0.06)]">
+                <PickupOriginIcon className="h-8 w-8 shrink-0 drop-shadow-sm" />
               </div>
             </div>
           </Marker>
         )}
       </MapGL>
+
+      <div className="pointer-events-auto absolute right-2.5 top-[78px] z-30 flex flex-col items-end gap-1.5">
+        <button
+          type="button"
+          disabled={!mapReady || geoLocating}
+          onClick={flyToMyLocation}
+          title="Center map on your current location"
+          aria-label="Center map on your current location"
+          className="flex size-9 items-center justify-center rounded-md border border-black/10 bg-white/95 text-sky-600 shadow-md backdrop-blur-sm transition-colors hover:bg-sky-50 hover:text-sky-700 disabled:cursor-not-allowed disabled:opacity-45 dark:border-white/10 dark:bg-zinc-900/95 dark:text-sky-400 dark:hover:bg-zinc-800 dark:hover:text-sky-300"
+        >
+          <LocateMeIcon
+            className={
+              geoLocating ? "h-5 w-5 animate-pulse" : "h-5 w-5"
+            }
+          />
+        </button>
+        {geoHint ? (
+          <p
+            role="status"
+            className="pointer-events-none max-w-[min(220px,calc(100vw-6rem))] rounded-md border border-red-500/25 bg-white/95 px-2 py-1.5 text-left text-[10px] font-medium leading-snug text-red-800 shadow-sm dark:bg-zinc-900/95 dark:text-red-200"
+          >
+            {geoHint}
+          </p>
+        ) : null}
+      </div>
 
       <div className="pointer-events-none absolute left-3 top-3 max-w-[min(100%,220px)] rounded-lg border border-black/10 bg-white/90 px-2.5 py-1 text-[10px] font-medium uppercase tracking-wider text-zinc-600 backdrop-blur-sm dark:border-white/[0.06] dark:bg-black/50 dark:text-zinc-500">
         Mapbox · Drag a top driver onto the amber pin to assign

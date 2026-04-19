@@ -1,16 +1,12 @@
 "use client";
 
 import clsx from "clsx";
-import { TruckMarkerIcon } from "@/components/icons/MapMarkers";
+import {
+  RING_STATUS_COLOR,
+  RingStatusNotificationBadge,
+  TruckMarkerIcon,
+} from "@/components/icons/MapMarkers";
 import type { Driver, RankedDriver } from "@/lib/types";
-
-const RING: Record<Driver["ringStatus"], string> = {
-  available: "#34d399",
-  constrained: "#fbbf24",
-  unavailable: "#f87171",
-  en_route: "#38bdf8",
-  off_duty: "#71717a",
-};
 
 type Props = {
   driver: Driver;
@@ -35,7 +31,6 @@ export function DriverMarkerContent({
   dragging,
   rankForLoad,
 }: Props) {
-  const ring = RING[driver.ringStatus];
   let opacity =
     dimmed && !isHovered
       ? 0.22
@@ -56,7 +51,7 @@ export function DriverMarkerContent({
   return (
     <div
       className={clsx(
-        "pointer-events-auto flex min-h-[36px] min-w-[36px] flex-col items-center justify-center select-none",
+        "pointer-events-auto flex min-h-[40px] min-w-[40px] flex-col items-center justify-center select-none",
         dragging && "cursor-grabbing",
         !dragging && "cursor-pointer",
       )}
@@ -72,25 +67,30 @@ export function DriverMarkerContent({
         )}
         <div
           className={clsx(
-            "relative flex h-8 w-8 shrink-0 items-center justify-center",
+            "relative flex h-11 w-11 shrink-0 items-center justify-center",
             isCandidate &&
-              "drop-shadow-[0_0_8px_rgba(56,189,248,0.4)]",
+              "drop-shadow-[0_0_12px_rgba(248,113,113,0.55)]",
           )}
         >
           <div
-            className="relative flex h-8 w-8 items-center justify-center overflow-hidden rounded-lg border-solid bg-white shadow-[inset_0_0_0_1px_rgba(0,0,0,0.06)] dark:bg-zinc-950 dark:shadow-[inset_0_0_0_1px_rgba(255,255,255,0.06)]"
+            className={clsx(
+              "relative box-border flex h-10 w-10 items-center justify-center overflow-visible rounded-xl border-2 border-solid bg-gradient-to-b from-zinc-100 to-zinc-200 shadow-[0_4px_14px_rgba(0,0,0,0.28),inset_0_1px_0_rgba(255,255,255,0.75)] dark:from-zinc-800 dark:to-zinc-950 dark:shadow-[0_6px_18px_rgba(0,0,0,0.55),inset_0_1px_0_rgba(255,255,255,0.06)]",
+              isCandidate &&
+                "ring-2 ring-red-400/70 ring-offset-2 ring-offset-[var(--surface-0)] dark:ring-red-500/50",
+            )}
             style={{
-              border: `${isCandidate ? 2 : 1}px solid ${ring}`,
+              borderColor: RING_STATUS_COLOR[driver.ringStatus],
             }}
           >
             <TruckMarkerIcon
-              className="h-[18px] w-[18px] shrink-0"
-              style={{ color: ring, opacity: isHovered ? 1 : 0.92 }}
+              className="h-9 w-9 shrink-0 drop-shadow-sm"
+              ringStatus={driver.ringStatus}
             />
-            <span className="pointer-events-none absolute bottom-px left-px inline-flex items-baseline gap-0 rounded bg-black/10 px-[1px] text-[6px] font-bold leading-none text-zinc-900 tabular-nums dark:bg-black/55 dark:text-zinc-100">
+            <RingStatusNotificationBadge status={driver.ringStatus} />
+            <span className="pointer-events-none absolute bottom-0.5 left-0.5 inline-flex items-baseline gap-0 rounded bg-black/18 px-[2px] text-[6px] font-bold leading-none text-white tabular-nums shadow-sm dark:bg-black/55">
               {driver.initials}
               {rankForLoad != null && rankForLoad > 0 && (
-                <sup className="ml-px text-[5px] font-extrabold text-sky-400">
+                <sup className="ml-px text-[5px] font-extrabold text-sky-200">
                   {rankForLoad}
                 </sup>
               )}
