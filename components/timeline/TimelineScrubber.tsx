@@ -6,9 +6,10 @@ import { useDispatchContext } from "@/components/providers/DispatchProvider";
 import { useNow } from "@/hooks/useNow";
 
 const TIMELINE_MAX_H = 24;
-const TIMELINE_STEP = 0.25;
-/** Wall-clock duration for a full 0→24h sweep (demo pacing). */
-const AUTOSWEEP_MS = 20_000;
+/** Each autoplay tick advances the simulation by this many hours (use 1 or 2). */
+const AUTOPLAY_JUMP_H = 2;
+/** Pause between hourly jumps so each step reads clearly. */
+const AUTOPLAY_STEP_MS = 400;
 
 function PlayGlyph({ className }: { className?: string }) {
   return (
@@ -41,6 +42,7 @@ export function TimelineScrubber() {
   const now = useNow(30_000);
   const scrubRaf = useRef<number | null>(null);
   const autoplayRaf = useRef<number | null>(null);
+  const autoplayPosRef = useRef(0);
   const [autoplay, setAutoplay] = useState(false);
 
   const stopAutoplay = useCallback(() => {
@@ -53,16 +55,21 @@ export function TimelineScrubber() {
 
   useEffect(() => {
     if (!autoplay) return;
-    const startWall = performance.now();
+    autoplayPosRef.current = 0;
+    let lastStepWall = performance.now();
     const tick = (wall: number) => {
-      const t = Math.min(1, (wall - startWall) / AUTOSWEEP_MS);
-      const hours = t * TIMELINE_MAX_H;
-      const snapped = Math.min(
+      if (wall - lastStepWall < AUTOPLAY_STEP_MS) {
+        autoplayRaf.current = requestAnimationFrame(tick);
+        return;
+      }
+      lastStepWall = wall;
+      const next = Math.min(
         TIMELINE_MAX_H,
-        Math.round(hours / TIMELINE_STEP) * TIMELINE_STEP,
+        autoplayPosRef.current + AUTOPLAY_JUMP_H,
       );
-      setSimulatedHoursOffset(snapped);
-      if (t >= 1) {
+      autoplayPosRef.current = next;
+      setSimulatedHoursOffset(next);
+      if (next >= TIMELINE_MAX_H) {
         autoplayRaf.current = null;
         setAutoplay(false);
         return;

@@ -120,7 +120,10 @@ export function TopBar() {
     [driversSimulated],
   );
 
-  const tripAlertBoardCount = useMemo(() => listAlerts().length, []);
+  const tripAlertBoardCount = useMemo(
+    () => listAlerts(state.simulatedHoursOffset).length,
+    [state.simulatedHoursOffset],
+  );
 
   const showFleetStrip =
     !selectedLoad && !loadInboxExpanded;

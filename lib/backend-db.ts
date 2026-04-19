@@ -8,8 +8,9 @@
  *
  * Two read paths the frontend cares about:
  *   1. getLoadRecommendations(loadId) — ranked drivers + comparison matrix
- *   2. listAlerts() / getAlertDetail(alertId) — proactive alerts on in-transit
- *      trucks with enough context to drop into a dispatcher detail view.
+ *   2. listAlerts(offsetHours?) / getAlertDetail(…) — proactive alerts on in-transit
+ *      trucks; synthetic AZ511-style rows merge in when the timeline scrub is in range
+ *      (see `lib/demo-511-situations.ts`).
  *
  * Timestamps anchor to the current UTC calendar day so a live demo reads as
  * “today” / “tomorrow.” Restart the dev server to roll to the next day.
@@ -24,6 +25,7 @@ import type {
   Vehicle,
   LoadRecommendation,
 } from "./types";
+import { activeSituationsAt, type Demo511SituationDef } from "./demo-511-situations";
 import { lngLatToSvg, svgToLngLat } from "./geo-bridge";
 import { rankDriversForLoad, shortAiReason } from "./scoring";
 
@@ -476,25 +478,6 @@ export const ALERTS: TruckAlert[] = [
       "Do not stack a next load on this unit today; schedule reset at Phoenix Hub.",
     acknowledged: true,
   },
-  {
-    alertId: "ALT-0004",
-    tripId: `${TRIP_DAY_ID}-3`,
-    driverId: "36104",
-    vehicleNo: "DSL-Truck-04",
-    loadId: "L-3003",
-    type: "weather_delay",
-    severity: "info",
-    headline: "Dust advisory on I-40 near Winslow",
-    detail:
-      "AZ511 reports blowing dust along I-40 between Winslow and Joseph City through 20:30 local. Current empty reposition crosses that window.",
-    detectedAt: T(18, 10),
-    lastLat: 34.271,
-    lastLng: -110.047,
-    etaImpactMinutes: 15,
-    recommendedAction:
-      "Notify receiver of 15-min slip; no reroute needed if visibility holds.",
-    acknowledged: false,
-  },
 ];
 
 /* ------------------------------------------------------------------ */
@@ -535,6 +518,44 @@ export function getActiveTripForDriver(driverId: string): Trip | undefined {
       t.driverId === driverId &&
       (t.status === "en_route" || t.status === "delayed"),
   );
+}
+
+function build511TruckAlert(
+  s: Demo511SituationDef,
+  offsetHours: number,
+): TruckAlert | null {
+  const trip = getActiveTripForDriver(s.driverId);
+  const vehicle = getVehicleForDriver(s.driverId);
+  if (!trip || !vehicle) return null;
+  const load = getLoad(trip.loadId);
+  if (!load) return null;
+  const last = trip.trail[trip.trail.length - 1];
+  if (!last) return null;
+  return {
+    alertId: `511-${s.id}`,
+    tripId: trip.tripId,
+    driverId: s.driverId,
+    vehicleNo: vehicle.vehicleNo,
+    loadId: trip.loadId,
+    type: s.type,
+    severity: s.severity,
+    headline: s.headline,
+    detail: s.detail,
+    detectedAt: DB_NOW_MS + offsetHours * HOUR,
+    lastLat: last.lat,
+    lastLng: last.lng,
+    etaImpactMinutes: s.etaImpactMinutes,
+    recommendedAction: s.recommendedAction,
+    acknowledged: false,
+  };
+}
+
+/** Static board alerts plus synthetic AZ511-style rows active at this scrub offset. */
+function mergeAlertsAtOffset(offsetHours: number): TruckAlert[] {
+  const from511 = activeSituationsAt(offsetHours)
+    .map((s) => build511TruckAlert(s, offsetHours))
+    .filter((a): a is TruckAlert => a != null);
+  return [...ALERTS, ...from511];
 }
 
 /** Map route context: pickup → dropoff with current position from ELD trail (or driver pin). */
@@ -601,9 +622,12 @@ export function getLoadRecommendations(loadId: string): LoadRecommendation | nul
   return { load, ranked, comparison };
 }
 
-/** Short summary list of every alert currently on the board. */
-export function listAlerts(): TruckAlert[] {
-  return [...ALERTS].sort((a, b) => severityRank(b.severity) - severityRank(a.severity) || b.detectedAt - a.detectedAt);
+/** Short summary list of every alert on the board at this simulated offset (default 0). */
+export function listAlerts(offsetHours = 0): TruckAlert[] {
+  return [...mergeAlertsAtOffset(offsetHours)].sort(
+    (a, b) =>
+      severityRank(b.severity) - severityRank(a.severity) || b.detectedAt - a.detectedAt,
+  );
 }
 
 function severityRank(s: TruckAlert["severity"]): number {
@@ -611,8 +635,8 @@ function severityRank(s: TruckAlert["severity"]): number {
 }
 
 /** Full alert detail: alert + driver + vehicle + trip + load — one call for the UI. */
-export function getAlertDetail(alertId: string): TruckAlertDetail | null {
-  const alert = ALERTS.find((a) => a.alertId === alertId);
+export function getAlertDetail(alertId: string, offsetHours = 0): TruckAlertDetail | null {
+  const alert = mergeAlertsAtOffset(offsetHours).find((a) => a.alertId === alertId);
   if (!alert) return null;
   const driver = getDriver(alert.driverId);
   const vehicle = getVehicleByNo(alert.vehicleNo);
@@ -623,21 +647,24 @@ export function getAlertDetail(alertId: string): TruckAlertDetail | null {
 }
 
 /** Alternate lookup by truck number (vehicleNo) — returns all alerts on that unit. */
-export function getAlertsForTruck(vehicleNo: string): TruckAlert[] {
-  return ALERTS.filter((a) => a.vehicleNo === vehicleNo);
+export function getAlertsForTruck(vehicleNo: string, offsetHours = 0): TruckAlert[] {
+  return mergeAlertsAtOffset(offsetHours).filter((a) => a.vehicleNo === vehicleNo);
 }
 
 /** Ops alerts tied to this driver (same as their assigned truck in the dummy fleet). */
-export function getAlertsForDriver(driverId: string): TruckAlert[] {
-  return ALERTS.filter((a) => a.driverId === driverId).sort(
-    (a, b) =>
-      severityRank(b.severity) -
-        severityRank(a.severity) || b.detectedAt - a.detectedAt,
-  );
+export function getAlertsForDriver(driverId: string, offsetHours = 0): TruckAlert[] {
+  return mergeAlertsAtOffset(offsetHours)
+    .filter((a) => a.driverId === driverId)
+    .sort(
+      (a, b) =>
+        severityRank(b.severity) -
+          severityRank(a.severity) || b.detectedAt - a.detectedAt,
+    );
 }
 
 /** Convenience summary used by dashboards. */
 export function getFleetSummary() {
+  const boardAlerts = mergeAlertsAtOffset(0);
   return {
     fleetName: FLEET_NAME,
     terminal: TERMINAL,
@@ -647,8 +674,8 @@ export function getFleetSummary() {
     ).length,
     openLoadCount: LOADS.length,
     inTransitCount: TRIPS.filter((t) => t.status === "en_route" || t.status === "delayed").length,
-    alertCount: ALERTS.length,
-    criticalAlertCount: ALERTS.filter((a) => a.severity === "critical").length,
+    alertCount: boardAlerts.length,
+    criticalAlertCount: boardAlerts.filter((a) => a.severity === "critical").length,
     generatedAt: DB_NOW_MS,
   };
 }

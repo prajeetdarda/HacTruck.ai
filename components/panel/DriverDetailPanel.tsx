@@ -12,6 +12,7 @@ import {
   TERMINAL,
   getActiveTripForDriver,
   getAlertsForDriver,
+  getDriver,
   getDriverProfile,
   getLoad,
   getVehicleForDriver,
@@ -19,6 +20,7 @@ import {
 import { formatCpm, formatCurrency, formatDateTimeLocal, formatEquipment } from "@/lib/format";
 import { Z_PANEL } from "@/lib/layout-tokens";
 import { shortAiReason } from "@/lib/scoring";
+import { getDriverStatusExplanation } from "@/lib/simulation";
 import { DRIVER_RING_LABEL, fleetSummaryRing, type DriverRingStatus } from "@/lib/types";
 import type { TruckAlert } from "@/lib/types";
 
@@ -94,15 +96,15 @@ function HeroTruckGlyph({ className }: { className?: string }) {
 }
 
 const RING_BADGE_TAILWIND: Record<DriverRingStatus, string> = {
-  urgent: "bg-rose-500/20 text-rose-200 ring-rose-500/35",
-  watch: "bg-amber-500/15 text-amber-100 ring-amber-500/30",
-  good: "bg-emerald-500/15 text-emerald-100 ring-emerald-500/30",
-  inactive: "bg-zinc-500/15 text-zinc-300 ring-zinc-500/30",
-  en_route: "bg-sky-500/20 text-sky-100 ring-sky-500/35",
-  available: "bg-emerald-500/15 text-emerald-100 ring-emerald-500/30",
-  constrained: "bg-orange-500/20 text-orange-100 ring-orange-500/35",
-  off_duty: "bg-zinc-500/15 text-zinc-300 ring-zinc-500/30",
-  unavailable: "bg-zinc-600/25 text-zinc-300 ring-zinc-500/30",
+  urgent: "bg-rose-500/20 text-rose-900 ring-rose-500/35 dark:text-rose-100",
+  watch: "bg-amber-500/15 text-amber-900 ring-amber-500/30 dark:text-amber-200",
+  good: "bg-emerald-500/15 text-emerald-800 ring-emerald-500/30 dark:text-emerald-200",
+  inactive: "bg-zinc-500/15 text-zinc-700 ring-zinc-500/30 dark:text-zinc-300",
+  en_route: "bg-sky-500/20 text-sky-900 ring-sky-500/35 dark:text-sky-100",
+  available: "bg-emerald-500/15 text-emerald-800 ring-emerald-500/30 dark:text-emerald-200",
+  constrained: "bg-orange-500/20 text-orange-900 ring-orange-500/35 dark:text-orange-100",
+  off_duty: "bg-zinc-500/15 text-zinc-700 ring-zinc-500/30 dark:text-zinc-300",
+  unavailable: "bg-zinc-600/25 text-zinc-800 ring-zinc-500/30 dark:text-zinc-300",
 };
 
 const WORK_STATUS_LABEL: Record<string, string> = {
@@ -125,6 +127,8 @@ const ALERT_TYPE_LABEL: Record<string, string> = {
   route_deviation: "Route deviation",
   hos_risk: "HOS & compliance",
   weather_delay: "Weather / conditions",
+  road_conditions: "Road / lane conditions",
+  incident_delay: "Incident / queue delay",
 };
 
 function alertTypeLabel(type: string) {
@@ -232,10 +236,10 @@ function OpsAlertCard({ alert }: { alert: TruckAlert }) {
 
   const severityBadge =
     alert.severity === "critical"
-      ? "bg-rose-500/20 text-rose-100 ring-rose-500/40"
+      ? "bg-rose-500/20 text-rose-900 ring-rose-500/40 dark:text-rose-100"
       : alert.severity === "warning"
-        ? "bg-amber-500/15 text-amber-100 ring-amber-500/35"
-        : "bg-sky-500/15 text-sky-100 ring-sky-500/30";
+        ? "bg-amber-500/15 text-amber-900 ring-amber-500/35 dark:text-amber-200"
+        : "bg-sky-500/15 text-sky-900 ring-sky-500/30 dark:text-sky-100";
 
   return (
     <li
@@ -259,11 +263,11 @@ function OpsAlertCard({ alert }: { alert: TruckAlert }) {
             {alertTypeLabel(alert.type)}
           </span>
           {alert.acknowledged ? (
-            <span className="rounded-md bg-emerald-500/15 px-2 py-0.5 text-[10px] font-semibold text-emerald-200 ring-1 ring-emerald-500/30">
+            <span className="rounded-md bg-emerald-500/15 px-2 py-0.5 text-[10px] font-semibold text-emerald-800 ring-1 ring-emerald-500/30 dark:text-emerald-200">
               Acknowledged
             </span>
           ) : (
-            <span className="rounded-md bg-amber-500/10 px-2 py-0.5 text-[10px] font-medium text-amber-200/90 ring-1 ring-amber-500/25">
+            <span className="rounded-md bg-amber-500/10 px-2 py-0.5 text-[10px] font-medium text-amber-900 ring-1 ring-amber-500/25 dark:text-amber-200">
               Needs review
             </span>
           )}
@@ -385,8 +389,22 @@ export function DriverDetailPanel() {
   );
 
   const driverAlerts = useMemo(
-    () => (driver ? getAlertsForDriver(driver.id) : []),
-    [driver],
+    () =>
+      driver ? getAlertsForDriver(driver.id, state.simulatedHoursOffset) : [],
+    [driver, state.simulatedHoursOffset],
+  );
+
+  const baseDriver = useMemo(
+    () => (driver ? getDriver(driver.id) : undefined),
+    [driver?.id],
+  );
+
+  const statusExplanation = useMemo(
+    () =>
+      baseDriver && driver
+        ? getDriverStatusExplanation(baseDriver, driver, state.simulatedHoursOffset)
+        : [],
+    [baseDriver, driver, state.simulatedHoursOffset],
   );
 
   const ringColor = driver ? RING_STATUS_COLOR[driver.ringStatus] : "#71717a";
@@ -449,69 +467,70 @@ export function DriverDetailPanel() {
           animate={{ x: 0, opacity: 1 }}
           exit={{ x: 400, opacity: 0 }}
           transition={{ type: "spring", damping: 28, stiffness: 260 }}
-          className="absolute inset-y-0 right-0 flex w-[min(440px,100%)] flex-col border-l border-[var(--border)] bg-[var(--surface-2)]/98 shadow-[-16px_0_48px_rgba(0,0,0,0.08)] backdrop-blur-md dark:shadow-[-16px_0_48px_rgba(0,0,0,0.4)]"
+          className="absolute inset-y-0 right-0 flex min-h-0 w-[min(440px,100%)] flex-col border-l border-[var(--border)] bg-[var(--surface-2)]/98 shadow-[-16px_0_48px_rgba(0,0,0,0.08)] backdrop-blur-md dark:shadow-[-16px_0_48px_rgba(0,0,0,0.4)]"
           style={{ zIndex: Z_PANEL }}
         >
-          <div className="shrink-0 border-b border-[var(--border)] bg-gradient-to-b from-sky-500/[0.06] to-transparent px-4 pb-3 pt-3">
-            <div className="flex items-start justify-between gap-2">
-              <div className="min-w-0 flex-1">
-                <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-[var(--muted)]">
-                  {FLEET_NAME}
-                </p>
-                <p className="mt-0.5 truncate text-xs text-zinc-500 dark:text-zinc-400">
-                  {TERMINAL.name}
-                  <span className="mx-1.5 text-zinc-400 dark:text-zinc-600">·</span>
-                  <span className="font-mono font-medium text-zinc-600 dark:text-zinc-300">
-                    DRV-{driver.id}
-                  </span>
-                </p>
-              </div>
-              <button
-                type="button"
-                onClick={() => selectDriver(null)}
-                className="shrink-0 rounded-lg p-2 text-zinc-600 outline-none transition-colors hover:bg-black/[0.04] hover:text-zinc-900 focus-visible:ring-2 focus-visible:ring-[var(--ring-focus)] dark:text-zinc-500 dark:hover:bg-white/5 dark:hover:text-zinc-300"
-                aria-label="Close panel"
-              >
-                ✕
-              </button>
-            </div>
-          </div>
-
-          {driverAlerts.length > 0 && (
-            <CollapsibleBlock
-              buttonId="ops-alerts-disclosure"
-              panelId="driver-ops-alerts-panel"
-              title="Ops alerts"
-              titleClassName="text-[10px] font-semibold uppercase tracking-[0.2em] text-amber-900/90 dark:text-amber-200/90"
-              badge={
-                <span className="rounded-md bg-amber-500/20 px-1.5 py-px text-[10px] font-semibold tabular-nums text-amber-950 dark:bg-amber-500/15 dark:text-amber-100">
-                  {driverAlerts.length}
-                </span>
-              }
-              collapsedHint={
-                driverAlerts.length === 1
-                  ? "1 active alert — expand to review"
-                  : `${driverAlerts.length} active alerts — expand to review`
-              }
-              expanded={opsAlertsExpanded}
-              onToggle={() => setOpsAlertsExpanded((v) => !v)}
-              shellClassName="shrink-0 border-b border-[var(--border)] bg-gradient-to-b from-amber-500/[0.06] to-transparent px-4 pb-2 pt-2 dark:from-amber-950/25"
-              buttonHoverClassName="hover:bg-amber-500/[0.07] dark:hover:bg-amber-950/40"
-              chevronClassName="text-amber-800/90 dark:text-amber-200/90"
-            >
-              <p className="mt-1 text-[11px] leading-snug text-zinc-600 dark:text-zinc-400">
-                Active for this driver and truck — review before dispatch.
-              </p>
-              <ul className="mt-2 max-h-[min(42vh,320px)] space-y-2 overflow-y-auto pr-0.5 pb-1">
-                {driverAlerts.map((a) => (
-                  <OpsAlertCard key={a.alertId} alert={a} />
-                ))}
-              </ul>
-            </CollapsibleBlock>
-          )}
-
           <div className="flex min-h-0 flex-1 flex-col overflow-hidden">
-            <div className="flex-1 space-y-0 overflow-y-auto px-4 pb-4 pt-3">
+            <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain">
+              <div className="border-b border-[var(--border)] bg-gradient-to-b from-sky-500/[0.06] to-transparent px-4 pb-3 pt-3">
+                <div className="flex items-start justify-between gap-2">
+                  <div className="min-w-0 flex-1">
+                    <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-[var(--muted)]">
+                      {FLEET_NAME}
+                    </p>
+                    <p className="mt-0.5 truncate text-xs text-zinc-500 dark:text-zinc-400">
+                      {TERMINAL.name}
+                      <span className="mx-1.5 text-zinc-400 dark:text-zinc-600">·</span>
+                      <span className="font-mono font-medium text-zinc-600 dark:text-zinc-300">
+                        DRV-{driver.id}
+                      </span>
+                    </p>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => selectDriver(null)}
+                    className="shrink-0 rounded-lg p-2 text-zinc-600 outline-none transition-colors hover:bg-black/[0.04] hover:text-zinc-900 focus-visible:ring-2 focus-visible:ring-[var(--ring-focus)] dark:text-zinc-500 dark:hover:bg-white/5 dark:hover:text-zinc-300"
+                    aria-label="Close panel"
+                  >
+                    ✕
+                  </button>
+                </div>
+              </div>
+
+              {driverAlerts.length > 0 && (
+                <CollapsibleBlock
+                  buttonId="ops-alerts-disclosure"
+                  panelId="driver-ops-alerts-panel"
+                  title="Ops alerts"
+                  titleClassName="text-[10px] font-semibold uppercase tracking-[0.2em] text-amber-900/90 dark:text-amber-200/90"
+                  badge={
+                    <span className="rounded-md bg-amber-500/20 px-1.5 py-px text-[10px] font-semibold tabular-nums text-amber-950 dark:bg-amber-500/15 dark:text-amber-100">
+                      {driverAlerts.length}
+                    </span>
+                  }
+                  collapsedHint={
+                    driverAlerts.length === 1
+                      ? "1 active alert — expand to review"
+                      : `${driverAlerts.length} active alerts — expand to review`
+                  }
+                  expanded={opsAlertsExpanded}
+                  onToggle={() => setOpsAlertsExpanded((v) => !v)}
+                  shellClassName="border-b border-[var(--border)] bg-gradient-to-b from-amber-500/[0.06] to-transparent px-4 pb-2 pt-2 dark:from-amber-950/25"
+                  buttonHoverClassName="hover:bg-amber-500/[0.07] dark:hover:bg-amber-950/40"
+                  chevronClassName="text-amber-800/90 dark:text-amber-200/90"
+                >
+                  <p className="mt-1 text-[11px] leading-snug text-zinc-600 dark:text-zinc-400">
+                    Active for this driver and truck — review before dispatch.
+                  </p>
+                  <ul className="mt-2 space-y-2 pb-1">
+                    {driverAlerts.map((a) => (
+                      <OpsAlertCard key={a.alertId} alert={a} />
+                    ))}
+                  </ul>
+                </CollapsibleBlock>
+              )}
+
+              <div className="space-y-0 px-4 pb-4 pt-3">
               <CollapsibleBlock
                 buttonId="driver-info-disclosure"
                 panelId="driver-info-panel"
@@ -574,6 +593,16 @@ export function DriverDetailPanel() {
                         </span>
                       )}
                     </div>
+                    {statusExplanation.length > 0 ? (
+                      <div className="rounded-lg border border-[var(--border)] bg-black/[0.02] px-2.5 py-2 dark:bg-white/[0.03]">
+                        <DetailLabel>Why this status</DetailLabel>
+                        <ul className="mt-1.5 list-inside list-disc space-y-1 text-[12px] leading-snug text-zinc-600 dark:text-zinc-400">
+                          {statusExplanation.map((line, i) => (
+                            <li key={`${i}-${line.slice(0, 24)}`}>{line}</li>
+                          ))}
+                        </ul>
+                      </div>
+                    ) : null}
                     {profile ? (
                       <div className="space-y-1 text-sm">
                         <div className="flex flex-wrap items-baseline justify-between gap-2">
@@ -1030,6 +1059,7 @@ export function DriverDetailPanel() {
                   </div>
                 </CollapsibleBlock>
               ) : null}
+              </div>
             </div>
 
             {ringBrowseActive && ringBrowseTotal > 0 ? (
@@ -1058,23 +1088,23 @@ export function DriverDetailPanel() {
               </div>
             ) : null}
 
-            <div className="shrink-0 border-t border-[var(--border)] p-4">
-              <button
-                type="button"
-                disabled={!selectedLoad}
-                onClick={() =>
-                  selectedLoad &&
-                  assign(selectedLoad.id, driver.id, driver.name, {
-                    matchPercent: rankedRow
-                      ? Math.min(99, rankedRow.matchPercent + 2)
-                      : undefined,
-                  })
-                }
-                className="w-full rounded-xl bg-sky-500 py-3 text-sm font-semibold text-white shadow-lg shadow-sky-500/20 transition-colors hover:bg-sky-400 disabled:cursor-not-allowed disabled:opacity-40"
-              >
-                {selectedLoad ? `Assign to ${selectedLoad.id}` : "Select a load first"}
-              </button>
-            </div>
+            {selectedLoad ? (
+              <div className="shrink-0 border-t border-[var(--border)] p-4">
+                <button
+                  type="button"
+                  onClick={() =>
+                    assign(selectedLoad.id, driver.id, driver.name, {
+                      matchPercent: rankedRow
+                        ? Math.min(99, rankedRow.matchPercent + 2)
+                        : undefined,
+                    })
+                  }
+                  className="w-full rounded-xl bg-sky-500 py-3 text-sm font-semibold text-white shadow-lg shadow-sky-500/20 transition-colors hover:bg-sky-400"
+                >
+                  Assign to {selectedLoad.id}
+                </button>
+              </div>
+            ) : null}
           </div>
         </motion.aside>
       )}

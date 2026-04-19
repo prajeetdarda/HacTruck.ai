@@ -1,9 +1,9 @@
 import {
-  ALERTS,
   DRIVERS,
   DB_NOW_MS,
   getLoad,
   IN_TRANSIT_LOADS,
+  listAlerts,
   TRIPS,
   VEHICLES,
 } from "./backend-db";
@@ -70,7 +70,7 @@ export function buildMatchLoadPayload(loadId: string) {
       actualMiles: t.actualMiles,
     })),
     inTransitLoadIds: IN_TRANSIT_LOADS.map((l) => l.id),
-    alerts: ALERTS.map((a) => ({
+    alerts: listAlerts(0).map((a) => ({
       alertId: a.alertId,
       severity: a.severity,
       headline: a.headline,

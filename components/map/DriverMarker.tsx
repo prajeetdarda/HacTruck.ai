@@ -36,14 +36,14 @@ export function DriverMarkerContent({
 }: Props) {
   let opacity =
     dimmed && !isHovered
-      ? 0.22
+      ? 0.32
       : isCandidate || isHovered
         ? 1
         : dimmed
-          ? 0.35
+          ? 0.45
           : 1;
   if (fadedBySelection && !isHovered) {
-    opacity *= 0.22;
+    opacity *= 0.38;
   }
 
   const badge =
