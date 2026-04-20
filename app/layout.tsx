@@ -15,8 +15,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Dispatch — Fleet Ops",
-  description: "Fleet dispatch assistant prototype",
+  title: "HackTruck — Fleet Command",
+  description: "AI-native fleet dispatch intelligence platform",
 };
 
 export default function RootLayout({
