@@ -53,7 +53,7 @@ export function LlmMatchLoadingOverlay() {
             </p>
             <p className="mt-1 text-xs leading-relaxed text-slate-500">
               Analyzing{" "}
-              <span className="font-mono text-amber-300">{load.id}</span>
+              <span className="font-mono text-amber-700 dark:text-amber-300">{load.id}</span>
               {" "}— fleet data, trips, vehicles, and alerts.
             </p>
           </div>

@@ -73,7 +73,7 @@ export function LoadSidebar() {
           className={clsx(
             "flex h-5 min-w-5 items-center justify-center rounded-full px-1.5 text-[10px] font-bold tabular-nums",
             openCount > 0
-              ? "bg-amber-500/20 text-amber-300 ring-1 ring-amber-500/30"
+              ? "bg-amber-500/20 text-amber-700 dark:text-amber-300 ring-1 ring-amber-500/30"
               : "bg-[var(--surface-2)] text-[var(--muted)] ring-1 ring-[var(--glass-border)]",
           )}
         >
@@ -97,11 +97,11 @@ export function LoadSidebar() {
             {/* Panel header */}
             <div className="flex items-center justify-between gap-2 border-b border-[var(--glass-border)] bg-gradient-to-b from-amber-500/[0.05] to-transparent px-3 py-2.5">
               <div className="flex items-center gap-2">
-                <h2 className="text-[11px] font-semibold uppercase tracking-[0.18em] text-amber-400/80">
+                <h2 className="text-[11px] font-semibold uppercase tracking-[0.18em] text-amber-700 dark:text-amber-400/80">
                   Load inbox
                 </h2>
                 {openCount > 0 && (
-                  <span className="rounded-full bg-amber-500/20 px-2 py-px text-[10px] font-bold tabular-nums text-amber-300">
+                  <span className="rounded-full bg-amber-500/20 px-2 py-px text-[10px] font-bold tabular-nums text-amber-700 dark:text-amber-300">
                     {openCount}
                   </span>
                 )}

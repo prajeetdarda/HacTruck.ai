@@ -15,7 +15,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "HackTruck — Fleet Command",
+  title: "HacTruck — Fleet Command",
   description: "AI-native fleet dispatch intelligence platform",
 };
 

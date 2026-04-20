@@ -182,7 +182,7 @@ export function LoadDetailPanel() {
           {/* Header */}
           <div className="flex items-start justify-between border-b border-[var(--glass-border)] bg-gradient-to-b from-amber-500/[0.05] to-transparent px-4 py-4">
             <div>
-              <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-amber-400/70">Load</p>
+              <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-amber-700 dark:text-amber-400/70">Load</p>
               <h2 className="mt-0.5 font-mono text-xl font-bold text-[var(--foreground)]">{selectedLoad.id}</h2>
               <p className="mt-0.5 text-[12px] text-[var(--muted)]">
                 {selectedLoad.origin} <span className="text-[var(--muted)]">→</span> {selectedLoad.destination}

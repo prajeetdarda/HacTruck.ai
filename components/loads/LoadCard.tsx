@@ -80,9 +80,9 @@ export function LoadCard({
         <span
           className={clsx(
             "rounded-full px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide",
-            overdue && "bg-rose-500/20 text-rose-400",
-            !overdue && urgent && "bg-amber-500/20 text-amber-400",
-            !overdue && !urgent && "bg-white/[0.06] text-slate-400",
+            overdue && "bg-rose-500/20 text-rose-700 dark:text-rose-400",
+            !overdue && urgent && "bg-amber-500/20 text-amber-700 dark:text-amber-400",
+            !overdue && !urgent && "bg-black/[0.06] dark:bg-white/[0.06] text-slate-600 dark:text-slate-400",
           )}
         >
           {overdue ? "Overdue" : urgent ? "Urgent" : "Scheduled"}
@@ -95,7 +95,7 @@ export function LoadCard({
       </p>
       <div className="mt-2 flex flex-wrap gap-x-3 gap-y-1 text-[11px] text-slate-500">
         <span>{formatEquipment(load.equipment)}</span>
-        <span className="tabular-nums font-bold text-green-400">
+        <span className="tabular-nums font-bold text-green-700 dark:text-green-400">
           {formatCurrency(load.revenue)}
         </span>
       </div>

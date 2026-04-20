@@ -121,7 +121,7 @@ function ComparisonTrayForLoad({
   const metricValueClass = (isBest: boolean) =>
     clsx(
       "tabular-nums",
-      isBest ? "font-bold text-green-400" : "text-slate-300",
+      isBest ? "font-bold text-green-700 dark:text-green-400" : "text-slate-600 dark:text-slate-300",
     );
 
   return (
@@ -143,17 +143,17 @@ function ComparisonTrayForLoad({
         {/* Left amber accent strip */}
         <div className="absolute left-0 top-1/2 h-8 w-[3px] -translate-y-1/2 rounded-full bg-gradient-to-b from-amber-400 to-orange-500 opacity-80" />
         <span className="min-w-0 flex-1 pl-2">
-          <span className="block text-[10px] font-semibold uppercase tracking-[0.2em] text-amber-400/80">
+          <span className="block text-[10px] font-semibold uppercase tracking-[0.2em] text-amber-700 dark:text-amber-400/80">
             Top matches
           </span>
-          <span className="mt-0.5 block truncate text-sm text-slate-200">
+          <span className="mt-0.5 block truncate text-sm text-slate-700 dark:text-slate-200">
             {selectedLoad.id} · {selectedLoad.origin} → {selectedLoad.destination}
           </span>
           <span className="mt-0.5 block text-[10px] leading-snug text-slate-500">
             {subtitle}
           </span>
         </span>
-        <span className="shrink-0 rounded-lg border border-[var(--glass-border)] bg-[var(--surface-2)] px-2 py-1 text-xs font-medium text-slate-300">
+        <span className="shrink-0 rounded-lg border border-[var(--glass-border)] bg-[var(--surface-2)] px-2 py-1 text-xs font-medium text-slate-600 dark:text-slate-300">
           {open ? "Hide" : "Show"}
         </span>
       </button>
@@ -194,7 +194,7 @@ function ComparisonTrayForLoad({
                       )}
                     >
                       {/* Match % bar across top */}
-                      <div className="mb-2.5 h-1 w-full overflow-hidden rounded-full bg-white/[0.06]">
+                      <div className="mb-2.5 h-1 w-full overflow-hidden rounded-full bg-black/[0.08] dark:bg-white/[0.06]">
                         <div
                           className={clsx(
                             "h-full rounded-full",
@@ -219,7 +219,7 @@ function ComparisonTrayForLoad({
                           <p className="truncate font-semibold text-[var(--foreground)]">
                             {row.driver.name}
                           </p>
-                          <p className={clsx("text-[12px] font-bold tabular-nums", row.rank === 1 ? "text-amber-400" : "text-green-400")}>
+                          <p className={clsx("text-[12px] font-bold tabular-nums", row.rank === 1 ? "text-amber-600 dark:text-amber-400" : "text-green-700 dark:text-green-400")}>
                             {Math.round(matchPct)}% match
                           </p>
                         </div>
@@ -267,7 +267,7 @@ function ComparisonTrayForLoad({
                           Stats unavailable for this driver.
                         </p>
                       )}
-                      <p className="mt-2.5 border-t border-[var(--glass-border)] pt-2 text-[11px] leading-snug text-amber-300/70">
+                      <p className="mt-2.5 border-t border-[var(--glass-border)] pt-2 text-[11px] leading-snug text-amber-700 dark:text-amber-300/70">
                         {row.reasoning}
                       </p>
                       <button
@@ -282,7 +282,7 @@ function ComparisonTrayForLoad({
                           "mt-3 block w-full rounded-lg py-2 text-center text-xs font-semibold transition-all outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring-focus)]",
                           row.rank === 1
                             ? "bg-gradient-to-r from-amber-500 to-orange-500 text-white shadow-[0_0_14px_rgba(245,158,11,0.3)] hover:shadow-[0_0_20px_rgba(245,158,11,0.45)]"
-                            : "border border-[var(--glass-border)] bg-[var(--surface-2)] text-slate-300 hover:border-amber-500/30 hover:text-amber-300",
+                            : "border border-[var(--glass-border)] bg-[var(--surface-2)] text-slate-600 dark:text-slate-300 hover:border-amber-500/30 hover:text-amber-700 dark:hover:text-amber-300",
                         )}
                       >
                         Assign

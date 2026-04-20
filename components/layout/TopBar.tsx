@@ -17,9 +17,9 @@ import { Z_MAP } from "@/lib/layout-tokens";
 const RING_ORDER: FleetSummaryRing[] = ["urgent", "watch", "good", "inactive"];
 
 const RING_CLASS: Record<FleetSummaryRing, string> = {
-  urgent: "text-rose-400",
-  watch: "text-amber-400",
-  good: "text-green-400",
+  urgent: "text-rose-600 dark:text-rose-400",
+  watch: "text-amber-600 dark:text-amber-400",
+  good: "text-green-700 dark:text-green-400",
   inactive: "text-slate-500",
 };
 
@@ -149,7 +149,7 @@ export function TopBar() {
             <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-amber-400/55 motion-reduce:animate-none" />
             <span className="relative inline-flex h-2 w-2 rounded-full bg-amber-400 shadow-[0_0_10px_rgba(245,158,11,0.9)]" />
           </span>
-          <span className="hidden text-[11px] font-medium uppercase tracking-[0.2em] text-amber-400/70 sm:inline motion-safe:animate-[live-label_2.8s_ease-in-out_infinite]">
+          <span className="hidden text-[11px] font-medium uppercase tracking-[0.2em] text-amber-700 dark:text-amber-400/70 sm:inline motion-safe:animate-[live-label_2.8s_ease-in-out_infinite]">
             Live ops
           </span>
         </motion.div>
@@ -208,7 +208,7 @@ export function TopBar() {
               </span>
             ))}
             {tripAlertBoardCount > 0 ? (
-              <span className="relative ml-1 inline-flex shrink-0 items-center gap-1 rounded-full bg-rose-500/15 px-2 py-0.5 text-[10px] font-bold text-rose-300 ring-1 ring-rose-500/30">
+              <span className="relative ml-1 inline-flex shrink-0 items-center gap-1 rounded-full bg-rose-500/15 px-2 py-0.5 text-[10px] font-bold text-rose-700 dark:text-rose-300 ring-1 ring-rose-500/30">
                 <span className="relative flex h-1.5 w-1.5 shrink-0">
                   <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-rose-400/60" />
                   <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-rose-400" />
@@ -241,7 +241,7 @@ export function TopBar() {
           <div className="text-[10px] font-medium uppercase tracking-wider text-[var(--muted)]">
             Open loads
           </div>
-          <div className="text-lg font-bold tabular-nums leading-none text-amber-400 sm:text-xl">
+          <div className="text-lg font-bold tabular-nums leading-none text-amber-600 dark:text-amber-400 sm:text-xl">
             {openLoads.length}
           </div>
         </button>
@@ -249,7 +249,7 @@ export function TopBar() {
           <div className="text-[10px] font-medium uppercase tracking-wider text-[var(--muted)]">
             Local time
           </div>
-          <div className="font-mono text-sm tabular-nums leading-none text-slate-300/80">
+          <div className="font-mono text-sm tabular-nums leading-none text-slate-600 dark:text-slate-300/80">
             {timeStr}
           </div>
         </div>
@@ -336,7 +336,7 @@ function ActiveDriversMenu({
           </span>
           <ChevronIcon className="mb-0.5 size-3 shrink-0 text-[var(--muted)]" open={open} />
         </span>
-        <span className="text-lg font-bold tabular-nums leading-none text-amber-400 sm:text-xl">
+        <span className="text-lg font-bold tabular-nums leading-none text-amber-600 dark:text-amber-400 sm:text-xl">
           {count}
         </span>
       </button>
@@ -352,7 +352,7 @@ function ActiveDriversMenu({
           {/* Header strip */}
           <div className="flex items-center justify-between border-b border-[var(--glass-border)] bg-gradient-to-r from-amber-500/[0.08] to-transparent px-3 py-2.5">
             <div>
-              <p className="text-[9px] font-bold uppercase tracking-[0.22em] text-amber-400/80">
+              <p className="text-[9px] font-bold uppercase tracking-[0.22em] text-amber-700 dark:text-amber-400/80">
                 Fleet board
               </p>
               <p className="mt-0.5 text-[12px] font-semibold text-[var(--foreground)]">
@@ -370,9 +370,9 @@ function ActiveDriversMenu({
                     key={ring}
                     className={clsx(
                       "inline-flex h-5 min-w-5 items-center justify-center rounded-full px-1.5 text-[9px] font-bold tabular-nums",
-                      ring === "urgent" && "bg-rose-500/20 text-rose-300",
-                      ring === "watch" && "bg-amber-500/20 text-amber-300",
-                      ring === "good" && "bg-green-500/15 text-green-400",
+                      ring === "urgent" && "bg-rose-500/20 text-rose-700 dark:text-rose-300",
+                      ring === "watch" && "bg-amber-500/20 text-amber-700 dark:text-amber-300",
+                      ring === "good" && "bg-green-500/15 text-green-700 dark:text-green-400",
                     )}
                   >
                     {n}

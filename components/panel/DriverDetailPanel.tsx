@@ -95,14 +95,14 @@ function ChevronDownIcon({ className }: { className?: string }) {
 }
 
 const RING_BADGE_TAILWIND: Record<DriverRingStatus, string> = {
-  urgent: "bg-rose-500/20 text-rose-300 ring-rose-500/30",
-  watch: "bg-amber-500/15 text-amber-300 ring-amber-500/25",
-  good: "bg-teal-500/15 text-teal-300 ring-teal-500/25",
-  inactive: "bg-slate-500/15 text-slate-400 ring-slate-500/25",
-  en_route: "bg-green-500/20 text-green-300 ring-green-500/30",
-  available: "bg-teal-500/15 text-teal-300 ring-teal-500/25",
-  constrained: "bg-orange-500/20 text-orange-300 ring-orange-500/30",
-  off_duty: "bg-slate-500/15 text-slate-400 ring-slate-500/25",
+  urgent: "bg-rose-500/20 text-rose-700 dark:text-rose-300 ring-rose-500/30",
+  watch: "bg-amber-500/15 text-amber-700 dark:text-amber-300 ring-amber-500/25",
+  good: "bg-teal-500/15 text-teal-700 dark:text-teal-300 ring-teal-500/25",
+  inactive: "bg-slate-500/15 text-slate-600 dark:text-slate-400 ring-slate-500/25",
+  en_route: "bg-green-500/20 text-green-700 dark:text-green-300 ring-green-500/30",
+  available: "bg-teal-500/15 text-teal-700 dark:text-teal-300 ring-teal-500/25",
+  constrained: "bg-orange-500/20 text-orange-700 dark:text-orange-300 ring-orange-500/30",
+  off_duty: "bg-slate-500/15 text-slate-600 dark:text-slate-400 ring-slate-500/25",
   unavailable: "bg-slate-600/20 text-slate-500 ring-slate-500/25",
 };
 
@@ -189,11 +189,11 @@ function OpsAlertRow({ alert }: { alert: TruckAlert }) {
                 <div>
                   <div className="mb-1 flex items-center justify-between">
                     <span className="text-[9px] font-semibold uppercase tracking-wide text-[var(--muted)]">ETA delay</span>
-                    <span className={clsx("text-[11px] font-bold tabular-nums", isCritical ? "text-rose-400" : "text-amber-400")}>
+                    <span className={clsx("text-[11px] font-bold tabular-nums", isCritical ? "text-rose-600 dark:text-rose-400" : "text-amber-600 dark:text-amber-400")}>
                       +{alert.etaImpactMinutes} min
                     </span>
                   </div>
-                  <div className="h-1.5 w-full overflow-hidden rounded-full bg-white/[0.07]">
+                  <div className="h-1.5 w-full overflow-hidden rounded-full bg-black/10 dark:bg-white/[0.07]">
                     <div
                       className={clsx("h-full rounded-full", isCritical ? "bg-rose-500" : "bg-amber-500")}
                       style={{ width: `${Math.min(100, (alert.etaImpactMinutes / 120) * 100)}%` }}
@@ -203,8 +203,8 @@ function OpsAlertRow({ alert }: { alert: TruckAlert }) {
               )}
               <p className="text-[12px] leading-snug text-[var(--muted)]">{alert.detail}</p>
               <div className="rounded-lg border border-amber-500/20 bg-amber-500/[0.06] px-2.5 py-2">
-                <p className="text-[9px] font-semibold uppercase tracking-wide text-amber-300/80">Action</p>
-                <p className="mt-1 text-[12px] font-medium leading-snug text-amber-100/90">{alert.recommendedAction}</p>
+                <p className="text-[9px] font-semibold uppercase tracking-wide text-amber-700 dark:text-amber-300/80">Action</p>
+                <p className="mt-1 text-[12px] font-medium leading-snug text-amber-900 dark:text-amber-100/90">{alert.recommendedAction}</p>
               </div>
             </div>
           </motion.div>
@@ -356,7 +356,7 @@ export function DriverDetailPanel() {
               <div className="border-b border-[var(--glass-border)] bg-gradient-to-b from-amber-500/[0.06] to-transparent px-4 pb-3 pt-3">
                 <div className="flex items-start justify-between gap-2">
                   <div className="min-w-0 flex-1">
-                    <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-amber-400/70">
+                    <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-amber-700 dark:text-amber-400/70">
                       {FLEET_NAME}
                     </p>
                     <p className="mt-0.5 truncate text-xs text-[var(--muted)]">
@@ -400,7 +400,7 @@ export function DriverDetailPanel() {
                         {DRIVER_RING_LABEL[driver.ringStatus]}
                       </span>
                       {driver.currentLoadEndingInHours != null && (
-                        <span className="rounded-full bg-amber-500/15 px-2 py-0.5 text-[10px] font-medium text-amber-300">
+                        <span className="rounded-full bg-amber-500/15 px-2 py-0.5 text-[10px] font-medium text-amber-700 dark:text-amber-300">
                           Clear ~{driver.currentLoadEndingInHours.toFixed(1)}h
                         </span>
                       )}
@@ -453,9 +453,9 @@ export function DriverDetailPanel() {
                   buttonId="ops-alerts-disclosure"
                   panelId="driver-ops-alerts-panel"
                   title="Ops alerts"
-                  titleClassName="text-[10px] font-semibold uppercase tracking-[0.2em] text-amber-300/90"
+                  titleClassName="text-[10px] font-semibold uppercase tracking-[0.2em] text-amber-700 dark:text-amber-300/90"
                   badge={
-                    <span className="rounded-md bg-rose-500/20 px-1.5 py-px text-[10px] font-semibold tabular-nums text-rose-300">
+                    <span className="rounded-md bg-rose-500/20 px-1.5 py-px text-[10px] font-semibold tabular-nums text-rose-700 dark:text-rose-300">
                       {driverAlerts.length}
                     </span>
                   }
@@ -464,7 +464,7 @@ export function DriverDetailPanel() {
                   onToggle={() => setOpsAlertsExpanded((v) => !v)}
                   shellClassName="border-b border-[var(--glass-border)] bg-gradient-to-b from-amber-500/[0.04] to-transparent px-4 pb-3 pt-3"
                   buttonHoverClassName="hover:bg-amber-500/[0.06]"
-                  chevronClassName="text-amber-300/80"
+                  chevronClassName="text-amber-700 dark:text-amber-300/80"
                 >
                   <ul className="mt-2 space-y-1.5 pb-1">
                     {driverAlerts.map((a) => <OpsAlertRow key={a.alertId} alert={a} />)}
@@ -478,10 +478,10 @@ export function DriverDetailPanel() {
                   buttonId="truck-info-disclosure"
                   panelId="truck-info-panel"
                   title="Truck"
-                  titleClassName="text-[10px] font-bold uppercase tracking-[0.18em] text-amber-400/90"
+                  titleClassName="text-[10px] font-bold uppercase tracking-[0.18em] text-amber-700 dark:text-amber-400/90"
                   badge={
                     vehicle ? (
-                      <span className="rounded-md bg-amber-500/15 px-1.5 py-px font-mono text-[10px] font-semibold text-amber-200">
+                      <span className="rounded-md bg-amber-500/15 px-1.5 py-px font-mono text-[10px] font-semibold text-amber-800 dark:text-amber-200">
                         {vehicle.vehicleNo}
                       </span>
                     ) : null
@@ -491,7 +491,7 @@ export function DriverDetailPanel() {
                   onToggle={() => setTruckInfoExpanded((v) => !v)}
                   shellClassName="mb-4 border-b border-[var(--glass-border)] pb-3"
                   buttonHoverClassName="hover:bg-amber-500/[0.06]"
-                  chevronClassName="text-amber-300"
+                  chevronClassName="text-amber-700 dark:text-amber-300"
                 >
                   <div className="pt-2">
                     <div className="flex gap-3 rounded-2xl border border-[var(--glass-border)] bg-[var(--surface-1)]/70 p-3">
@@ -506,9 +506,9 @@ export function DriverDetailPanel() {
                             <p className="text-[12px] text-[var(--muted)]">{vehicle.make} {vehicle.model}</p>
                             <span className={clsx(
                               "inline-flex rounded-full px-2 py-0.5 text-[10px] font-bold ring-1",
-                              vehicle.status === "ACTIVE" ? "bg-teal-500/15 text-teal-300 ring-teal-500/25" :
-                              vehicle.status === "MAINTENANCE" ? "bg-amber-500/15 text-amber-300 ring-amber-500/30" :
-                              "bg-slate-500/15 text-slate-400 ring-slate-500/25",
+                              vehicle.status === "ACTIVE" ? "bg-teal-500/15 text-teal-700 dark:text-teal-300 ring-teal-500/25" :
+                              vehicle.status === "MAINTENANCE" ? "bg-amber-500/15 text-amber-700 dark:text-amber-300 ring-amber-500/30" :
+                              "bg-slate-500/15 text-slate-600 dark:text-slate-400 ring-slate-500/25",
                             )}>
                               {vehicle.status === "MAINTENANCE" ? "In shop" : vehicle.status === "ACTIVE" ? "Road-ready" : vehicle.status}
                             </span>
@@ -528,12 +528,12 @@ export function DriverDetailPanel() {
                     buttonId="active-trip-disclosure"
                     panelId="active-trip-panel"
                     title="Active trip"
-                    titleClassName="text-[10px] font-semibold uppercase tracking-[0.2em] text-green-400/90"
+                    titleClassName="text-[10px] font-semibold uppercase tracking-[0.2em] text-green-700 dark:text-green-400/90"
                     badge={
                       activeLoad ? (
-                        <span className="font-mono text-[10px] font-semibold text-green-300">{activeLoad.id}</span>
+                        <span className="font-mono text-[10px] font-semibold text-green-700 dark:text-green-300">{activeLoad.id}</span>
                       ) : (
-                        <span className="text-[10px] text-green-400">En route</span>
+                        <span className="text-[10px] text-green-700 dark:text-green-400">En route</span>
                       )
                     }
                     collapsedHint={activeLoad ? `${activeLoad.origin} → ${activeLoad.destination}` : activeTrip.tripId}
@@ -541,13 +541,13 @@ export function DriverDetailPanel() {
                     onToggle={() => setActiveTripExpanded((v) => !v)}
                     shellClassName="mb-4 border-b border-[var(--glass-border)] pb-3"
                     buttonHoverClassName="hover:bg-green-500/[0.06]"
-                    chevronClassName="text-green-400"
+                    chevronClassName="text-green-700 dark:text-green-400"
                   >
                     <div className="pt-2">
                       <div className="rounded-2xl border border-green-400/20 bg-green-500/[0.04] p-3">
                         {activeLoad ? (
                           <div>
-                            <p className="font-mono text-xs font-semibold text-green-300">{activeLoad.id}</p>
+                            <p className="font-mono text-xs font-semibold text-green-700 dark:text-green-300">{activeLoad.id}</p>
                             <p className="mt-1 text-[13px] font-medium text-[var(--foreground)]">
                               {activeLoad.origin} <span className="text-[var(--muted)]">→</span> {activeLoad.destination}
                             </p>
@@ -572,7 +572,7 @@ export function DriverDetailPanel() {
                     titleClassName="text-[10px] font-semibold uppercase tracking-wider text-[var(--muted)]"
                     badge={
                       rankedRow ? (
-                        <span className="rounded-md bg-teal-500/15 px-1.5 py-px text-[10px] font-bold tabular-nums text-teal-300">
+                        <span className="rounded-md bg-teal-500/15 px-1.5 py-px text-[10px] font-bold tabular-nums text-teal-700 dark:text-teal-300">
                           {Math.min(99, rankedRow.matchPercent + 2)}%
                         </span>
                       ) : null
@@ -596,7 +596,7 @@ export function DriverDetailPanel() {
                           <ul className="mt-2.5 space-y-1 text-[12px] text-[var(--muted)]">
                             {rankedRow.reasons.map((x, i) => (
                               <li key={`${i}-${x}`} className="flex gap-2">
-                                <span className="text-teal-400">✓</span>
+                                <span className="text-teal-600 dark:text-teal-400">✓</span>
                                 <span>{x}</span>
                               </li>
                             ))}
@@ -613,10 +613,10 @@ export function DriverDetailPanel() {
                     buttonId="llm-match-disclosure"
                     panelId="llm-match-panel"
                     title="Dispatcher AI"
-                    titleClassName="text-[10px] font-bold uppercase tracking-[0.18em] text-indigo-300/90"
+                    titleClassName="text-[10px] font-bold uppercase tracking-[0.18em] text-indigo-700 dark:text-indigo-300/90"
                     badge={
                       slateRank != null ? (
-                        <span className="rounded-md bg-indigo-500/15 px-1.5 py-px text-[10px] font-semibold tabular-nums text-indigo-200">
+                        <span className="rounded-md bg-indigo-500/15 px-1.5 py-px text-[10px] font-semibold tabular-nums text-indigo-800 dark:text-indigo-200">
                           #{slateRank}
                         </span>
                       ) : null
@@ -626,7 +626,7 @@ export function DriverDetailPanel() {
                     onToggle={() => setLlmInsightExpanded((v) => !v)}
                     shellClassName="mb-2 border-b border-[var(--glass-border)] bg-gradient-to-b from-indigo-500/[0.04] to-transparent pb-3"
                     buttonHoverClassName="hover:bg-indigo-500/[0.07]"
-                    chevronClassName="text-indigo-300"
+                    chevronClassName="text-indigo-700 dark:text-indigo-300"
                   >
                     <div className="pt-2">
                       <div className="rounded-xl border border-indigo-500/20 bg-indigo-500/[0.04] p-3">

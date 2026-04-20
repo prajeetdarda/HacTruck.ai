@@ -66,14 +66,14 @@ export function Toast() {
                       initial={{ opacity: 0, x: 6 }}
                       animate={{ opacity: 1, x: 0 }}
                       transition={{ delay: 0.08 }}
-                      className="rounded-md bg-green-500/15 px-2 py-0.5 text-xs font-semibold tabular-nums text-green-300"
+                      className="rounded-md bg-green-500/15 px-2 py-0.5 text-xs font-semibold tabular-nums text-green-700 dark:text-green-300"
                     >
                       Assigned
                     </motion.span>
                   )}
                 </div>
                 {toast.sub && (
-                  <p className="mt-0.5 text-sm text-slate-400">{toast.sub}</p>
+                  <p className="mt-0.5 text-sm text-slate-600 dark:text-slate-400">{toast.sub}</p>
                 )}
                 {summary ? (
                   <motion.div
@@ -85,15 +85,15 @@ export function Toast() {
                     <div>
                       <p className="text-[10px] font-semibold uppercase tracking-wide text-slate-500">Load</p>
                       <p className="mt-0.5 font-medium text-[var(--foreground)]">{summary.loadId}</p>
-                      <p className="text-slate-400">{summary.loadRoute}</p>
+                      <p className="text-slate-600 dark:text-slate-400">{summary.loadRoute}</p>
                       <p className="mt-1 text-xs text-slate-500">{formatEquipment(summary.loadEquipment)}</p>
                     </div>
                     <div>
                       <p className="text-[10px] font-semibold uppercase tracking-wide text-slate-500">Driver</p>
                       <p className="mt-0.5 font-medium text-[var(--foreground)]">{summary.driverName}</p>
-                      <p className="text-slate-400">{summary.truckLabel}</p>
+                      <p className="text-slate-600 dark:text-slate-400">{summary.truckLabel}</p>
                       {summary.matchPercent != null ? (
-                        <p className="mt-1 text-xs font-medium text-green-400">
+                        <p className="mt-1 text-xs font-medium text-green-700 dark:text-green-400">
                           {summary.matchPercent}% match for this load
                         </p>
                       ) : null}
@@ -107,10 +107,10 @@ export function Toast() {
                   <button
                     type="button"
                     onClick={undo}
-                    className="rounded-lg border border-amber-500/35 bg-amber-500/10 px-3 py-2 text-sm font-semibold text-amber-300 transition-colors hover:bg-amber-500/20"
+                    className="rounded-lg border border-amber-500/35 bg-amber-500/10 px-3 py-2 text-sm font-semibold text-amber-700 dark:text-amber-300 transition-colors hover:bg-amber-500/20"
                   >
                     Undo
-                    <span className="ml-1.5 tabular-nums text-amber-400/80">{secondsLeft}s</span>
+                    <span className="ml-1.5 tabular-nums text-amber-600 dark:text-amber-400/80">{secondsLeft}s</span>
                   </button>
                 )}
                 <button
