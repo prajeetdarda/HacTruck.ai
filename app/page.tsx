@@ -27,27 +27,29 @@ export default async function Home() {
 
   return (
     <DispatchProvider>
-      <>
-        <div className="grid h-screen min-h-0 grid-rows-[auto_minmax(0,1fr)_auto] overflow-hidden bg-[var(--surface-0)] text-[var(--foreground)]">
+      <FleetHoverProvider>
+        {/* Full-viewport container — map fills 100%, everything else floats */}
+        <div className="relative h-screen w-screen overflow-hidden bg-[var(--surface-0)]">
+          {/* Map takes full viewport */}
+          <MatchLoadProvider>
+            <MapColumn
+              openWeatherApiKey={openWeatherApiKey}
+              openWeatherKeyWorks={openWeatherKeyWorks}
+              openWeatherMap2TilesWork={openWeatherMap2TilesWork}
+            />
+          </MatchLoadProvider>
+
+          {/* TopBar floats on top */}
           <TopBar />
-          <div className="flex min-h-0 min-w-0 flex-col overflow-hidden border-t border-[var(--border)]">
-            <div className="flex min-h-0 min-w-0 flex-1 overflow-hidden">
-              <FleetHoverProvider>
-                <LoadSidebar />
-                <MatchLoadProvider>
-                  <MapColumn
-                    openWeatherApiKey={openWeatherApiKey}
-                    openWeatherKeyWorks={openWeatherKeyWorks}
-                    openWeatherMap2TilesWork={openWeatherMap2TilesWork}
-                  />
-                </MatchLoadProvider>
-              </FleetHoverProvider>
-            </div>
-          </div>
+
+          {/* LoadSidebar floats on left */}
+          <LoadSidebar />
+
+          {/* Timeline floats on bottom */}
           <TimelineScrubber />
         </div>
         <Toast />
-      </>
+      </FleetHoverProvider>
     </DispatchProvider>
   );
 }

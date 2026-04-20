@@ -890,7 +890,7 @@ export function MapCanvasMapbox({
 
   return (
     <div
-      className="relative min-h-0 flex-1 overflow-hidden rounded-2xl border border-[var(--border)] bg-[var(--surface-1)] shadow-[inset_0_0_48px_rgba(0,0,0,0.06)] dark:shadow-[inset_0_0_60px_rgba(0,0,0,0.35)]"
+      className="absolute inset-0 overflow-hidden"
       style={{ zIndex: Z_MAP }}
     >
       <MapGL
@@ -915,7 +915,6 @@ export function MapCanvasMapbox({
         scrollZoom={{ around: "center" }}
       >
         <AttributionControl compact position="bottom-left" />
-        <NavigationControl position="top-right" showCompass={false} />
         {showWeatherOverlay && effectiveOwmKey && owmCloudTiles.length > 0 ? (
           <Source
             key={
@@ -1066,7 +1065,7 @@ export function MapCanvasMapbox({
             filter={["==", ["get", "part"], "completed"]}
             layout={{ "line-cap": "round", "line-join": "round" }}
             paint={{
-              "line-color": "#10b981",
+              "line-color": "#2dd4bf",
               "line-width": 6,
               "line-opacity": 0.95,
             }}
@@ -1091,11 +1090,11 @@ export function MapCanvasMapbox({
             latitude={driverTripViz.dest.lat}
             anchor="bottom"
           >
-            <div className="pointer-events-none max-w-[160px] rounded-lg border border-emerald-500/45 bg-white/95 px-2 py-1.5 text-left shadow-lg ring-1 ring-black/5 dark:bg-zinc-900/95 dark:ring-white/10">
-              <p className="text-[9px] font-bold uppercase tracking-wide text-emerald-700 dark:text-emerald-400">
+            <div className="pointer-events-none max-w-[160px] rounded-lg border border-teal-500/40 bg-[rgba(4,8,15,0.88)] px-2 py-1.5 text-left shadow-lg backdrop-blur-md" style={{ boxShadow: "0 0 18px rgba(45,212,191,0.15)" }}>
+              <p className="text-[9px] font-bold uppercase tracking-wide text-teal-400">
                 Drop ETA
               </p>
-              <p className="text-[12px] font-semibold tabular-nums text-zinc-900 dark:text-zinc-50">
+              <p className="text-[12px] font-semibold tabular-nums text-slate-100">
                 {formatDateTimeLocal(driverTripViz.etaMs)}
               </p>
             </div>
@@ -1294,7 +1293,7 @@ export function MapCanvasMapbox({
         )}
       </MapGL>
 
-      <div className="pointer-events-auto absolute right-2.5 top-[78px] z-30 flex flex-col items-end gap-1.5">
+      <div className="pointer-events-auto absolute right-2.5 top-[60px] z-30 flex flex-col items-end gap-1.5">
         <button
           type="button"
           disabled={!mapReady || geoLocating}
@@ -1319,15 +1318,7 @@ export function MapCanvasMapbox({
         ) : null}
       </div>
 
-      <div className="pointer-events-none absolute left-3 top-3 max-w-[min(100%,min(260px,calc(100vw-8rem)))] rounded-lg border border-black/10 bg-white/90 px-2.5 py-1 text-[10px] font-medium uppercase tracking-wider text-zinc-600 backdrop-blur-sm dark:border-white/[0.06] dark:bg-black/50 dark:text-zinc-500">
-        {selectedLoad
-          ? "Mapbox · Drag a top driver onto the pickup pin to assign"
-          : state.mapRingFilter
-            ? "Mapbox · Fleet ring browse — use arrows in the driver panel or tap trucks"
-            : "Mapbox · Tap trucks or load pins; trip alerts are on each truck’s detail"}
-      </div>
-
-      <div className="pointer-events-auto absolute bottom-12 left-2 z-20 flex max-w-[min(calc(100%-1rem),260px)] flex-col gap-2 rounded-xl border border-[var(--border)] bg-[var(--surface-2)]/95 p-2 text-[11px] text-zinc-800 shadow-lg backdrop-blur-md dark:text-zinc-200">
+      <div className="pointer-events-auto absolute bottom-[68px] right-2 z-20 flex max-w-[min(calc(100%-1rem),260px)] flex-col gap-2 rounded-xl border border-[var(--border)] bg-[var(--surface-2)]/95 p-2 text-[11px] text-zinc-800 shadow-lg backdrop-blur-md dark:text-zinc-200">
         <button
           type="button"
           id="map-controls-toggle"

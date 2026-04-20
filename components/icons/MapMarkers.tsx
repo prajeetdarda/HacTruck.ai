@@ -5,15 +5,15 @@ type RingStatus = Driver["ringStatus"];
 
 /** Ring status accent (badge, borders, SVG strokes). */
 export const RING_STATUS_COLOR: Record<RingStatus, string> = {
-  urgent: "#ef4444",
+  urgent: "#f87171",
   watch: "#f59e0b",
-  good: "#10b981",
-  inactive: "#9ca3af",
-  en_route: "#38bdf8",
-  available: "#10b981",
+  good: "#2dd4bf",
+  inactive: "#64748b",
+  en_route: "#22d3ee",
+  available: "#2dd4bf",
   constrained: "#ea580c",
-  off_duty: "#9ca3af",
-  unavailable: "#71717a",
+  off_duty: "#64748b",
+  unavailable: "#475569",
 };
 
 const RING_BADGE_BG = RING_STATUS_COLOR;
@@ -129,12 +129,12 @@ export function RingStatusNotificationBadge({
   size?: "md" | "sm";
 }) {
   const isSm = size === "sm";
-  const px = isSm ? 10 : 14;
-  const svgPx = isSm ? 5.5 : 8;
-  const border = isSm ? "1.5px solid #fff" : "2px solid #fff";
+  const px = isSm ? 15 : 14;
+  const svgPx = isSm ? 8.5 : 8;
+  const border = "2px solid #fff";
   return (
     <div
-      className={`pointer-events-none absolute z-[2] flex items-center justify-center rounded-full shadow-[0_1px_4px_rgba(0,0,0,0.34)] ${isSm ? "-right-0.5 -top-0.5" : "-right-1 -top-1"} ${className}`}
+      className={`pointer-events-none absolute z-[2] flex items-center justify-center rounded-full shadow-[0_1px_6px_rgba(0,0,0,0.45)] ${isSm ? "-right-1 -top-1" : "-right-1 -top-1"} ${className}`}
       style={{
         width: `${px}px`,
         height: `${px}px`,
@@ -185,7 +185,7 @@ export function TruckMarkerIcon({
       <img
         src={TRUCK_MARKER_IMAGE_SRC}
         alt=""
-        className="pointer-events-none h-full w-full shrink-0 select-none object-contain mix-blend-multiply bg-transparent"
+        className="pointer-events-none h-full w-full shrink-0 select-none object-contain bg-transparent"
         draggable={false}
       />
     </span>

@@ -28,8 +28,7 @@ export function ComparisonTray() {
       className="pointer-events-none absolute inset-x-4 flex justify-center"
       style={{
         zIndex: Z_TRAY,
-        /* Sit near the bottom of the map column (timeline is the row below). */
-        bottom: "max(0.5rem, env(safe-area-inset-bottom, 0px))",
+        bottom: "max(68px, calc(68px + env(safe-area-inset-bottom, 0px)))",
       }}
     >
       <AnimatePresence mode="wait">
@@ -52,7 +51,7 @@ function ComparisonTrayForLoad({
   selectedLoad: Load;
   result: MatchLoadResult;
 }) {
-  const { ranked, assign, driversBase } = useDispatchContext();
+  const { ranked, assign, driversBase, selectDriver } = useDispatchContext();
   const { hoveredDriverId, setHoveredDriverId } = useHover();
   const [open, setOpen] = useState(false);
 
@@ -74,12 +73,7 @@ function ComparisonTrayForLoad({
             rankedRow?.driver ??
             driversBase.find((d) => d.id === row.driverId);
           if (!driver) return null;
-          return {
-            rank,
-            driver,
-            rankedRow,
-            reasoning: row.reasoning,
-          };
+          return { rank, driver, rankedRow, reasoning: row.reasoning };
         })
         .filter(Boolean) as {
         rank: number;
@@ -98,14 +92,11 @@ function ComparisonTrayForLoad({
   }, [result, rankedById, ranked, driversBase]);
 
   const subtitle = (() => {
-    if (result.source === "llm")
-      return "Ranked by LLM (fleet, trips, vehicles, alerts)";
-    if (result.error)
-      return `Heuristic fallback — ${result.error}`;
-    return "Heuristic rank — add OPENAI_API_KEY for LLM reasoning";
+    if (result.source === "llm") return "Ranked by dispatch AI — fleet, trips, vehicles, alerts";
+    if (result.error) return `Heuristic fallback — ${result.error}`;
+    return "Heuristic rank — add OPENAI_API_KEY for AI reasoning";
   })();
 
-  /** Best value per metric across cards that have stats (lower is better for miles & CPM). */
   const bestMetrics = useMemo(() => {
     const samples = displayRows
       .map((row) => {
@@ -117,12 +108,7 @@ function ComparisonTrayForLoad({
           cpm: row.driver.costPerMile,
         };
       })
-      .filter(Boolean) as {
-      miles: number;
-      hos: number;
-      lane: number;
-      cpm: number;
-    }[];
+      .filter(Boolean) as { miles: number; hos: number; lane: number; cpm: number }[];
     if (samples.length < 2) return null;
     return {
       miles: Math.min(...samples.map((s) => s.miles)),
@@ -135,9 +121,7 @@ function ComparisonTrayForLoad({
   const metricValueClass = (isBest: boolean) =>
     clsx(
       "tabular-nums",
-      isBest
-        ? "font-semibold text-emerald-600 dark:text-emerald-400"
-        : "text-zinc-800 dark:text-zinc-300",
+      isBest ? "font-bold text-green-400" : "text-slate-300",
     );
 
   return (
@@ -146,28 +130,30 @@ function ComparisonTrayForLoad({
       animate={{ y: 0, opacity: 1 }}
       exit={{ y: 16, opacity: 0 }}
       transition={{ type: "spring", damping: 28, stiffness: 280 }}
-      className="pointer-events-auto flex w-full max-w-md flex-col items-center gap-2"
+      className="pointer-events-auto flex w-full max-w-3xl flex-col items-center gap-2"
     >
+      {/* Toggle button */}
       <button
         type="button"
         onClick={() => setOpen((o) => !o)}
-        className="flex w-full max-w-sm items-center justify-between gap-3 rounded-xl border border-[var(--border)] bg-[var(--surface-2)]/95 px-3 py-2.5 text-left shadow-lg shadow-black/10 outline-none transition-colors hover:bg-[var(--surface-2)] focus-visible:ring-2 focus-visible:ring-[var(--ring-focus)] backdrop-blur-md dark:shadow-black/30"
+        className="glass-panel relative flex w-full max-w-2xl items-center justify-between gap-3 rounded-xl px-4 py-2.5 text-left outline-none transition-all hover:border-amber-500/25 focus-visible:ring-2 focus-visible:ring-[var(--ring-focus)]"
         aria-expanded={open}
         aria-controls="comparison-tray-panel"
       >
-        <span className="min-w-0 flex-1">
-          <span className="block text-[10px] font-semibold uppercase tracking-[0.2em] text-[var(--muted)]">
+        {/* Left amber accent strip */}
+        <div className="absolute left-0 top-1/2 h-8 w-[3px] -translate-y-1/2 rounded-full bg-gradient-to-b from-amber-400 to-orange-500 opacity-80" />
+        <span className="min-w-0 flex-1 pl-2">
+          <span className="block text-[10px] font-semibold uppercase tracking-[0.2em] text-amber-400/80">
             Top matches
           </span>
-          <span className="mt-0.5 block truncate text-sm text-zinc-800 dark:text-zinc-300">
-            {selectedLoad.id} · {selectedLoad.origin} →{" "}
-            {selectedLoad.destination}
+          <span className="mt-0.5 block truncate text-sm text-slate-200">
+            {selectedLoad.id} · {selectedLoad.origin} → {selectedLoad.destination}
           </span>
-          <span className="mt-0.5 block text-[10px] leading-snug text-zinc-500 dark:text-zinc-500">
+          <span className="mt-0.5 block text-[10px] leading-snug text-slate-500">
             {subtitle}
           </span>
         </span>
-        <span className="shrink-0 rounded-lg bg-zinc-200/90 px-2 py-1 text-xs font-medium text-zinc-800 dark:bg-zinc-800/90 dark:text-zinc-300">
+        <span className="shrink-0 rounded-lg border border-[var(--glass-border)] bg-[var(--surface-2)] px-2 py-1 text-xs font-medium text-slate-300">
           {open ? "Hide" : "Show"}
         </span>
       </button>
@@ -180,10 +166,10 @@ function ComparisonTrayForLoad({
             animate={{ height: "auto", opacity: 1 }}
             exit={{ height: 0, opacity: 0 }}
             transition={{ duration: 0.22, ease: "easeOut" }}
-            className="w-full max-w-2xl overflow-hidden"
+            className="w-full overflow-hidden"
           >
-            <div className="max-h-[min(52vh,380px)] overflow-y-auto rounded-2xl border border-[var(--border)] bg-[var(--surface-2)]/95 p-3 shadow-[0_-12px_48px_rgba(0,0,0,0.12)] backdrop-blur-md sm:p-4 dark:shadow-[0_-12px_48px_rgba(0,0,0,0.45)]">
-              <div className="grid grid-cols-1 gap-2 sm:grid-cols-3 sm:gap-3">
+            <div className="glass-panel max-h-[min(52vh,400px)] overflow-y-auto rounded-2xl p-3 shadow-[0_-12px_48px_rgba(0,0,0,0.65)] sm:p-4">
+              <div className="grid grid-cols-1 gap-2.5 sm:grid-cols-3 sm:gap-3">
                 {displayRows.map((row) => {
                   const r = row.rankedRow;
                   const isHover = hoveredDriverId === row.driver.id;
@@ -191,122 +177,117 @@ function ComparisonTrayForLoad({
                     r?.matchPercent ??
                     Math.min(99, 50 + row.driver.laneFamiliarity * 0.35);
                   return (
-                    <motion.button
-                      type="button"
+                    <motion.div
                       key={row.driver.id}
                       layout
+                      role="article"
                       onMouseEnter={() => setHoveredDriverId(row.driver.id)}
                       onMouseLeave={() => setHoveredDriverId(null)}
-                      onClick={() =>
-                        assign(selectedLoad.id, row.driver.id, row.driver.name, {
-                          matchPercent: matchPct,
-                        })
-                      }
+                      onClick={() => selectDriver(row.driver.id)}
                       className={clsx(
-                        "rounded-xl border p-3 text-left outline-none transition-colors focus-visible:ring-2 focus-visible:ring-[var(--ring-focus)]",
+                        "group relative cursor-pointer rounded-xl border p-3 transition-all duration-200",
                         row.rank === 1 &&
-                          "border-sky-500/45 bg-sky-500/[0.08] shadow-[0_0_24px_rgba(56,189,248,0.1)]",
+                          "border-amber-500/40 bg-amber-500/[0.08] shadow-[0_0_20px_rgba(245,158,11,0.12)]",
                         row.rank !== 1 &&
-                          "border-[var(--border)] bg-[var(--surface-1)]/90",
-                        isHover && "border-sky-400/70 bg-sky-500/10",
+                          "border-[var(--glass-border)] bg-[var(--surface-1)]/80",
+                        isHover && "border-amber-400/50 bg-amber-500/[0.10]",
                       )}
                     >
+                      {/* Match % bar across top */}
+                      <div className="mb-2.5 h-1 w-full overflow-hidden rounded-full bg-white/[0.06]">
+                        <div
+                          className={clsx(
+                            "h-full rounded-full",
+                            row.rank === 1 ? "bg-amber-400" : "bg-green-500/70",
+                          )}
+                          style={{ width: `${Math.round(matchPct)}%` }}
+                        />
+                      </div>
+
                       <div className="flex items-center gap-2">
                         <span
                           className={clsx(
                             "flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-xs font-bold",
                             row.rank === 1
-                              ? "bg-sky-500 text-white"
-                              : "bg-zinc-200 text-zinc-700 dark:bg-zinc-800 dark:text-zinc-400",
+                              ? "bg-gradient-to-br from-amber-400 to-orange-500 text-white shadow-[0_0_10px_rgba(245,158,11,0.5)]"
+                              : "bg-[var(--surface-2)] text-slate-400 ring-1 ring-[var(--glass-border)]",
                           )}
                         >
                           #{row.rank}
                         </span>
                         <div className="min-w-0 flex-1">
-                          <p className="truncate font-medium text-[var(--foreground)]">
+                          <p className="truncate font-semibold text-[var(--foreground)]">
                             {row.driver.name}
                           </p>
-                          <p className="text-[11px] tabular-nums text-emerald-400/90">
+                          <p className={clsx("text-[12px] font-bold tabular-nums", row.rank === 1 ? "text-amber-400" : "text-green-400")}>
                             {Math.round(matchPct)}% match
                           </p>
                         </div>
                       </div>
                       {r ? (
-                        <dl className="mt-2 space-y-1 text-[11px] text-zinc-600 dark:text-zinc-500">
+                        <dl className="mt-2.5 space-y-1 text-[11px] text-slate-500">
                           <div className="flex justify-between gap-2">
                             <dt>Miles to pickup</dt>
-                            <dd
-                              className={metricValueClass(
-                                bestMetrics != null &&
-                                  Math.abs(
-                                    r.features.distanceToPickupMiles -
-                                      bestMetrics.miles,
-                                  ) < 1e-6,
-                              )}
-                            >
+                            <dd className={metricValueClass(
+                              bestMetrics != null &&
+                                Math.abs(r.features.distanceToPickupMiles - bestMetrics.miles) < 1e-6,
+                            )}>
                               {Math.round(r.features.distanceToPickupMiles)}
                             </dd>
                           </div>
                           <div className="flex justify-between gap-2">
                             <dt>HOS left</dt>
-                            <dd
-                              className={metricValueClass(
-                                bestMetrics != null &&
-                                  Math.abs(
-                                    row.driver.hosRemainingHours -
-                                      bestMetrics.hos,
-                                  ) < 1e-6,
-                              )}
-                            >
+                            <dd className={metricValueClass(
+                              bestMetrics != null &&
+                                Math.abs(row.driver.hosRemainingHours - bestMetrics.hos) < 1e-6,
+                            )}>
                               {row.driver.hosRemainingHours.toFixed(1)}h
                             </dd>
                           </div>
                           <div className="flex justify-between gap-2">
                             <dt>Lane history</dt>
-                            <dd
-                              className={metricValueClass(
-                                bestMetrics != null &&
-                                  row.driver.laneHistoryCount ===
-                                    bestMetrics.lane,
-                              )}
-                            >
+                            <dd className={metricValueClass(
+                              bestMetrics != null && row.driver.laneHistoryCount === bestMetrics.lane,
+                            )}>
                               {row.driver.laneHistoryCount}
                             </dd>
                           </div>
                           <div className="flex justify-between gap-2">
                             <dt>CPM</dt>
-                            <dd
-                              className={metricValueClass(
-                                bestMetrics != null &&
-                                  Math.abs(
-                                    row.driver.costPerMile - bestMetrics.cpm,
-                                  ) < 1e-6,
-                              )}
-                            >
+                            <dd className={metricValueClass(
+                              bestMetrics != null &&
+                                Math.abs(row.driver.costPerMile - bestMetrics.cpm) < 1e-6,
+                            )}>
                               {formatCpm(row.driver.costPerMile)}
                             </dd>
                           </div>
                         </dl>
                       ) : (
-                        <p className="mt-2 text-[11px] text-zinc-500">
-                          Stats unavailable for this driver in the current
-                          ranking set.
+                        <p className="mt-2 text-[11px] text-slate-500">
+                          Stats unavailable for this driver.
                         </p>
                       )}
-                      <p className="mt-2 border-t border-black/[0.06] pt-2 text-[11px] leading-snug text-sky-700 dark:border-white/[0.06] dark:text-sky-300/90">
+                      <p className="mt-2.5 border-t border-[var(--glass-border)] pt-2 text-[11px] leading-snug text-amber-300/70">
                         {row.reasoning}
                       </p>
-                      <span
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          assign(selectedLoad.id, row.driver.id, row.driver.name, {
+                            matchPercent: matchPct,
+                          });
+                        }}
                         className={clsx(
-                          "mt-3 block w-full rounded-lg py-2 text-center text-xs font-semibold transition-colors",
+                          "mt-3 block w-full rounded-lg py-2 text-center text-xs font-semibold transition-all outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring-focus)]",
                           row.rank === 1
-                            ? "bg-sky-500 text-white hover:bg-sky-400"
-                            : "bg-zinc-200 text-zinc-900 hover:bg-zinc-300 dark:bg-zinc-800 dark:text-zinc-200 dark:hover:bg-zinc-700",
+                            ? "bg-gradient-to-r from-amber-500 to-orange-500 text-white shadow-[0_0_14px_rgba(245,158,11,0.3)] hover:shadow-[0_0_20px_rgba(245,158,11,0.45)]"
+                            : "border border-[var(--glass-border)] bg-[var(--surface-2)] text-slate-300 hover:border-amber-500/30 hover:text-amber-300",
                         )}
                       >
                         Assign
-                      </span>
-                    </motion.button>
+                      </button>
+                    </motion.div>
                   );
                 })}
               </div>
