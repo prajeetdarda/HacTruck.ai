@@ -50,7 +50,7 @@ const MINUTE = 60 * 1000;
  * regardless of when it's opened; nothing ever becomes "overdue" just because
  * a visitor arrived a week later.
  */
-const DEMO_DAY_START_MS = Date.UTC(2026, 3, 21, 0, 0, 0, 0); // month is 0-indexed
+const DEMO_DAY_START_MS = Date.UTC(2026, 2, 19, 0, 0, 0, 0); // month is 0-indexed
 
 /**
  * Demo “now”: same calendar day, 18:00 UTC (~11:00 America/Phoenix).
