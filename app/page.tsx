@@ -595,78 +595,61 @@ export default function LandingPage() {
       </section>
 
       {/* ════ HACKATHON ════ */}
-      <section id="hackathon" className="relative py-28 lg:py-36">
+      <section id="hackathon" className="relative py-16 lg:py-20">
         <div className="max-w-[1100px] mx-auto px-6 lg:px-10">
-          <div className="lp-panel p-10 lg:p-16 relative overflow-hidden reveal" style={{ boxShadow: "var(--shadow)" }}>
+          <div className="lp-panel px-8 py-6 relative overflow-hidden reveal flex flex-wrap items-center gap-x-10 gap-y-5">
             <div
-              className="absolute -right-20 -top-20 w-[320px] h-[320px] rounded-full pointer-events-none"
+              className="absolute -right-10 -top-10 w-[180px] h-[180px] rounded-full pointer-events-none"
               style={{
-                background: "radial-gradient(closest-side, color-mix(in oklch, var(--accent) 30%, transparent), transparent 70%)",
-                filter: "blur(40px)",
+                background: "radial-gradient(closest-side, color-mix(in oklch, var(--accent) 25%, transparent), transparent 70%)",
+                filter: "blur(30px)",
               }}
             />
-            <div className="grid lg:grid-cols-[1.3fr_1fr] gap-12 items-center relative">
-              <div>
-                <div className="eyebrow">Hackathon</div>
-                <h2 className="display d-lg mt-3">
-                  Built at <span className="ochre">GlobeHack S1.</span>
-                </h2>
-                <p className="mt-5 text-[16px] ink-2 leading-snug max-w-[40ch]">
-                  Arizona&apos;s first GTM hackathon — 300+ ASU developers paired with business
-                  strategists. We competed in the{" "}
-                  <span style={{ color: "var(--fg)" }}>Trucker Path track</span>,
-                  judged on real dispatch needs.
-                </p>
 
-                <div className="mt-8 grid grid-cols-3 gap-5 max-w-xs">
-                  {[
-                    { label: "Format", value: "GTM Sprint"   },
-                    { label: "Track",  value: "Trucker Path" },
-                    { label: "Teams",  value: "30+"          },
-                  ].map((s) => (
-                    <div key={s.label}>
-                      <div className="eyebrow">{s.label}</div>
-                      <div className="mt-1 font-medium text-[15px]">{s.value}</div>
-                    </div>
-                  ))}
-                </div>
+            {/* mini badge */}
+            <svg viewBox="0 0 120 120" className="w-[72px] h-[72px] shrink-0 relative">
+              <circle cx="60" cy="60" r="54" fill="none" stroke="var(--line-2)" />
+              <circle cx="60" cy="60" r="46" fill="none" stroke="var(--accent)" strokeOpacity="0.5" />
+              <polygon points="60,18 96,39 96,81 60,102 24,81 24,39" fill="var(--panel-2)" stroke="var(--accent)" strokeWidth="1.2" />
+              <circle cx="60" cy="60" r="40" fill="none" stroke="var(--line-2)" strokeDasharray="1.5 5">
+                <animateTransform attributeName="transform" type="rotate" from="0 60 60" to="360 60 60" dur="60s" repeatCount="indefinite" />
+              </circle>
+              <path d="M 42 60 L 52 60 L 52 50 L 66 50" stroke="var(--accent)" strokeWidth="1.5" fill="none" strokeLinecap="round" />
+              <circle cx="66" cy="50" r="2.5" fill="var(--accent)" />
+              <circle cx="42" cy="60" r="2.5" fill="var(--fg)" />
+            </svg>
 
-                <a href="https://www.globehack.dev/" target="_blank" rel="noopener noreferrer"
-                   className="mt-7 inline-flex items-center gap-1.5 text-[13px] ink-3 hover:text-[color:var(--accent)] transition-colors">
-                  globehack.dev →
-                </a>
+            {/* title */}
+            <div className="relative shrink-0">
+              <div className="eyebrow mb-1">Hackathon</div>
+              <div className="font-semibold text-[18px] tracking-tight leading-tight">
+                Built at <span className="ochre">GlobeHack S1</span>
               </div>
-
-              {/* badge */}
-              <div className="relative aspect-square max-w-[340px] mx-auto">
-                <svg viewBox="0 0 400 400" className="w-full h-full">
-                  <circle cx="200" cy="200" r="180" fill="none" stroke="var(--line-2)" />
-                  <circle cx="200" cy="200" r="160" fill="none" stroke="var(--accent)" strokeOpacity="0.6" />
-                  <circle cx="200" cy="200" r="130" fill="none" stroke="var(--line-2)" strokeDasharray="2 6">
-                    <animateTransform attributeName="transform" type="rotate" from="0 200 200" to="360 200 200" dur="60s" repeatCount="indefinite" />
-                  </circle>
-                  <polygon points="200,80 300,138 300,262 200,320 100,262 100,138" fill="var(--panel-2)" stroke="var(--accent)" strokeWidth="1.5" />
-                  <defs>
-                    <path id="lp-arcTop" d="M 60 200 A 140 140 0 0 1 340 200" fill="none" />
-                    <path id="lp-arcBot" d="M 60 200 A 140 140 0 0 0 340 200" fill="none" />
-                  </defs>
-                  <text fontFamily="JetBrains Mono" fontSize="12" letterSpacing="4" fill="var(--fg-3)">
-                    <textPath href="#lp-arcTop" startOffset="50%" textAnchor="middle">ASU · GLOBEHACK S1 · 2026</textPath>
-                  </text>
-                  <text fontFamily="JetBrains Mono" fontSize="12" letterSpacing="4" fill="var(--fg-3)">
-                    <textPath href="#lp-arcBot" startOffset="50%" textAnchor="middle">TRUCKER PATH TRACK</textPath>
-                  </text>
-                  <g transform="translate(200,200)">
-                    <path d="M -36 0 L -8 0 L -8 -18 L 22 -18" stroke="var(--accent)" strokeWidth="2" fill="none" strokeLinecap="round" />
-                    <circle cx="22" cy="-18" r="4" fill="var(--accent)" />
-                    <circle cx="-36" cy="0" r="4" fill="var(--fg)" />
-                    <text y="28" textAnchor="middle" fontFamily="Space Grotesk" fontWeight="600" fontSize="24" fill="var(--fg)" letterSpacing="-0.5">
-                      HacTruck
-                    </text>
-                  </g>
-                </svg>
-              </div>
+              <div className="text-[13px] ink-3 mt-0.5">ASU · 2026 · Trucker Path track</div>
             </div>
+
+            {/* divider */}
+            <div className="hidden lg:block w-px h-10 self-center" style={{ background: "var(--line-2)" }} />
+
+            {/* stats inline */}
+            <div className="flex gap-8 relative">
+              {[
+                { label: "Format", value: "GTM Sprint"   },
+                { label: "Track",  value: "Trucker Path" },
+                { label: "Teams",  value: "30+"          },
+              ].map((s) => (
+                <div key={s.label}>
+                  <div className="eyebrow">{s.label}</div>
+                  <div className="mt-0.5 font-medium text-[14px]">{s.value}</div>
+                </div>
+              ))}
+            </div>
+
+            {/* link — pushed right */}
+            <a href="https://www.globehack.dev/" target="_blank" rel="noopener noreferrer"
+               className="ml-auto relative mono text-[11px] ink-3 hover:text-[color:var(--accent)] transition-colors tracking-wide shrink-0">
+              globehack.dev →
+            </a>
           </div>
         </div>
       </section>
