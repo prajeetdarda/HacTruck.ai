@@ -44,13 +44,13 @@ export const TERMINAL = {
 const HOUR = 60 * 60 * 1000;
 const MINUTE = 60 * 1000;
 
-function utcStartOfTodayMs(): number {
-  const n = new Date();
-  return Date.UTC(n.getUTCFullYear(), n.getUTCMonth(), n.getUTCDate(), 0, 0, 0, 0);
-}
-
-/** Midnight UTC for the current calendar day — trip pings and alerts sit on this day. */
-const DEMO_DAY_START_MS = utcStartOfTodayMs();
+/**
+ * Fixed demo anchor — 2026-04-21 (Monday, hackathon day).
+ * Keeping this static means the demo always shows the same dispatch scenario
+ * regardless of when it's opened; nothing ever becomes "overdue" just because
+ * a visitor arrived a week later.
+ */
+const DEMO_DAY_START_MS = Date.UTC(2026, 3, 21, 0, 0, 0, 0); // month is 0-indexed
 
 /**
  * Demo “now”: same calendar day, 18:00 UTC (~11:00 America/Phoenix).

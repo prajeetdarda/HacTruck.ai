@@ -611,19 +611,18 @@ export default function LandingPage() {
                 <h2 className="display d-lg mt-3">
                   Built at <span className="ochre">GlobeHack S1.</span>
                 </h2>
-                <p className="mt-6 text-[17px] ink-2 leading-snug max-w-[46ch]">
-                  Arizona&apos;s first Go-To-Market hackathon — pairing 300+ ASU developers with
-                  business strategists to build products that don&apos;t just work, they scale.
-                  We competed in the <span style={{ color: "var(--fg)" }}>Trucker Path track</span>,
-                  judged on real dispatch needs: technical execution, workflow relevance,
-                  business viability, and pitch clarity.
+                <p className="mt-5 text-[16px] ink-2 leading-snug max-w-[40ch]">
+                  Arizona&apos;s first GTM hackathon — 300+ ASU developers paired with business
+                  strategists. We competed in the{" "}
+                  <span style={{ color: "var(--fg)" }}>Trucker Path track</span>,
+                  judged on real dispatch needs.
                 </p>
 
-                <div className="mt-10 grid grid-cols-3 gap-6 max-w-md">
+                <div className="mt-8 grid grid-cols-3 gap-5 max-w-xs">
                   {[
-                    { label: "Format",  value: "GTM Sprint"    },
-                    { label: "Track",   value: "Trucker Path"  },
-                    { label: "Teams",   value: "30+ competing" },
+                    { label: "Format", value: "GTM Sprint"   },
+                    { label: "Track",  value: "Trucker Path" },
+                    { label: "Teams",  value: "30+"          },
                   ].map((s) => (
                     <div key={s.label}>
                       <div className="eyebrow">{s.label}</div>
@@ -632,11 +631,10 @@ export default function LandingPage() {
                   ))}
                 </div>
 
-                <p className="mt-8 text-[14px] ink-3 leading-snug max-w-[44ch]">
-                  GlobeHack pairs engineers with business strategists and real enterprise sponsors —
-                  partners don&apos;t just judge, they bring live technical problems for teams to solve.
-                  &rarr; <a href="https://www.globehack.dev/" target="_blank" rel="noopener noreferrer" className="ochre hover:underline">globehack.dev</a>
-                </p>
+                <a href="https://www.globehack.dev/" target="_blank" rel="noopener noreferrer"
+                   className="mt-7 inline-flex items-center gap-1.5 text-[13px] ink-3 hover:text-[color:var(--accent)] transition-colors">
+                  globehack.dev →
+                </a>
               </div>
 
               {/* badge */}
