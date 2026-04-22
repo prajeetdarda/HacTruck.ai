@@ -154,17 +154,17 @@ export function TopBar() {
           </span>
         </motion.div>
         <div className="hidden h-5 w-px shrink-0 bg-[var(--glass-border)] sm:block" />
-        <div className="min-w-0">
-          <h1 className="max-w-[140px] truncate text-sm font-bold tracking-tight text-[var(--foreground)] sm:max-w-none sm:text-base">
+        <a href="/" className="group min-w-0" title="Back to landing page">
+          <h1 className="max-w-[140px] truncate text-sm font-bold tracking-tight text-[var(--foreground)] group-hover:text-amber-600 dark:group-hover:text-amber-400 transition-colors sm:max-w-none sm:text-base">
             {FLEET_NAME}
           </h1>
           <p
-            className="mt-0.5 hidden max-w-[min(280px,40vw)] truncate text-[10px] text-slate-500 sm:block"
+            className="mt-0.5 hidden max-w-[min(280px,40vw)] truncate text-[10px] text-slate-500 group-hover:text-slate-400 transition-colors sm:block"
             title={TERMINAL.name}
           >
             {TERMINAL.name}
           </p>
-        </div>
+        </a>
       </div>
 
       {/* Fleet status strip */}
